@@ -921,12 +921,12 @@
         .balance-container {
           max-width: 98%;
         }
-        
+
         .strategy-selector {
           flex-direction: column;
           align-items: center;
         }
-        
+
         .strategy-btn {
           margin: 5px 0;
           width: 100%;
@@ -2074,8 +2074,15 @@
         </div>
         <div class="modal-body">
           <div class="strategy-selector">
-            <button class="strategy-btn active" onclick="switchStrategy('self')">💰 Self-Financed</button>
-            <button class="strategy-btn" onclick="switchStrategy('financed')">🏦 Bank-Financed</button>
+            <button
+              class="strategy-btn active"
+              onclick="switchStrategy('self')"
+            >
+              💰 Self-Financed
+            </button>
+            <button class="strategy-btn" onclick="switchStrategy('financed')">
+              🏦 Bank-Financed
+            </button>
           </div>
           <div class="modal-tabs">
             <button class="modal-tab active" onclick="showModalTab('pl')">
@@ -2094,7 +2101,11 @@
                   <tbody id="selfPLBody"></tbody>
                 </table>
               </div>
-              <div id="financedPLSection" class="pl-section" style="display: none;">
+              <div
+                id="financedPLSection"
+                class="pl-section"
+                style="display: none"
+              >
                 <h3>🏦 Bank-Financed Strategy</h3>
                 <table class="pl-table">
                   <tbody id="financedPLBody"></tbody>
@@ -2111,7 +2122,11 @@
                   <tbody id="selfBalanceBody"></tbody>
                 </table>
               </div>
-              <div id="financedBalanceSection" class="balance-section" style="display: none;">
+              <div
+                id="financedBalanceSection"
+                class="balance-section"
+                style="display: none"
+              >
                 <h3>🏦 Bank-Financed Strategy</h3>
                 <table class="balance-table">
                   <tbody id="financedBalanceBody"></tbody>
@@ -4068,8 +4083,11 @@
         // Hide all strategy sections
         const selfPLSection = document.getElementById("selfPLSection");
         const financedPLSection = document.getElementById("financedPLSection");
-        const selfBalanceSection = document.getElementById("selfBalanceSection");
-        const financedBalanceSection = document.getElementById("financedBalanceSection");
+        const selfBalanceSection =
+          document.getElementById("selfBalanceSection");
+        const financedBalanceSection = document.getElementById(
+          "financedBalanceSection"
+        );
 
         if (strategy === "self") {
           // Show self-financed sections
