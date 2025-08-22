@@ -766,58 +766,71 @@
 
       .strategy-selector {
         display: flex;
-        margin-bottom: 15px;
-        border-bottom: 2px solid #eee;
+        margin-bottom: 12px;
         justify-content: center;
+        gap: 6px;
+        padding: 8px;
+        background: #f8f9fa;
+        border-radius: 8px;
+        border: 1px solid #e9ecef;
       }
 
       .strategy-btn {
-        padding: 10px 20px;
+        padding: 8px 16px;
         cursor: pointer;
-        border: none;
-        background: none;
-        font-size: 13px;
+        border: 1px solid #dee2e6;
+        background: white;
+        font-size: 12px;
         font-weight: 600;
         color: #666;
-        border-bottom: 3px solid transparent;
-        transition: all 0.3s ease;
-        margin: 0 10px;
+        border-radius: 6px;
+        transition: all 0.2s ease;
+        position: relative;
       }
 
       .strategy-btn.active {
-        color: #667eea;
-        border-bottom-color: #667eea;
+        color: white;
+        background: #667eea;
+        border-color: #667eea;
       }
 
       .strategy-btn:hover {
-        background: rgba(102, 126, 234, 0.1);
+        background: #f8f9fa;
+        border-color: #667eea;
       }
 
       .modal-tabs {
         display: flex;
-        margin-bottom: 15px;
-        border-bottom: 2px solid #eee;
+        margin-bottom: 12px;
+        justify-content: center;
+        gap: 4px;
+        padding: 6px;
+        background: #f8f9fa;
+        border-radius: 6px;
+        border: 1px solid #e9ecef;
       }
 
       .modal-tab {
-        padding: 8px 16px;
+        padding: 6px 12px;
         cursor: pointer;
-        border: none;
-        background: none;
-        font-size: 12px;
+        border: 1px solid #dee2e6;
+        background: white;
+        font-size: 11px;
         font-weight: 600;
         color: #666;
-        border-bottom: 3px solid transparent;
-        transition: all 0.3s ease;
+        border-radius: 4px;
+        transition: all 0.2s ease;
       }
 
       .modal-tab.active {
-        color: #667eea;
-        border-bottom-color: #667eea;
+        color: white;
+        background: #667eea;
+        border-color: #667eea;
       }
 
       .modal-tab:hover {
-        background: rgba(102, 126, 234, 0.1);
+        background: #f8f9fa;
+        border-color: #667eea;
       }
 
       .modal-tab-content {
@@ -843,6 +856,19 @@
         border-left: 4px solid #667eea;
         max-width: 100%;
         margin: 0 auto;
+        transition: all 0.3s ease;
+        animation: fadeInUp 0.4s ease-out;
+      }
+
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
       }
 
       .pl-section h3,
@@ -923,14 +949,29 @@
         }
 
         .strategy-selector {
-          flex-direction: column;
-          align-items: center;
+          flex-direction: row;
+          gap: 4px;
+          padding: 6px;
         }
 
         .strategy-btn {
-          margin: 5px 0;
-          width: 100%;
+          flex: 1;
           text-align: center;
+          padding: 6px 8px;
+          font-size: 11px;
+        }
+
+        .modal-tabs {
+          flex-direction: row;
+          gap: 2px;
+          padding: 4px;
+        }
+
+        .modal-tab {
+          flex: 1;
+          text-align: center;
+          padding: 6px 4px;
+          font-size: 9px;
         }
 
         .modal-tabs {
@@ -2086,10 +2127,10 @@
           </div>
           <div class="modal-tabs">
             <button class="modal-tab active" onclick="showModalTab('pl')">
-              Profit & Loss
+              📊 P&L
             </button>
             <button class="modal-tab" onclick="showModalTab('balance')">
-              Balance Sheet
+              ⚖️ Balance Sheet
             </button>
           </div>
 
@@ -2471,8 +2512,16 @@
             params
           );
 
-          const selfCumulativeDepreciation = calcCumulativeDepreciation(year, selfCohorts, params);
-          const financedCumulativeDepreciation = calcCumulativeDepreciation(year, financedCohorts, params);
+          const selfCumulativeDepreciation = calcCumulativeDepreciation(
+            year,
+            selfCohorts,
+            params
+          );
+          const financedCumulativeDepreciation = calcCumulativeDepreciation(
+            year,
+            financedCohorts,
+            params
+          );
 
           const selfNetWorth = selfAssetValue;
           const financedNetWorth = financedAssetValue - totalLoanBalance;
@@ -2653,7 +2702,8 @@
           const buildingValuePerUnit = c.costPerUnit * (1 - params.landPercent);
           const maxDepreciationYears = Math.min(yearsOwned, 27.5);
           if (maxDepreciationYears > 0) {
-            cumulativeDepreciation += (buildingValuePerUnit / 27.5) * maxDepreciationYears * c.units;
+            cumulativeDepreciation +=
+              (buildingValuePerUnit / 27.5) * maxDepreciationYears * c.units;
           }
         });
         return cumulativeDepreciation;
@@ -4107,19 +4157,44 @@
           "financedBalanceSection"
         );
 
-        if (strategy === "self") {
-          // Show self-financed sections
-          selfPLSection.style.display = "block";
-          financedPLSection.style.display = "none";
-          selfBalanceSection.style.display = "block";
-          financedBalanceSection.style.display = "none";
-        } else {
-          // Show bank-financed sections
-          selfPLSection.style.display = "none";
-          financedPLSection.style.display = "block";
-          selfBalanceSection.style.display = "none";
-          financedBalanceSection.style.display = "block";
-        }
+        // Add fade out effect
+        const sections = [
+          selfPLSection,
+          financedPLSection,
+          selfBalanceSection,
+          financedBalanceSection,
+        ];
+        sections.forEach((section) => {
+          if (section.style.display !== "none") {
+            section.style.opacity = "0";
+            section.style.transform = "translateY(10px)";
+          }
+        });
+
+        // Switch content after brief delay
+        setTimeout(() => {
+          if (strategy === "self") {
+            // Show self-financed sections
+            selfPLSection.style.display = "block";
+            financedPLSection.style.display = "none";
+            selfBalanceSection.style.display = "block";
+            financedBalanceSection.style.display = "none";
+          } else {
+            // Show bank-financed sections
+            selfPLSection.style.display = "none";
+            financedPLSection.style.display = "block";
+            selfBalanceSection.style.display = "none";
+            financedBalanceSection.style.display = "block";
+          }
+
+          // Add fade in effect
+          sections.forEach((section) => {
+            if (section.style.display !== "none") {
+              section.style.opacity = "1";
+              section.style.transform = "translateY(0)";
+            }
+          });
+        }, 150);
       }
 
       function populateModalData(year, index) {
