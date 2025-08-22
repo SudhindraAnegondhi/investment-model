@@ -1,0 +1,3625 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Advanced Rental Property Investment Model</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          Oxygen, Ubuntu, Cantarell, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        padding: 20px;
+        font-size: 14px;
+        line-height: 1.6;
+      }
+
+      .container {
+        max-width: 1400px;
+        margin: 0 auto;
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 12px;
+        padding: 20px;
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+      }
+
+      h1 {
+        text-align: center;
+        color: #333;
+        margin-bottom: 20px;
+        font-size: 2em;
+        background: linear-gradient(45deg, #667eea, #764ba2);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+
+      h2 {
+        font-size: 1.3em;
+        margin: 15px 0 10px 0;
+        color: #333;
+      }
+
+      .tabs {
+        display: flex;
+        margin-bottom: 15px;
+        border-bottom: 2px solid #eee;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      .tab {
+        padding: 10px 18px;
+        cursor: pointer;
+        border: none;
+        background: none;
+        font-size: 13px;
+        font-weight: 600;
+        color: #666;
+        border-bottom: 3px solid transparent;
+        transition: all 0.3s ease;
+        white-space: nowrap;
+        flex-shrink: 0;
+        min-width: 120px;
+      }
+
+      .tab.active {
+        color: #667eea;
+        border-bottom-color: #667eea;
+      }
+
+      .tab:hover {
+        background: rgba(102, 126, 234, 0.1);
+      }
+
+      .tab-content {
+        display: none;
+      }
+
+      .tab-content.active {
+        display: block;
+      }
+
+      .input-container {
+        display: flex;
+        flex-direction: column;
+        height: calc(100vh - 220px);
+        max-height: 600px;
+      }
+
+      .controls-wrapper {
+        flex: 1;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+        padding-right: 8px;
+      }
+
+      .controls {
+        background: #f8f9fa;
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 0;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 12px;
+      }
+
+      .calculate-btn-container {
+        flex-shrink: 0;
+        padding: 15px;
+        background: rgba(248, 249, 250, 0.95);
+        border-radius: 8px;
+        margin-top: 10px;
+        backdrop-filter: blur(10px);
+        border-top: 1px solid #eee;
+      }
+
+      .control-group {
+        display: flex;
+        flex-direction: column;
+      }
+
+      label {
+        font-weight: 600;
+        color: #555;
+        margin-bottom: 4px;
+        font-size: 12px;
+      }
+
+      input,
+      select {
+        padding: 8px;
+        border: 2px solid #ddd;
+        border-radius: 4px;
+        font-size: 12px;
+        transition: border-color 0.3s ease;
+        min-height: 44px;
+      }
+
+      input:focus,
+      select:focus {
+        outline: none;
+        border-color: #667eea;
+      }
+
+      .controls-wrapper::-webkit-scrollbar {
+        width: 6px;
+      }
+
+      .controls-wrapper::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 3px;
+      }
+
+      .controls-wrapper::-webkit-scrollbar-thumb {
+        background: #667eea;
+        border-radius: 3px;
+      }
+
+      .controls-wrapper::-webkit-scrollbar-thumb:hover {
+        background: #5a6fd8;
+      }
+
+      .calculate-btn {
+        width: 100%;
+        padding: 15px 25px;
+        background: linear-gradient(45deg, #667eea, #764ba2);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        min-height: 50px;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .calculate-btn::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(255, 255, 255, 0.2),
+          transparent
+        );
+        transition: left 0.5s;
+      }
+
+      .calculate-btn:hover {
+        transform: translateY(-3px) scale(1.02);
+        background-position: 100% 100%;
+        box-shadow: 0 12px 40px rgba(102, 126, 234, 0.4),
+          0 8px 24px rgba(118, 75, 162, 0.3),
+          inset 0 1px 0 rgba(255, 255, 255, 0.3);
+        animation: pulse 1.5s infinite;
+      }
+
+      @keyframes pulse {
+        0%,
+        100% {
+          transform: translateY(-3px) scale(1.02);
+        }
+        50% {
+          transform: translateY(-3px) scale(1.05);
+        }
+      }
+
+      .table-container {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        margin: 12px 0;
+        border-radius: 8px;
+        box-shadow: 0 3px 12px rgba(0, 0, 0, 0.06);
+      }
+
+      table {
+        width: 100%;
+        min-width: 800px;
+        border-collapse: collapse;
+        background: white;
+        font-size: 11px;
+      }
+
+      th,
+      td {
+        padding: 6px 4px;
+        text-align: right;
+        border-bottom: 1px solid #f0f0f0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      th {
+        background: linear-gradient(45deg, #667eea, #764ba2);
+        color: white;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 10px;
+        letter-spacing: 0.5px;
+        padding: 8px 4px;
+        word-wrap: break-word;
+        white-space: normal;
+        line-height: 1.1;
+        vertical-align: middle;
+        position: sticky;
+        top: 0;
+        z-index: 1;
+      }
+
+      th[colspan] {
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 1px;
+      }
+
+      th[colspan="4"] {
+        background: linear-gradient(45deg, #28a745, #20c997) !important;
+      }
+
+      th[colspan="6"],
+      th[colspan="5"] {
+        background: linear-gradient(45deg, #667eea, #764ba2) !important;
+      }
+
+      tbody tr:hover {
+        background: rgba(102, 126, 234, 0.03);
+      }
+
+      tbody tr:nth-child(even) {
+        background: rgba(248, 249, 250, 0.5);
+      }
+
+      .summary-cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 12px;
+        margin: 15px 0;
+      }
+
+      .card {
+        background: white;
+        padding: 15px;
+        border-radius: 10px;
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+        text-align: center;
+        border-top: 3px solid #667eea;
+      }
+
+      .card h3 {
+        margin: 0 0 8px 0;
+        color: #333;
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .card .value {
+        font-size: 1.4em;
+        font-weight: bold;
+        color: #667eea;
+        margin: 8px 0;
+      }
+
+      .summary-table-container {
+        display: none;
+        margin: 15px 0;
+        border-radius: 8px;
+        box-shadow: 0 3px 12px rgba(0, 0, 0, 0.06);
+        background: white;
+      }
+
+      .summary-table {
+        width: 100%;
+        border-collapse: collapse;
+        background: white;
+        font-size: 10px;
+      }
+
+      .summary-table th {
+        background: linear-gradient(45deg, #667eea, #764ba2);
+        color: white;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 9px;
+        letter-spacing: 0.3px;
+        padding: 8px 4px;
+        text-align: center;
+        position: sticky;
+        top: 0;
+        z-index: 1;
+        line-height: 1.1;
+      }
+
+      .summary-table td {
+        padding: 6px 4px;
+        border-bottom: 1px solid #f0f0f0;
+        text-align: left;
+        font-size: 9px;
+        line-height: 1.2;
+      }
+
+      .summary-table td:nth-child(1) {
+        font-weight: 600;
+        color: #333;
+        width: 45%;
+      }
+
+      .summary-table td:nth-child(2),
+      .summary-table td:nth-child(3) {
+        text-align: right;
+        font-weight: 600;
+        color: #667eea;
+        width: 27.5%;
+        font-size: 8px;
+      }
+
+      .summary-table tbody tr:hover {
+        background: rgba(102, 126, 234, 0.03);
+      }
+
+      .summary-table tbody tr:nth-child(even) {
+        background: rgba(248, 249, 250, 0.5);
+      }
+
+      .positive {
+        color: #28a745;
+      }
+      .negative {
+        color: #dc3545;
+      }
+
+      .download-btn {
+        display: inline-block;
+        padding: 8px 16px;
+        background: #28a745;
+        color: white;
+        text-decoration: none;
+        border-radius: 4px;
+        margin: 8px 4px;
+        font-weight: 600;
+        font-size: 12px;
+        transition: all 0.3s ease;
+        min-height: 44px;
+        line-height: 28px;
+      }
+
+      .download-btn:hover {
+        background: #218838;
+        transform: translateY(-2px);
+      }
+
+      @media (max-width: 767px) {
+        body {
+          padding: 8px;
+          font-size: 12px;
+        }
+
+        .container {
+          padding: 12px;
+          border-radius: 8px;
+        }
+
+        h1 {
+          font-size: 1.5em;
+          margin-bottom: 15px;
+        }
+
+        h2 {
+          font-size: 1.1em;
+          margin: 12px 0 8px 0;
+        }
+
+        .tabs {
+          margin-bottom: 12px;
+          gap: 0;
+        }
+
+        .tab {
+          padding: 8px 10px;
+          font-size: 10px;
+          min-width: 80px;
+        }
+
+        .controls {
+          grid-template-columns: 1fr;
+          gap: 10px;
+          padding: 12px;
+        }
+
+        .control-group {
+          width: 100%;
+        }
+
+        label {
+          font-size: 11px;
+          margin-bottom: 6px;
+        }
+
+        input,
+        select {
+          font-size: 14px;
+          padding: 10px;
+          width: 100%;
+        }
+
+        .calculate-btn {
+          font-size: 14px;
+          padding: 15px;
+          margin-top: 10px;
+        }
+
+        table {
+          min-width: 700px;
+          font-size: 10px;
+        }
+
+        th,
+        td {
+          padding: 4px 2px;
+          font-size: 9px;
+        }
+
+        th {
+          font-size: 8px;
+          padding: 6px 2px;
+        }
+
+        .summary-cards {
+          display: none;
+        }
+
+        .summary-table-container {
+          display: block;
+        }
+
+        .summary-table {
+          min-width: 350px;
+          font-size: 11px;
+        }
+
+        .summary-table th {
+          font-size: 10px;
+          padding: 10px 6px;
+        }
+
+        .summary-table td {
+          padding: 10px 6px;
+          font-size: 11px;
+        }
+
+        .download-btn {
+          display: block;
+          width: 100%;
+          margin: 4px 0;
+          text-align: center;
+        }
+
+        #recommendation {
+          font-size: 12px;
+          padding: 15px;
+        }
+      }
+
+      @media (min-width: 768px) and (max-width: 1023px) {
+        .container {
+          padding: 16px;
+        }
+
+        h1 {
+          font-size: 1.8em;
+        }
+
+        .input-container {
+          height: calc(100vh - 200px);
+          max-height: 550px;
+        }
+
+        .calculate-btn-container {
+          padding: 18px;
+        }
+
+        .calculate-btn {
+          font-size: 15px;
+          padding: 17px 28px;
+          min-height: 58px;
+          border-radius: 11px;
+        }
+
+        .controls {
+          grid-template-columns: repeat(2, 1fr);
+          gap: 10px;
+        }
+
+        .tab {
+          min-width: 100px;
+          font-size: 12px;
+        }
+
+        table {
+          min-width: 900px;
+        }
+
+        .summary-cards {
+          display: none;
+        }
+
+        .summary-table-container {
+          display: block;
+        }
+
+        .summary-table {
+          font-size: 10px;
+        }
+
+        .summary-table th {
+          font-size: 9px;
+          padding: 8px 4px;
+        }
+
+        .summary-table td {
+          padding: 8px 4px;
+          font-size: 10px;
+        }
+
+        .summary-table td:nth-child(2),
+        .summary-table td:nth-child(3) {
+          font-size: 9px;
+        }
+
+        .download-btn {
+          margin: 6px 2px;
+        }
+      }
+
+      @media (min-width: 1024px) and (max-width: 1199px) {
+        .controls {
+          grid-template-columns: repeat(3, 1fr);
+        }
+
+        .summary-cards {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+        }
+
+        .summary-table-container {
+          display: none;
+        }
+      }
+
+      @media (min-width: 1200px) {
+        .controls {
+          grid-template-columns: repeat(4, 1fr);
+        }
+
+        .summary-cards {
+          display: grid;
+          grid-template-columns: repeat(4, 1fr);
+        }
+
+        .summary-table-container {
+          display: none;
+        }
+      }
+
+      @media (max-width: 767px) and (orientation: landscape) {
+        .input-container {
+          height: calc(100vh - 140px);
+          max-height: 400px;
+        }
+
+        .controls {
+          grid-template-columns: repeat(2, 1fr);
+        }
+
+        .summary-cards {
+          display: none;
+        }
+
+        .summary-table-container {
+          display: block;
+        }
+      }
+
+      @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+        .tab,
+        .calculate-btn,
+        .download-btn {
+          border: none;
+          -webkit-font-smoothing: antialiased;
+          -moz-osx-font-smoothing: grayscale;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .calculate-btn {
+          transition: background-color 0.2s ease, box-shadow 0.2s ease;
+          animation: none !important;
+        }
+
+        .calculate-btn:hover {
+          animation: none !important;
+          transform: none;
+        }
+
+        .calculate-btn::before {
+          display: none;
+        }
+      }
+
+      .tab:focus,
+      .calculate-btn:focus,
+      .download-btn:focus,
+      input:focus,
+      select:focus {
+        outline: 2px solid #667eea;
+        outline-offset: 2px;
+      }
+
+      .calculate-btn:focus {
+        outline: none;
+        box-shadow: 0 8px 32px rgba(102, 126, 234, 0.3),
+          0 4px 16px rgba(118, 75, 162, 0.2), 0 0 0 3px rgba(102, 126, 234, 0.3);
+      }
+
+      @media print {
+        body {
+          background: white;
+          padding: 0;
+        }
+
+        .container {
+          box-shadow: none;
+          background: white;
+        }
+
+        .tabs {
+          display: none;
+        }
+
+        .tab-content {
+          display: block !important;
+        }
+
+        .calculate-btn,
+        .download-btn {
+          display: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Advanced Rental Property Investment Model</h1>
+
+      <div class="tabs">
+        <button
+          class="tab active"
+          type="button"
+          onclick="activateTab(this, 'inputs')"
+        >
+          Input Parameters
+        </button>
+        <button
+          class="tab"
+          type="button"
+          onclick="activateTab(this, 'comparison')"
+        >
+          Strategy Comparison
+        </button>
+        <button
+          class="tab"
+          type="button"
+          onclick="activateTab(this, 'cashflow')"
+        >
+          Cash Flow Analysis
+        </button>
+        <button
+          class="tab"
+          type="button"
+          onclick="activateTab(this, 'sensitivity')"
+        >
+          Sensitivity Analysis
+        </button>
+        <button
+          class="tab"
+          type="button"
+          onclick="activateTab(this, 'breakeven')"
+        >
+          Break-Even Analysis
+        </button>
+        <button class="tab" type="button" onclick="activateTab(this, 'roi')">
+          ROI Comparisons
+        </button>
+        <button
+          class="tab"
+          type="button"
+          onclick="activateTab(this, 'summary')"
+        >
+          Summary & Download
+        </button>
+        <button class="tab" type="button" onclick="activateTab(this, 'help')">
+          Help
+        </button>
+      </div>
+
+      <div id="inputs" class="tab-content active">
+        <div class="input-container">
+          <div class="controls-wrapper">
+            <div class="controls">
+              <div class="control-group">
+                <label>Annual Investment Budget ($)</label>
+                <input type="number" id="annualBudget" value="170000" min="0" />
+              </div>
+              <div
+                class="control-group"
+                style="
+                  border: 2px solid #667eea;
+                  border-radius: 4px;
+                  padding: 8px;
+                "
+              >
+                <label style="color: #667eea; font-weight: bold"
+                  >🎯 Investment Budget (Years)</label
+                >
+                <input
+                  type="number"
+                  id="selfPurchaseYears"
+                  value="5"
+                  min="0"
+                  max="30"
+                />
+              </div>
+              <div class="control-group">
+                <label>Initial Property Cost ($)</label>
+                <input type="number" id="initialCost" value="160000" min="0" />
+              </div>
+              <div class="control-group">
+                <label
+                  >Monthly Rent as % of Purchase Price at Acquisition (%)</label
+                >
+                <input
+                  type="number"
+                  id="rentalRate"
+                  value="1"
+                  step="0.1"
+                  min="0"
+                />
+              </div>
+              <div class="control-group">
+                <label>Mortgage Interest Rate (%)</label>
+                <input
+                  type="number"
+                  id="interestRate"
+                  value="6.92"
+                  step="0.01"
+                  min="0"
+                />
+              </div>
+              <div class="control-group">
+                <label>Loan-to-Value Ratio (%)</label>
+                <input
+                  type="number"
+                  id="ltvRatio"
+                  value="50"
+                  min="0"
+                  max="100"
+                />
+              </div>
+              <div class="control-group">
+                <label>Loan Term (Years)</label>
+                <input type="number" id="loanTerm" value="5" min="1" max="30" />
+              </div>
+              <div class="control-group">
+                <label>Insurance per Unit per Year ($)</label>
+                <input type="number" id="insurance" value="1300" min="0" />
+              </div>
+              <div class="control-group">
+                <label>Land Value (% of cost)</label>
+                <input
+                  type="number"
+                  id="landPercent"
+                  value="20"
+                  min="0"
+                  max="100"
+                />
+              </div>
+              <div class="control-group">
+                <label>Maintenance (% of Effective Gross Income)</label>
+                <input
+                  type="number"
+                  id="maintenanceRate"
+                  value="1"
+                  step="0.1"
+                  min="0"
+                />
+              </div>
+              <div class="control-group">
+                <label>Annual Purchase Cost Increase (%)</label>
+                <input
+                  type="number"
+                  id="costIncrease"
+                  value="1"
+                  step="0.1"
+                  min="0"
+                />
+              </div>
+              <div class="control-group">
+                <label>Property Tax Rate (% of assessed value)</label>
+                <input
+                  type="number"
+                  id="taxRate"
+                  value="1.5"
+                  step="0.1"
+                  min="0"
+                  max="10"
+                />
+              </div>
+              <div class="control-group">
+                <label>Income Tax Rate (%)</label>
+                <input
+                  type="number"
+                  id="incomeTaxRate"
+                  value="25"
+                  min="0"
+                  max="50"
+                />
+              </div>
+              <div
+                class="control-group"
+                style="
+                  border: 2px solid #28a745;
+                  border-radius: 4px;
+                  padding: 8px;
+                "
+              >
+                <label style="color: #28a745; font-weight: bold"
+                  >🏢 Passthrough LLC?</label
+                >
+                <select id="passthroughLLC" style="border-color: #28a745">
+                  <option value="yes">Yes - No entity taxes</option>
+                  <option value="no">No - Corporate taxation</option>
+                </select>
+              </div>
+              <div class="control-group">
+                <label>Assessed Value at Purchase (% of cost)</label>
+                <input
+                  type="number"
+                  id="assessedValuePercent"
+                  value="20"
+                  min="0"
+                  max="100"
+                />
+              </div>
+              <div class="control-group">
+                <label>Annual Property Appreciation (%)</label>
+                <input
+                  type="number"
+                  id="appreciationRate"
+                  value="3"
+                  step="0.1"
+                  min="0"
+                />
+              </div>
+              <div
+                class="control-group"
+                style="
+                  border: 2px solid #667eea;
+                  border-radius: 4px;
+                  padding: 8px;
+                "
+              >
+                <label style="color: #667eea; font-weight: bold"
+                  >🎯 Finance Purchases (Years)</label
+                >
+                <input
+                  type="number"
+                  id="financedPurchaseYears"
+                  value="5"
+                  min="0"
+                  max="30"
+                />
+              </div>
+              <div class="control-group">
+                <label>Annual Rent Growth (%)</label>
+                <input
+                  type="number"
+                  id="rentGrowthRate"
+                  value="3"
+                  step="0.1"
+                  min="0"
+                />
+              </div>
+              <div class="control-group">
+                <label>Vacancy Rate (% of GPR)</label>
+                <input
+                  type="number"
+                  id="vacancyRate"
+                  value="5"
+                  step="0.1"
+                  min="0"
+                  max="100"
+                />
+              </div>
+              <div class="control-group">
+                <label>Management Fee (% of EGI)</label>
+                <input
+                  type="number"
+                  id="managementRate"
+                  value="8"
+                  step="0.1"
+                  min="0"
+                  max="100"
+                />
+              </div>
+              <div class="control-group">
+                <label>CapEx Reserves (% of EGI)</label>
+                <input
+                  type="number"
+                  id="capexRate"
+                  value="5"
+                  step="0.1"
+                  min="0"
+                  max="100"
+                />
+              </div>
+              <div class="control-group">
+                <label>Expense Inflation (Insurance/Other) (%)</label>
+                <input
+                  type="number"
+                  id="expenseInflation"
+                  value="2.5"
+                  step="0.1"
+                  min="0"
+                  max="100"
+                />
+              </div>
+              <div class="control-group">
+                <label>Insurance Inflation (%)</label>
+                <input
+                  type="number"
+                  id="insuranceInflation"
+                  value="4"
+                  step="0.1"
+                  min="0"
+                  max="100"
+                />
+              </div>
+              <div class="control-group">
+                <label>Closing Costs (% of Purchase Price)</label>
+                <input
+                  type="number"
+                  id="closingCostPercent"
+                  value="2"
+                  step="0.1"
+                  min="0"
+                  max="100"
+                />
+              </div>
+              <div class="control-group">
+                <label>Loan Origination Fee (% of Loan)</label>
+                <input
+                  type="number"
+                  id="loanOriginationPercent"
+                  value="1"
+                  step="0.1"
+                  min="0"
+                  max="100"
+                />
+              </div>
+              <div class="control-group">
+                <label>Assessed Value Growth (%)</label>
+                <input
+                  type="number"
+                  id="assessedGrowthRate"
+                  value="2.5"
+                  step="0.1"
+                  min="0"
+                  max="100"
+                />
+              </div>
+            </div>
+          </div>
+          <div class="calculate-btn-container">
+            <button class="calculate-btn" onclick="calculateAll()">
+              🚀 Calculate Investment Scenarios
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div id="comparison" class="tab-content">
+        <h2>Strategy Comparison (With Cash Flow Reinvestment)</h2>
+        <div class="table-container">
+          <table id="comparisonTable">
+            <thead>
+              <tr>
+                <th rowspan="2">Year</th>
+                <th rowspan="2">Property<br />Cost</th>
+                <th
+                  colspan="4"
+                  style="
+                    background: linear-gradient(45deg, #28a745, #20c997);
+                    text-align: center;
+                  "
+                >
+                  Self Financed
+                </th>
+                <th
+                  colspan="6"
+                  style="
+                    background: linear-gradient(45deg, #667eea, #764ba2);
+                    text-align: center;
+                  "
+                >
+                  Bank Financed
+                </th>
+              </tr>
+              <tr>
+                <th>New<br />Units</th>
+                <th>Total<br />Units</th>
+                <th>Cash<br />Flow</th>
+                <th>Asset<br />Value</th>
+                <th>New<br />Units</th>
+                <th>Total<br />Units</th>
+                <th>Cash<br />Flow</th>
+                <th>Asset<br />Value</th>
+                <th>Loan<br />Balance</th>
+                <th>Net<br />Equity</th>
+              </tr>
+            </thead>
+            <tbody id="comparisonBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div id="cashflow" class="tab-content">
+        <h2>15-Year Cash Flow Projection</h2>
+        <div class="table-container">
+          <table id="cashflowTable">
+            <thead>
+              <tr>
+                <th rowspan="2">Year</th>
+                <th
+                  colspan="4"
+                  style="
+                    background: linear-gradient(45deg, #28a745, #20c997);
+                    text-align: center;
+                  "
+                >
+                  Self Financed
+                </th>
+                <th
+                  colspan="5"
+                  style="
+                    background: linear-gradient(45deg, #667eea, #764ba2);
+                    text-align: center;
+                  "
+                >
+                  Bank Financed
+                </th>
+                <th rowspan="2">Cash Flow<br />Diff</th>
+              </tr>
+              <tr>
+                <th>Cash<br />Flow</th>
+                <th>Cumulative</th>
+                <th>Asset<br />Value</th>
+                <th>Net<br />Worth</th>
+                <th>Cash<br />Flow</th>
+                <th>Cumulative</th>
+                <th>Asset<br />Value</th>
+                <th>Loan<br />Balance</th>
+                <th>Net<br />Worth</th>
+              </tr>
+            </thead>
+            <tbody id="cashflowBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div id="sensitivity" class="tab-content">
+        <h2>📊 Sensitivity Analysis</h2>
+        <p>
+          See how changes in key parameters affect your investment outcomes.
+          Each parameter is varied by ±10%, ±20%, and ±30% from your base case.
+        </p>
+
+        <h3>Net Worth Impact (15-Year)</h3>
+        <div class="table-container">
+          <table id="sensitivityNetWorthTable">
+            <thead>
+              <tr>
+                <th>Parameter</th>
+                <th>-30%</th>
+                <th>-20%</th>
+                <th>-10%</th>
+                <th>Base Case</th>
+                <th>+10%</th>
+                <th>+20%</th>
+                <th>+30%</th>
+              </tr>
+            </thead>
+            <tbody id="sensitivityNetWorthBody"></tbody>
+          </table>
+        </div>
+
+        <h3>Cash Flow Impact (15-Year Cumulative)</h3>
+        <div class="table-container">
+          <table id="sensitivityCashFlowTable">
+            <thead>
+              <tr>
+                <th>Parameter</th>
+                <th>-30%</th>
+                <th>-20%</th>
+                <th>-10%</th>
+                <th>Base Case</th>
+                <th>+10%</th>
+                <th>+20%</th>
+                <th>+30%</th>
+              </tr>
+            </thead>
+            <tbody id="sensitivityCashFlowBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div id="breakeven" class="tab-content">
+        <h2>⚖️ Break-Even Analysis</h2>
+        <p>
+          Understand when your investment becomes profitable and what conditions
+          are needed for target returns.
+        </p>
+
+        <div class="summary-cards">
+          <div class="card">
+            <h3>Cash Flow Break-Even</h3>
+            <div class="value" id="cashFlowBreakEven">Year 0</div>
+            <p>When annual cash flow turns positive</p>
+          </div>
+          <div class="card">
+            <h3>ROI Break-Even vs S&P 500</h3>
+            <div class="value" id="roiBreakEven">Year 0</div>
+            <p>When total return exceeds 10% annually</p>
+          </div>
+          <div class="card">
+            <h3>Minimum Rent for Break-Even</h3>
+            <div class="value" id="minRentBreakEven">$0</div>
+            <p>Monthly rent needed for positive cash flow</p>
+          </div>
+          <div class="card">
+            <h3>Maximum Purchase Price</h3>
+            <div class="value" id="maxPurchasePrice">$0</div>
+            <p>For 12% annual ROI target</p>
+          </div>
+        </div>
+
+        <h3>Break-Even Scenarios</h3>
+        <div class="table-container">
+          <table id="breakEvenTable">
+            <thead>
+              <tr>
+                <th>Scenario</th>
+                <th>Self-Financed</th>
+                <th>Bank Financed</th>
+                <th>Difference</th>
+              </tr>
+            </thead>
+            <tbody id="breakEvenBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div id="roi" class="tab-content">
+        <h2>📈 ROI Comparisons</h2>
+        <p>
+          Compare your real estate investment returns against traditional
+          investment options.
+        </p>
+
+        <div class="summary-cards">
+          <div class="card">
+            <h3>Real Estate (Self-Financed)</h3>
+            <div class="value" id="realEstateROISelf">0%</div>
+            <p>15-year annualized return</p>
+          </div>
+          <div class="card">
+            <h3>Real Estate (Financed)</h3>
+            <div class="value" id="realEstateROIFinanced">0%</div>
+            <p>15-year annualized return</p>
+          </div>
+          <div class="card" style="border-top-color: #28a745">
+            <h3>S&P 500 Index</h3>
+            <div class="value" style="color: #28a745">10.0%</div>
+            <p>Historical average annual return</p>
+          </div>
+          <div class="card" style="border-top-color: #ffc107">
+            <h3>Corporate Bonds</h3>
+            <div class="value" style="color: #ffc107">4.5%</div>
+            <p>Current market average</p>
+          </div>
+        </div>
+
+        <h3>Investment Comparison (15-Year Projection)</h3>
+        <div class="table-container">
+          <table id="roiComparisonTable">
+            <thead>
+              <tr>
+                <th>Investment Type</th>
+                <th>Initial Investment</th>
+                <th>Final Value</th>
+                <th>Total Return</th>
+                <th>Annual Return</th>
+                <th>Risk Level</th>
+              </tr>
+            </thead>
+            <tbody id="roiComparisonBody"></tbody>
+          </table>
+        </div>
+
+        <h3>Year-by-Year Comparison</h3>
+        <div class="table-container">
+          <table id="roiYearlyTable">
+            <thead>
+              <tr>
+                <th>Year</th>
+                <th>Real Estate (Self)</th>
+                <th>Real Estate (Financed)</th>
+                <th>S&P 500</th>
+                <th>Bonds</th>
+                <th>High-Yield Savings</th>
+              </tr>
+            </thead>
+            <tbody id="roiYearlyBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div id="summary" class="tab-content">
+        <div class="summary-cards">
+          <div class="card">
+            <h3>Total Units (Self-Financed)</h3>
+            <div class="value" id="totalSelfUnits">0</div>
+          </div>
+          <div class="card">
+            <h3>Total Units (Financed)</h3>
+            <div class="value" id="totalFinancedUnits">0</div>
+          </div>
+          <div class="card">
+            <h3>Year 15 Annual Income (Self)</h3>
+            <div class="value" id="selfYear15Income">$0</div>
+          </div>
+          <div class="card">
+            <h3>Year 15 Annual Income (Financed)</h3>
+            <div class="value" id="financedYear15Income">$0</div>
+          </div>
+          <div class="card">
+            <h3>15-Year Cumulative Cash Flow (Self)</h3>
+            <div class="value" id="selfCumulative">$0</div>
+          </div>
+          <div class="card">
+            <h3>15-Year Cumulative Cash Flow (Financed)</h3>
+            <div class="value" id="financedCumulative">$0</div>
+          </div>
+          <div class="card">
+            <h3>Total Asset Value (Self)</h3>
+            <div class="value" id="selfAssetValue">$0</div>
+          </div>
+          <div class="card">
+            <h3>Total Asset Value (Financed)</h3>
+            <div class="value" id="financedAssetValue">$0</div>
+          </div>
+          <div class="card">
+            <h3>Net Worth (Self)</h3>
+            <div class="value" id="selfNetWorth">$0</div>
+          </div>
+          <div class="card">
+            <h3>Net Worth (Financed)</h3>
+            <div class="value" id="financedNetWorth">$0</div>
+          </div>
+          <div class="card">
+            <h3>Total Loan Balance (Financed)</h3>
+            <div class="value" id="financedLoanBalance">$0</div>
+          </div>
+          <div class="card" style="border-top-color: #28a745">
+            <h3>💰 Remaining Cash (Self)</h3>
+            <div class="value" id="selfRemainingCash">$0</div>
+          </div>
+          <div class="card" style="border-top-color: #28a745">
+            <h3>💰 Remaining Cash (Financed)</h3>
+            <div class="value" id="financedRemainingCash">$0</div>
+          </div>
+        </div>
+
+        <div class="summary-table-container">
+          <table class="summary-table">
+            <thead>
+              <tr>
+                <th>Metric</th>
+                <th>Self-Financed</th>
+                <th>Bank Financed</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Total Units</strong></td>
+                <td id="totalSelfUnitsTable">0</td>
+                <td id="totalFinancedUnitsTable">0</td>
+              </tr>
+              <tr>
+                <td><strong>Year 15 Annual Income</strong></td>
+                <td id="selfYear15IncomeTable">$0</td>
+                <td id="financedYear15IncomeTable">$0</td>
+              </tr>
+              <tr>
+                <td><strong>15-Year Cumulative Cash Flow</strong></td>
+                <td id="selfCumulativeTable">$0</td>
+                <td id="financedCumulativeTable">$0</td>
+              </tr>
+              <tr>
+                <td><strong>Total Asset Value</strong></td>
+                <td id="selfAssetValueTable">$0</td>
+                <td id="financedAssetValueTable">$0</td>
+              </tr>
+              <tr>
+                <td><strong>Net Worth</strong></td>
+                <td id="selfNetWorthTable">$0</td>
+                <td id="financedNetWorthTable">$0</td>
+              </tr>
+              <tr>
+                <td><strong>💰 Remaining Cash</strong></td>
+                <td id="selfRemainingCashTable">$0</td>
+                <td id="financedRemainingCashTable">$0</td>
+              </tr>
+              <tr>
+                <td><strong>Total Loan Balance</strong></td>
+                <td>N/A</td>
+                <td id="financedLoanBalanceTable">$0</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>Recommendation & Analysis</h3>
+        <div
+          id="recommendation"
+          style="
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            margin: 20px 0;
+          "
+        ></div>
+
+        <div style="text-align: center; margin-top: 30px">
+          <a href="#" class="download-btn" onclick="downloadExcel()"
+            >📈 Download Complete Excel Model</a
+          >
+        </div>
+      </div>
+
+      <div id="help" class="tab-content">
+        <h2>📋 Model Overview & User Guide</h2>
+
+        <h3>🎯 What This Model Does</h3>
+        <p>
+          This rental property investment model compares two strategies over 15
+          years:
+        </p>
+        <ul>
+          <li>
+            <strong>Self-Financed Strategy:</strong> Purchase properties with
+            100% cash
+          </li>
+          <li>
+            <strong>Bank-Financed Strategy:</strong> Purchase properties using
+            mortgage financing
+          </li>
+        </ul>
+        <p>
+          The model includes <strong>automatic cash flow reinvestment</strong> -
+          positive cash flows from existing properties are automatically saved
+          and used to purchase additional units in subsequent years.
+        </p>
+
+        <h3>🔧 How to Use the Model</h3>
+
+        <h4>Step 1: Configure Basic Parameters</h4>
+        <ul>
+          <li>
+            <strong>Annual Investment Budget:</strong> How much money you can
+            invest each year
+          </li>
+          <li>
+            <strong>Investment Budget:</strong> How many years you'll add new
+            budget for self-financed purchases
+          </li>
+          <li>
+            <strong>Initial Property Cost:</strong> Starting cost per property
+            unit
+          </li>
+          <li>
+            <strong>Finance Purchases:</strong> How many years you'll add new
+            budget for financed purchases
+          </li>
+        </ul>
+
+        <h4>Step 2: Set Financial Parameters</h4>
+        <ul>
+          <li>
+            <strong>Monthly Rent Rate:</strong> Monthly rent as % of purchase
+            price (e.g., 1% = $1,600/month rent on $160k property)
+          </li>
+          <li>
+            <strong>Mortgage Terms:</strong> Interest rate, LTV ratio, and loan
+            term for financed strategy
+          </li>
+          <li>
+            <strong>Tax Structure:</strong> Income tax rate and whether using
+            passthrough LLC taxation
+          </li>
+          <li>
+            <strong>Growth Rates:</strong> Property appreciation, rent growth,
+            cost inflation
+          </li>
+        </ul>
+
+        <h4>Step 3: Configure Operating Expenses</h4>
+        <ul>
+          <li>
+            <strong>Insurance, Maintenance, Management:</strong> Annual
+            operating costs
+          </li>
+          <li>
+            <strong>Vacancy Rate:</strong> Expected percentage of time units are
+            vacant
+          </li>
+          <li>
+            <strong>CapEx Reserves:</strong> Capital expenditure reserves for
+            major repairs
+          </li>
+        </ul>
+
+        <h4>Step 4: Run Calculation</h4>
+        <p>
+          Click "Calculate Investment Scenarios" to run the 15-year projection.
+          The results will populate in the other tabs.
+        </p>
+
+        <h3>📊 How to Interpret Results</h3>
+
+        <h4>Strategy Comparison Tab</h4>
+        <p>
+          This tab shows a year-by-year comparison organized into clear strategy
+          groups:
+        </p>
+        <ul>
+          <li>
+            <strong>Self Financed (Green):</strong> Cash-only purchase strategy
+            <ul>
+              <li>
+                New Units: Properties purchased each year (including
+                reinvestment purchases)
+              </li>
+              <li>Total Units: Cumulative property count</li>
+              <li>Cash Flow: Annual net cash flow after all expenses</li>
+              <li>
+                Asset Value: Total property portfolio value with appreciation
+              </li>
+            </ul>
+          </li>
+          <li>
+            <strong>Bank Financed (Blue):</strong> Mortgage-financed purchase
+            strategy
+            <ul>
+              <li>New Units: Properties purchased each year using financing</li>
+              <li>Total Units: Cumulative property count</li>
+              <li>
+                Cash Flow: Annual net cash flow after expenses and loan payments
+              </li>
+              <li>
+                Asset Value: Total property portfolio value with appreciation
+              </li>
+              <li>Loan Balance: Outstanding mortgage debt</li>
+              <li>Net Equity: Asset value minus loan balances</li>
+            </ul>
+          </li>
+        </ul>
+
+        <h4>Cash Flow Analysis Tab</h4>
+        <p>
+          This tab shows the 15-year cash flow progression with grouped strategy
+          columns:
+        </p>
+        <ul>
+          <li>
+            <strong>Self Financed (Green):</strong> Cash Flow, Cumulative, Asset
+            Value, Net Worth
+          </li>
+          <li>
+            <strong>Bank Financed (Blue):</strong> Cash Flow, Cumulative, Asset
+            Value, Loan Balance, Net Worth
+          </li>
+          <li>
+            <strong>Cash Flow Difference:</strong> Bank Financed minus Self
+            Financed annual cash flow
+          </li>
+        </ul>
+
+        <h4>📊 Sensitivity Analysis Tab</h4>
+        <p>
+          This tab shows how sensitive your investment returns are to changes in
+          key parameters:
+        </p>
+        <ul>
+          <li>
+            <strong>Parameter Variations:</strong> Each key parameter is tested
+            at ±10%, ±20%, and ±30% from your base case
+          </li>
+          <li>
+            <strong>Net Worth Impact:</strong> Shows how final 15-year net worth
+            changes with each parameter variation
+          </li>
+          <li>
+            <strong>Cash Flow Impact:</strong> Shows how cumulative 15-year cash
+            flow changes with each parameter variation
+          </li>
+          <li>
+            <strong>Percentage Changes:</strong> Small percentages below each
+            value show the impact relative to base case
+          </li>
+        </ul>
+
+        <h4>⚖️ Break-Even Analysis Tab</h4>
+        <p>
+          This tab helps you understand when your investment becomes profitable:
+        </p>
+        <ul>
+          <li>
+            <strong>Cash Flow Break-Even:</strong> When annual cash flow turns
+            positive for each strategy
+          </li>
+          <li>
+            <strong>ROI Break-Even:</strong> When your total return exceeds S&P
+            500 returns (10% annually)
+          </li>
+          <li>
+            <strong>Minimum Rent:</strong> Monthly rent needed for immediate
+            positive cash flow
+          </li>
+          <li>
+            <strong>Maximum Purchase Price:</strong> Highest price you can pay
+            and still achieve 12% annual ROI
+          </li>
+        </ul>
+
+        <h4>📈 ROI Comparisons Tab</h4>
+        <p>
+          This tab compares your real estate investment against traditional
+          alternatives:
+        </p>
+        <ul>
+          <li>
+            <strong>Annualized Returns:</strong> Shows 15-year average annual
+            returns for each investment type
+          </li>
+          <li>
+            <strong>Investment Comparison:</strong> Side-by-side comparison of
+            final values and total returns
+          </li>
+          <li>
+            <strong>Year-by-Year Tracking:</strong> Shows how each investment
+            performs over the full 15-year period
+          </li>
+          <li>
+            <strong>Risk Assessment:</strong> Qualitative risk levels for each
+            investment type
+          </li>
+        </ul>
+
+        <h4>Summary & Download Tab</h4>
+        <ul>
+          <li>
+            <strong>Total Units:</strong> Final property count after 15 years
+          </li>
+          <li>
+            <strong>Remaining Cash:</strong> Cash that couldn't purchase
+            additional full units
+          </li>
+          <li>
+            <strong>Net Worth Comparison:</strong> Final wealth comparison
+            between strategies
+          </li>
+          <li>
+            <strong>Recommendation:</strong> Model's suggested strategy based on
+            results
+          </li>
+        </ul>
+
+        <h3>💡 Key Model Features</h3>
+
+        <h4>Cash Flow Reinvestment</h4>
+        <p>
+          Unlike simple models, this tool automatically reinvests positive cash
+          flows:
+        </p>
+        <ul>
+          <li>Each year, positive cash flows are added to available cash</li>
+          <li>
+            Available cash + annual budget (if in purchase period) = total
+            purchasing power
+          </li>
+          <li>Maximum units purchased based on total purchasing power</li>
+          <li>Unused cash carries forward to next year</li>
+        </ul>
+
+        <h4>Cohort Tracking</h4>
+        <p>
+          Properties are tracked by acquisition year ("cohorts") to accurately
+          model:
+        </p>
+        <ul>
+          <li>Rent growth from acquisition date</li>
+          <li>Property tax growth from acquisition assessed value</li>
+          <li>Depreciation timing (27.5 years for buildings)</li>
+          <li>Loan amortization schedules</li>
+        </ul>
+
+        <h4>Realistic Expense Modeling</h4>
+        <ul>
+          <li>
+            <strong>Insurance:</strong> Grows with insurance inflation rate
+          </li>
+          <li>
+            <strong>Property Taxes:</strong> Based on assessed value growth
+          </li>
+          <li>
+            <strong>Management & Maintenance:</strong> Percentage of effective
+            gross income
+          </li>
+          <li>
+            <strong>CapEx:</strong> Capital expenditure reserves (not tax
+            deductible)
+          </li>
+        </ul>
+
+        <h4>Tax Structure Options</h4>
+        <ul>
+          <li>
+            <strong>Passthrough LLC (Default):</strong> No entity-level taxation
+            - all income flows through to owners
+          </li>
+          <li>
+            <strong>Corporate Taxation:</strong> Entity pays taxes on taxable
+            income (NOI - interest - depreciation)
+          </li>
+        </ul>
+        <p>
+          <strong>Note:</strong> Most real estate investors use passthrough
+          entities (LLCs, partnerships) to avoid double taxation. Corporate
+          taxation is included for comparison purposes.
+        </p>
+
+        <h3>🎯 Tips for Analysis</h3>
+
+        <h4>Experiment with Different Scenarios</h4>
+        <ul>
+          <li>
+            <strong>Purchase Periods:</strong> Try self=3 years, financed=8
+            years to see asymmetric strategies
+          </li>
+          <li>
+            <strong>Market Conditions:</strong> Test different appreciation
+            rates and rent growth
+          </li>
+          <li>
+            <strong>Financing Terms:</strong> Compare different LTV ratios and
+            interest rates
+          </li>
+          <li>
+            <strong>Property Types:</strong> Adjust rent-to-price ratios for
+            different markets
+          </li>
+        </ul>
+
+        <h4>Understanding the Recommendation</h4>
+        <p>The model compares strategies on two key metrics:</p>
+        <ul>
+          <li><strong>Net Worth:</strong> Total wealth after 15 years</li>
+          <li>
+            <strong>Cumulative Cash Flow:</strong> Total cash generated during
+            the period
+          </li>
+        </ul>
+        <p>
+          Consider your goals: maximize wealth accumulation vs. maximize cash
+          generation for living expenses.
+        </p>
+
+        <p>
+          <strong>Tax Impact:</strong> Passthrough taxation generally results in
+          higher cash flows since there are no entity-level taxes. However,
+          individual tax implications vary based on personal tax situations and
+          should be evaluated with a tax professional.
+        </p>
+
+        <h3>⚠️ Model Limitations</h3>
+        <ul>
+          <li>Assumes constant market conditions (no recessions or booms)</li>
+          <li>
+            Simplified tax treatment - passthrough assumes no entity taxes,
+            corporate uses basic depreciation
+          </li>
+          <li>
+            Does not account for personal tax implications, state taxes, or
+            complex tax strategies
+          </li>
+          <li>No transaction costs for selling properties</li>
+          <li>Assumes properties are always available to purchase</li>
+          <li>Doesn't account for time value of managing more properties</li>
+          <li>
+            Does not include passive activity loss limitations or other tax
+            complexities
+          </li>
+        </ul>
+
+        <h3>🚀 Getting Started</h3>
+        <p>
+          1. Start with realistic local market data for rent-to-price ratios<br />
+          2. Use current mortgage rates and your actual down payment
+          capability<br />
+          3. Run the base scenario, then experiment with variations<br />
+          4. Download results for further analysis in Excel
+        </p>
+      </div>
+    </div>
+
+    <script>
+      let calculationResults = {};
+
+      function activateTab(btn, tabName) {
+        document.querySelectorAll(".tab").forEach((tab) => {
+          tab.classList.remove("active");
+        });
+        document.querySelectorAll(".tab-content").forEach((content) => {
+          content.classList.remove("active");
+        });
+
+        if (btn) {
+          btn.classList.add("active");
+        }
+
+        const content = document.getElementById(tabName);
+        if (content) {
+          content.classList.add("active");
+        }
+      }
+
+      function calculateAll() {
+        try {
+          const params = {
+            annualBudget: parseFloat(
+              document.getElementById("annualBudget").value
+            ),
+            initialCost: parseFloat(
+              document.getElementById("initialCost").value
+            ),
+            rentalRate:
+              parseFloat(document.getElementById("rentalRate").value) / 100,
+            rentGrowthRate:
+              parseFloat(document.getElementById("rentGrowthRate").value) / 100,
+            vacancyRate:
+              parseFloat(document.getElementById("vacancyRate").value) / 100,
+            managementRate:
+              parseFloat(document.getElementById("managementRate").value) / 100,
+            capexRate:
+              parseFloat(document.getElementById("capexRate").value) / 100,
+            expenseInflation:
+              parseFloat(document.getElementById("expenseInflation").value) /
+              100,
+            insuranceInflation:
+              parseFloat(document.getElementById("insuranceInflation").value) /
+              100,
+            interestRate:
+              parseFloat(document.getElementById("interestRate").value) / 100,
+            ltvRatio:
+              parseFloat(document.getElementById("ltvRatio").value) / 100,
+            loanTerm: parseInt(document.getElementById("loanTerm").value),
+            insurance: parseFloat(document.getElementById("insurance").value),
+            landPercent:
+              parseFloat(document.getElementById("landPercent").value) / 100,
+            maintenanceRate:
+              parseFloat(document.getElementById("maintenanceRate").value) /
+              100,
+            costIncrease:
+              parseFloat(document.getElementById("costIncrease").value) / 100,
+            closingCostPercent:
+              parseFloat(document.getElementById("closingCostPercent").value) /
+              100,
+            loanOriginationPercent:
+              parseFloat(
+                document.getElementById("loanOriginationPercent").value
+              ) / 100,
+            taxRate: parseFloat(document.getElementById("taxRate").value) / 100,
+            incomeTaxRate:
+              parseFloat(document.getElementById("incomeTaxRate").value) / 100,
+            assessedValuePercent:
+              parseFloat(
+                document.getElementById("assessedValuePercent").value
+              ) / 100,
+            assessedGrowthRate:
+              parseFloat(document.getElementById("assessedGrowthRate").value) /
+              100,
+            appreciationRate:
+              parseFloat(document.getElementById("appreciationRate").value) /
+              100,
+            selfPurchaseYears: parseInt(
+              document.getElementById("selfPurchaseYears").value
+            ),
+            financedPurchaseYears: parseInt(
+              document.getElementById("financedPurchaseYears").value
+            ),
+            passthroughLLC: document.getElementById("passthroughLLC").value,
+          };
+
+          let hasError = false;
+          Object.keys(params).forEach((key) => {
+            if (key === "passthroughLLC") {
+              if (params[key] !== "yes" && params[key] !== "no") {
+                hasError = true;
+              }
+            } else if (isNaN(params[key])) {
+              hasError = true;
+            }
+          });
+
+          if (hasError) {
+            alert(
+              "⚠️ Please check your input values. Some contain invalid data."
+            );
+            return;
+          }
+
+          calculationResults = performCalculations(params);
+          calculationResults.inputParams = params; // Store input parameters for Excel export
+
+          // Perform new analyses
+          calculationResults.sensitivity = performSensitivityAnalysis(params);
+          calculationResults.breakEven = performBreakEvenAnalysis(
+            params,
+            calculationResults
+          );
+          calculationResults.roiComparison = performROIComparison(
+            params,
+            calculationResults
+          );
+
+          updateTables();
+          updateSummary(params);
+          updateSensitivityAnalysis();
+          updateBreakEvenAnalysis();
+          updateROIComparison();
+
+          alert(
+            "🎉 Complete analysis finished! Check all tabs for comprehensive results."
+          );
+        } catch (error) {
+          alert("⚠️ Error during calculation: " + error.message);
+        }
+      }
+
+      function performCalculations(params) {
+        const results = {
+          selfFinanced: [],
+          financed: [],
+          comparison: [],
+        };
+
+        const projectionYears = 15;
+        const selfCohorts = [];
+        const financedCohorts = [];
+        const financedLoans = [];
+
+        let selfTotalUnits = 0;
+        let financedTotalUnits = 0;
+        let selfCumulativeCashFlow = 0;
+        let financedCumulativeCashFlow = 0;
+        let selfAvailableCash = 0;
+        let financedAvailableCash = 0;
+
+        for (let year = 1; year <= projectionYears; year++) {
+          const propertyCost =
+            params.initialCost * Math.pow(1 + params.costIncrease, year - 1);
+
+          let selfNewUnits = 0;
+          let selfTotalCashForPurchases = 0;
+
+          if (year <= params.selfPurchaseYears) {
+            selfTotalCashForPurchases += params.annualBudget;
+          }
+
+          selfTotalCashForPurchases += selfAvailableCash;
+
+          if (selfTotalCashForPurchases > 0) {
+            const upfrontPerUnit =
+              propertyCost * (1 + params.closingCostPercent);
+            selfNewUnits = Math.floor(
+              selfTotalCashForPurchases / upfrontPerUnit
+            );
+
+            if (selfNewUnits > 0) {
+              const totalSpent = selfNewUnits * upfrontPerUnit;
+              selfAvailableCash = selfTotalCashForPurchases - totalSpent;
+              selfCohorts.push({
+                yearOriginated: year,
+                units: selfNewUnits,
+                costPerUnit: propertyCost,
+              });
+            } else {
+              selfAvailableCash = selfTotalCashForPurchases;
+            }
+          }
+
+          let financedNewUnits = 0;
+          let financedTotalCashForPurchases = 0;
+
+          if (year <= params.financedPurchaseYears) {
+            financedTotalCashForPurchases += params.annualBudget;
+          }
+
+          financedTotalCashForPurchases += financedAvailableCash;
+
+          if (financedTotalCashForPurchases > 0) {
+            const loanAmountPerUnit = propertyCost * params.ltvRatio;
+            const downPaymentPerUnit = propertyCost - loanAmountPerUnit;
+            const closingCostPerUnit = propertyCost * params.closingCostPercent;
+            const originationFeePerUnit =
+              loanAmountPerUnit * params.loanOriginationPercent;
+            const upfrontPerUnit =
+              downPaymentPerUnit + closingCostPerUnit + originationFeePerUnit;
+            financedNewUnits = Math.floor(
+              financedTotalCashForPurchases / upfrontPerUnit
+            );
+
+            if (financedNewUnits > 0) {
+              const totalSpent = financedNewUnits * upfrontPerUnit;
+              financedAvailableCash =
+                financedTotalCashForPurchases - totalSpent;
+              financedCohorts.push({
+                yearOriginated: year,
+                units: financedNewUnits,
+                costPerUnit: propertyCost,
+              });
+
+              const monthlyRate = params.interestRate / 12;
+              const totalPayments = params.loanTerm * 12;
+              let monthlyEMIPerUnit;
+
+              if (params.interestRate === 0) {
+                monthlyEMIPerUnit = loanAmountPerUnit / totalPayments;
+              } else {
+                monthlyEMIPerUnit =
+                  (loanAmountPerUnit *
+                    (monthlyRate * Math.pow(1 + monthlyRate, totalPayments))) /
+                  (Math.pow(1 + monthlyRate, totalPayments) - 1);
+              }
+
+              financedLoans.push({
+                units: financedNewUnits,
+                loanAmountPerUnit,
+                monthlyEMIPerUnit,
+                monthlyRate,
+                totalPayments,
+                yearOriginated: year,
+              });
+            } else {
+              financedAvailableCash = financedTotalCashForPurchases;
+            }
+          }
+
+          selfTotalUnits += selfNewUnits;
+          financedTotalUnits += financedNewUnits;
+
+          let totalLoanBalance = 0;
+          let totalAnnualEMI = 0;
+
+          financedLoans.forEach((loan) => {
+            const monthsElapsed = (year - loan.yearOriginated) * 12;
+            if (monthsElapsed < loan.totalPayments) {
+              const remainingAtStart = loan.totalPayments - monthsElapsed;
+              let balancePerUnit;
+
+              if (loan.monthlyRate === 0) {
+                balancePerUnit =
+                  loan.loanAmountPerUnit -
+                  loan.monthlyEMIPerUnit * monthsElapsed;
+              } else {
+                balancePerUnit =
+                  (loan.monthlyEMIPerUnit *
+                    (Math.pow(1 + loan.monthlyRate, remainingAtStart) - 1)) /
+                  (loan.monthlyRate *
+                    Math.pow(1 + loan.monthlyRate, remainingAtStart));
+              }
+
+              if (balancePerUnit > 0) {
+                totalLoanBalance += balancePerUnit * loan.units;
+                totalAnnualEMI += loan.monthlyEMIPerUnit * 12 * loan.units;
+              }
+            }
+          });
+
+          const selfMetrics = calcIncomeAndExpenses(
+            year,
+            selfCohorts,
+            params,
+            selfTotalUnits
+          );
+          const finMetrics = calcIncomeAndExpenses(
+            year,
+            financedCohorts,
+            params,
+            financedTotalUnits
+          );
+
+          const selfCapEx = selfMetrics.egi * params.capexRate;
+          const finCapEx = finMetrics.egi * params.capexRate;
+
+          let selfCashFlow, financedCashFlow;
+
+          if (params.passthroughLLC === "yes") {
+            selfCashFlow = selfMetrics.noi - selfCapEx;
+            financedCashFlow = finMetrics.noi - totalAnnualEMI - finCapEx;
+          } else {
+            const selfTaxableIncome = Math.max(
+              0,
+              selfMetrics.noi - selfMetrics.depreciation
+            );
+            const selfTax = selfTaxableIncome * params.incomeTaxRate;
+            selfCashFlow = selfMetrics.noi - selfCapEx - selfTax;
+
+            const financedInterestDeduction =
+              totalAnnualEMI > 0
+                ? calculateAnnualInterest(financedLoans, year)
+                : 0;
+            const financedTaxableIncome = Math.max(
+              0,
+              finMetrics.noi -
+                financedInterestDeduction -
+                finMetrics.depreciation
+            );
+            const financedTax = financedTaxableIncome * params.incomeTaxRate;
+            financedCashFlow =
+              finMetrics.noi - totalAnnualEMI - finCapEx - financedTax;
+          }
+
+          if (selfCashFlow > 0) {
+            selfAvailableCash += selfCashFlow;
+          }
+
+          if (financedCashFlow > 0) {
+            financedAvailableCash += financedCashFlow;
+          }
+
+          const selfAssetValue = calcAssetValue(year, selfCohorts, params);
+          const financedAssetValue = calcAssetValue(
+            year,
+            financedCohorts,
+            params
+          );
+
+          const selfNetWorth = selfAssetValue;
+          const financedNetWorth = financedAssetValue - totalLoanBalance;
+
+          selfCumulativeCashFlow += selfCashFlow;
+          financedCumulativeCashFlow += financedCashFlow;
+
+          results.comparison.push({
+            year,
+            propertyCost,
+            selfNewUnits,
+            financedNewUnits,
+            selfTotalUnits,
+            financedTotalUnits,
+            selfCashFlow,
+            financedCashFlow,
+            selfAssetValue,
+            financedAssetValue,
+            totalLoanBalance,
+            financedNetEquity: financedNetWorth,
+          });
+
+          results.selfFinanced.push({
+            year,
+            cashFlow: selfCashFlow,
+            cumulative: selfCumulativeCashFlow,
+            assetValue: selfAssetValue,
+            netWorth: selfNetWorth,
+          });
+
+          results.financed.push({
+            year,
+            cashFlow: financedCashFlow,
+            cumulative: financedCumulativeCashFlow,
+            assetValue: financedAssetValue,
+            loanBalance: totalLoanBalance,
+            netWorth: financedNetWorth,
+          });
+        }
+
+        results.finalSelfAvailableCash = selfAvailableCash;
+        results.finalFinancedAvailableCash = financedAvailableCash;
+
+        return results;
+      }
+
+      function calculateAnnualInterest(financedLoans, year) {
+        let totalAnnualInterest = 0;
+
+        financedLoans.forEach((loan) => {
+          const monthsElapsed = (year - loan.yearOriginated) * 12;
+          if (monthsElapsed < loan.totalPayments && loan.monthlyRate > 0) {
+            let yearlyInterestPerUnit = 0;
+            for (let m = 0; m < 12; m++) {
+              const currentMonth = monthsElapsed + m;
+              if (currentMonth >= loan.totalPayments) break;
+              const remainingAtMonth = loan.totalPayments - currentMonth;
+              const balanceAtMonthPerUnit =
+                (loan.monthlyEMIPerUnit *
+                  (Math.pow(1 + loan.monthlyRate, remainingAtMonth) - 1)) /
+                (loan.monthlyRate *
+                  Math.pow(1 + loan.monthlyRate, remainingAtMonth));
+              yearlyInterestPerUnit += balanceAtMonthPerUnit * loan.monthlyRate;
+            }
+            totalAnnualInterest += yearlyInterestPerUnit * loan.units;
+          }
+        });
+
+        return totalAnnualInterest;
+      }
+
+      function calcIncomeAndExpenses(year, cohorts, params, totalUnits) {
+        let gpr = 0;
+        let propertyTax = 0;
+        let depreciation = 0;
+
+        cohorts.forEach((c) => {
+          const yearsOwned = year - c.yearOriginated;
+          const monthlyRentAtAcq = c.costPerUnit * params.rentalRate;
+          const annualRentPerUnit =
+            monthlyRentAtAcq *
+            12 *
+            Math.pow(1 + params.rentGrowthRate, Math.max(0, yearsOwned));
+          gpr += annualRentPerUnit * c.units;
+
+          const assessedBasePerUnit =
+            c.costPerUnit * params.assessedValuePercent;
+          const assessedNowPerUnit =
+            assessedBasePerUnit *
+            Math.pow(1 + params.assessedGrowthRate, Math.max(0, yearsOwned));
+          propertyTax += assessedNowPerUnit * params.taxRate * c.units;
+
+          const buildingValuePerUnit = c.costPerUnit * (1 - params.landPercent);
+          if (yearsOwned < 27.5) {
+            depreciation += (buildingValuePerUnit / 27.5) * c.units;
+          }
+        });
+
+        const egi = gpr * (1 - params.vacancyRate);
+        const management = egi * params.managementRate;
+        const maintenance = egi * params.maintenanceRate;
+        const insurancePerUnitThisYear =
+          params.insurance * Math.pow(1 + params.insuranceInflation, year - 1);
+        const insurance = insurancePerUnitThisYear * totalUnits;
+        const noi = egi - management - maintenance - insurance - propertyTax;
+
+        return {
+          gpr,
+          egi,
+          management,
+          maintenance,
+          insurance,
+          propertyTax,
+          depreciation,
+          noi,
+        };
+      }
+
+      function calcAssetValue(year, cohorts, params) {
+        let value = 0;
+        cohorts.forEach((c) => {
+          const yearsOwned = year - c.yearOriginated;
+          const currentValuePerUnit =
+            c.costPerUnit *
+            Math.pow(1 + params.appreciationRate, Math.max(0, yearsOwned));
+          value += currentValuePerUnit * c.units;
+        });
+        return value;
+      }
+
+      function updateTables() {
+        updateComparisonTable();
+        updateCashFlowTable();
+      }
+
+      function updateComparisonTable() {
+        const tbody = document.getElementById("comparisonBody");
+        if (!tbody || !calculationResults.comparison) return;
+
+        tbody.innerHTML = "";
+        calculationResults.comparison.forEach((row) => {
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+             <td>${row.year}</td>
+             <td>${Math.round(row.propertyCost).toLocaleString()}</td>
+             <td>${row.selfNewUnits}</td>
+             <td>${row.selfTotalUnits}</td>
+             <td class="${
+               row.selfCashFlow >= 0 ? "positive" : "negative"
+             }">${Math.round(row.selfCashFlow).toLocaleString()}</td>
+             <td>${Math.round(row.selfAssetValue).toLocaleString()}</td>
+             <td>${row.financedNewUnits}</td>
+             <td>${row.financedTotalUnits}</td>
+             <td class="${
+               row.financedCashFlow >= 0 ? "positive" : "negative"
+             }">${Math.round(row.financedCashFlow).toLocaleString()}</td>
+             <td>${Math.round(row.financedAssetValue).toLocaleString()}</td>
+             <td>${Math.round(row.totalLoanBalance).toLocaleString()}</td>
+             <td>${Math.round(row.financedNetEquity).toLocaleString()}</td>
+           `;
+          tbody.appendChild(tr);
+        });
+      }
+
+      function updateCashFlowTable() {
+        const tbody = document.getElementById("cashflowBody");
+        if (!tbody || !calculationResults.selfFinanced) return;
+
+        tbody.innerHTML = "";
+        const self = calculationResults.selfFinanced;
+        const fin = calculationResults.financed;
+
+        for (let i = 0; i < self.length; i++) {
+          const tr = document.createElement("tr");
+          const cashDiff = fin[i].cashFlow - self[i].cashFlow;
+          tr.innerHTML = `
+             <td>${self[i].year}</td>
+             <td class="${
+               self[i].cashFlow >= 0 ? "positive" : "negative"
+             }">${Math.round(self[i].cashFlow).toLocaleString()}</td>
+             <td>${Math.round(self[i].cumulative).toLocaleString()}</td>
+             <td>${Math.round(self[i].assetValue).toLocaleString()}</td>
+             <td>${Math.round(self[i].netWorth).toLocaleString()}</td>
+             <td class="${
+               fin[i].cashFlow >= 0 ? "positive" : "negative"
+             }">${Math.round(fin[i].cashFlow).toLocaleString()}</td>
+             <td>${Math.round(fin[i].cumulative).toLocaleString()}</td>
+             <td>${Math.round(fin[i].assetValue).toLocaleString()}</td>
+             <td>${Math.round(fin[i].loanBalance).toLocaleString()}</td>
+             <td>${Math.round(fin[i].netWorth).toLocaleString()}</td>
+             <td class="${
+               cashDiff >= 0 ? "positive" : "negative"
+             }">${Math.round(cashDiff).toLocaleString()}</td>
+           `;
+          tbody.appendChild(tr);
+        }
+      }
+
+      function updateSummary(params) {
+        if (
+          !calculationResults.comparison ||
+          calculationResults.comparison.length === 0
+        )
+          return;
+
+        const lastComp =
+          calculationResults.comparison[
+            calculationResults.comparison.length - 1
+          ];
+        const lastSelf =
+          calculationResults.selfFinanced[
+            calculationResults.selfFinanced.length - 1
+          ];
+        const lastFin =
+          calculationResults.financed[calculationResults.financed.length - 1];
+
+        // Update card elements
+        document.getElementById("totalSelfUnits").textContent =
+          lastComp.selfTotalUnits.toLocaleString();
+        document.getElementById("totalFinancedUnits").textContent =
+          lastComp.financedTotalUnits.toLocaleString();
+        document.getElementById("selfYear15Income").textContent =
+          formatCurrency(lastSelf.cashFlow);
+        document.getElementById("financedYear15Income").textContent =
+          formatCurrency(lastFin.cashFlow);
+        document.getElementById("selfCumulative").textContent = formatCurrency(
+          lastSelf.cumulative
+        );
+        document.getElementById("financedCumulative").textContent =
+          formatCurrency(lastFin.cumulative);
+        document.getElementById("selfAssetValue").textContent = formatCurrency(
+          lastSelf.assetValue
+        );
+        document.getElementById("financedAssetValue").textContent =
+          formatCurrency(lastFin.assetValue);
+        document.getElementById("selfNetWorth").textContent = formatCurrency(
+          lastSelf.netWorth
+        );
+        document.getElementById("financedNetWorth").textContent =
+          formatCurrency(lastFin.netWorth);
+        document.getElementById("financedLoanBalance").textContent =
+          formatCurrency(lastFin.loanBalance);
+        document.getElementById("selfRemainingCash").textContent =
+          formatCurrency(calculationResults.finalSelfAvailableCash || 0);
+        document.getElementById("financedRemainingCash").textContent =
+          formatCurrency(calculationResults.finalFinancedAvailableCash || 0);
+
+        // Update table elements
+        document.getElementById("totalSelfUnitsTable").textContent =
+          lastComp.selfTotalUnits.toLocaleString();
+        document.getElementById("totalFinancedUnitsTable").textContent =
+          lastComp.financedTotalUnits.toLocaleString();
+        document.getElementById("selfYear15IncomeTable").textContent =
+          formatCurrency(lastSelf.cashFlow);
+        document.getElementById("financedYear15IncomeTable").textContent =
+          formatCurrency(lastFin.cashFlow);
+        document.getElementById("selfCumulativeTable").textContent =
+          formatCurrency(lastSelf.cumulative);
+        document.getElementById("financedCumulativeTable").textContent =
+          formatCurrency(lastFin.cumulative);
+        document.getElementById("selfAssetValueTable").textContent =
+          formatCurrency(lastSelf.assetValue);
+        document.getElementById("financedAssetValueTable").textContent =
+          formatCurrency(lastFin.assetValue);
+        document.getElementById("selfNetWorthTable").textContent =
+          formatCurrency(lastSelf.netWorth);
+        document.getElementById("financedNetWorthTable").textContent =
+          formatCurrency(lastFin.netWorth);
+        document.getElementById("financedLoanBalanceTable").textContent =
+          formatCurrency(lastFin.loanBalance);
+        document.getElementById("selfRemainingCashTable").textContent =
+          formatCurrency(calculationResults.finalSelfAvailableCash || 0);
+        document.getElementById("financedRemainingCashTable").textContent =
+          formatCurrency(calculationResults.finalFinancedAvailableCash || 0);
+
+        const recDiv = document.getElementById("recommendation");
+        const netWorthDiff = lastFin.netWorth - lastSelf.netWorth;
+        const cashDiff = lastFin.cumulative - lastSelf.cumulative;
+
+        let msg = "";
+        if (netWorthDiff > 0 && cashDiff > 0) {
+          msg = `🎯 <strong>Bank Financed strategy wins!</strong> It yields higher net worth (+${formatCurrency(
+            netWorthDiff
+          )}) and higher cumulative cash flow (+${formatCurrency(cashDiff)}).`;
+        } else if (netWorthDiff > 0 && cashDiff <= 0) {
+          msg = `⚖️ <strong>Mixed results:</strong> Bank Financed strategy yields higher net worth (+${formatCurrency(
+            netWorthDiff
+          )}), but lower cumulative cash flow (${formatCurrency(cashDiff)}).`;
+        } else if (netWorthDiff <= 0 && cashDiff > 0) {
+          msg = `⚖️ <strong>Mixed results:</strong> Self-financed strategy yields higher net worth (+${formatCurrency(
+            -netWorthDiff
+          )}), but bank financed has higher cumulative cash flow (+${formatCurrency(
+            cashDiff
+          )}).`;
+        } else {
+          msg = `🏆 <strong>Self-financed strategy wins!</strong> It yields higher net worth (+${formatCurrency(
+            -netWorthDiff
+          )}) and higher cumulative cash flow (+${formatCurrency(-cashDiff)}).`;
+        }
+
+        msg += `<br><br><strong>📊 Model Configuration:</strong><br>`;
+        msg += `• Investment Budget: ${params.selfPurchaseYears} years<br>`;
+        msg += `• Finance Purchases: ${params.financedPurchaseYears} years<br>`;
+        msg += `• Tax Structure: ${
+          params.passthroughLLC === "yes"
+            ? "Passthrough LLC (no entity taxes)"
+            : "Corporate taxation"
+        }<br>`;
+        msg += `• Cash flow reinvestment: ✅ Enabled (positive cash flows automatically reinvested)<br>`;
+        msg += `• Remaining cash: Self ${formatCurrency(
+          calculationResults.finalSelfAvailableCash || 0
+        )}, Financed ${formatCurrency(
+          calculationResults.finalFinancedAvailableCash || 0
+        )}`;
+
+        recDiv.innerHTML = msg;
+      }
+
+      function formatCurrency(n) {
+        const sign = n < 0 ? "-" : "";
+        const val = Math.abs(Math.round(n)).toLocaleString();
+        return `${sign}$${val}`;
+      }
+
+      function downloadCSV() {
+        if (!calculationResults.comparison) {
+          alert("Please run calculations first");
+          return;
+        }
+
+        const lines = [];
+        lines.push("Strategy Comparison With Cash Flow Reinvestment");
+        lines.push(
+          "Year,Property Cost,Self New,Self Total,Self Cash Flow,Self Asset Value,Fin New,Fin Total,Fin Cash Flow,Fin Asset Value,Fin Loan Bal,Fin Net Equity"
+        );
+
+        calculationResults.comparison.forEach((r) => {
+          lines.push(
+            [
+              r.year,
+              Math.round(r.propertyCost),
+              r.selfNewUnits,
+              r.selfTotalUnits,
+              Math.round(r.selfCashFlow),
+              Math.round(r.selfAssetValue),
+              r.financedNewUnits,
+              r.financedTotalUnits,
+              Math.round(r.financedCashFlow),
+              Math.round(r.financedAssetValue),
+              Math.round(r.totalLoanBalance),
+              Math.round(r.financedNetEquity),
+            ].join(",")
+          );
+        });
+
+        const blob = new Blob([lines.join("\n")], {
+          type: "text/csv;charset=utf-8;",
+        });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "rental_model_with_reinvestment.csv";
+        a.click();
+        URL.revokeObjectURL(url);
+      }
+
+      function downloadExcel() {
+        console.log("Download Excel function called");
+        console.log("Calculation results:", calculationResults);
+
+        if (!calculationResults.comparison) {
+          alert("Please run calculations first");
+          return;
+        }
+
+        // Show user feedback
+        const originalText = event.target.textContent;
+        event.target.textContent = "🔄 Generating Excel...";
+        event.target.style.pointerEvents = "none";
+
+        if (typeof XLSX === "undefined") {
+          console.log(
+            "XLSX library not available, falling back to CSV download"
+          );
+          downloadCSV();
+          return;
+        }
+
+        try {
+          // Test browser download capability first
+          console.log("Testing download capability...");
+          const testBlob = new Blob(["test"], { type: "text/plain" });
+          const testUrl = window.URL.createObjectURL(testBlob);
+          window.URL.revokeObjectURL(testUrl);
+          console.log("Download capability test passed");
+
+          // Create Excel workbook using SheetJS library
+          const workbook = XLSX.utils.book_new();
+
+          // 1. Input Parameters Tab
+          const inputData = [
+            ["Rental Investment Model - Input Parameters"],
+            [""],
+            ["Basic Parameters", "Value", "Description"],
+            [
+              "Annual Investment Budget",
+              calculationResults.inputParams?.annualBudget || 0,
+              "How much money you can invest each year",
+            ],
+            [
+              "Investment Budget Years",
+              calculationResults.inputParams?.selfPurchaseYears || 0,
+              "How many years you'll add new budget for self-financed purchases",
+            ],
+            [
+              "Finance Purchase Years",
+              calculationResults.inputParams?.financedPurchaseYears || 0,
+              "How many years you'll add new budget for financed purchases",
+            ],
+            [
+              "Initial Property Cost",
+              calculationResults.inputParams?.initialCost || 0,
+              "Starting cost per property unit",
+            ],
+            [""],
+            ["Financial Parameters", "", ""],
+            [
+              "Monthly Rent Rate (%)",
+              (calculationResults.inputParams?.rentalRate || 0) * 100,
+              "Monthly rent as % of purchase price",
+            ],
+            [
+              "Rent Growth Rate (%)",
+              (calculationResults.inputParams?.rentGrowthRate || 0) * 100,
+              "Annual rent growth rate",
+            ],
+            [
+              "Property Appreciation (%)",
+              (calculationResults.inputParams?.appreciationRate || 0) * 100,
+              "Annual property appreciation rate",
+            ],
+            [
+              "Vacancy Rate (%)",
+              (calculationResults.inputParams?.vacancyRate || 0) * 100,
+              "Expected vacancy percentage",
+            ],
+            [""],
+            ["Mortgage Terms", "", ""],
+            [
+              "Interest Rate (%)",
+              (calculationResults.inputParams?.interestRate || 0) * 100,
+              "Mortgage interest rate",
+            ],
+            [
+              "LTV Ratio (%)",
+              (calculationResults.inputParams?.ltvRatio || 0) * 100,
+              "Loan-to-value ratio",
+            ],
+            [
+              "Loan Term (Years)",
+              calculationResults.inputParams?.loanTerm || 0,
+              "Mortgage term",
+            ],
+            [""],
+            ["Operating Expenses", "", ""],
+            [
+              "Management Rate (%)",
+              (calculationResults.inputParams?.managementRate || 0) * 100,
+              "Management fee as % of EGI",
+            ],
+            [
+              "Maintenance Rate (%)",
+              (calculationResults.inputParams?.maintenanceRate || 0) * 100,
+              "Maintenance as % of EGI",
+            ],
+            [
+              "CapEx Rate (%)",
+              (calculationResults.inputParams?.capexRate || 0) * 100,
+              "Capital expenditure reserves",
+            ],
+            [
+              "Insurance per Unit",
+              calculationResults.inputParams?.insurance || 0,
+              "Annual insurance per unit",
+            ],
+            [
+              "Insurance Inflation (%)",
+              (calculationResults.inputParams?.insuranceInflation || 0) * 100,
+              "Annual insurance inflation",
+            ],
+            [""],
+            ["Tax Parameters", "", ""],
+            [
+              "Property Tax Rate (%)",
+              (calculationResults.inputParams?.taxRate || 0) * 100,
+              "Property tax rate",
+            ],
+            [
+              "Income Tax Rate (%)",
+              (calculationResults.inputParams?.incomeTaxRate || 0) * 100,
+              "Income tax rate",
+            ],
+            [
+              "Passthrough LLC",
+              calculationResults.inputParams?.passthroughLLC || "Yes",
+              "Tax structure",
+            ],
+            [""],
+            ["Growth & Inflation", "", ""],
+            [
+              "Cost Increase (%)",
+              (calculationResults.inputParams?.costIncrease || 0) * 100,
+              "Annual property cost increase",
+            ],
+            [
+              "Expense Inflation (%)",
+              (calculationResults.inputParams?.expenseInflation || 0) * 100,
+              "General expense inflation",
+            ],
+            [
+              "Assessed Growth Rate (%)",
+              (calculationResults.inputParams?.assessedGrowthRate || 0) * 100,
+              "Property tax assessment growth",
+            ],
+          ];
+
+          const inputSheet = XLSX.utils.aoa_to_sheet(inputData);
+          inputSheet["!cols"] = [{ width: 25 }, { width: 15 }, { width: 50 }];
+          XLSX.utils.book_append_sheet(
+            workbook,
+            inputSheet,
+            "Input Parameters"
+          );
+
+          // 2. Strategy Comparison Tab
+          const comparisonHeaders = [
+            "Year",
+            "Property Cost",
+            "Self New Units",
+            "Self Total Units",
+            "Self Cash Flow",
+            "Self Asset Value",
+            "Fin New Units",
+            "Fin Total Units",
+            "Fin Cash Flow",
+            "Fin Asset Value",
+            "Fin Loan Balance",
+            "Fin Net Equity",
+          ];
+
+          const comparisonData = [comparisonHeaders];
+          calculationResults.comparison.forEach((row) => {
+            comparisonData.push([
+              row.year,
+              row.propertyCost,
+              row.selfNewUnits,
+              row.selfTotalUnits,
+              row.selfCashFlow,
+              row.selfAssetValue,
+              row.financedNewUnits,
+              row.financedTotalUnits,
+              row.financedCashFlow,
+              row.financedAssetValue,
+              row.totalLoanBalance,
+              row.financedNetEquity,
+            ]);
+          });
+
+          const comparisonSheet = XLSX.utils.aoa_to_sheet(comparisonData);
+          comparisonSheet["!cols"] = [
+            { width: 8 },
+            { width: 15 },
+            { width: 12 },
+            { width: 12 },
+            { width: 15 },
+            { width: 15 },
+            { width: 12 },
+            { width: 12 },
+            { width: 15 },
+            { width: 15 },
+            { width: 15 },
+            { width: 15 },
+          ];
+          XLSX.utils.book_append_sheet(
+            workbook,
+            comparisonSheet,
+            "Strategy Comparison"
+          );
+
+          // 3. Cash Flow Analysis Tab
+          const cashFlowHeaders = [
+            "Year",
+            "Self Cash Flow",
+            "Self Cumulative",
+            "Self Asset Value",
+            "Self Net Worth",
+            "Fin Cash Flow",
+            "Fin Cumulative",
+            "Fin Asset Value",
+            "Fin Loan Balance",
+            "Fin Net Worth",
+            "Cash Flow Diff",
+          ];
+
+          const cashFlowData = [cashFlowHeaders];
+          for (let i = 0; i < calculationResults.selfFinanced.length; i++) {
+            const self = calculationResults.selfFinanced[i];
+            const fin = calculationResults.financed[i];
+            const cashDiff = fin.cashFlow - self.cashFlow;
+
+            cashFlowData.push([
+              self.year,
+              self.cashFlow,
+              self.cumulative,
+              self.assetValue,
+              self.netWorth,
+              fin.cashFlow,
+              fin.cumulative,
+              fin.assetValue,
+              fin.loanBalance,
+              fin.netWorth,
+              cashDiff,
+            ]);
+          }
+
+          const cashFlowSheet = XLSX.utils.aoa_to_sheet(cashFlowData);
+          cashFlowSheet["!cols"] = [
+            { width: 8 },
+            { width: 15 },
+            { width: 15 },
+            { width: 15 },
+            { width: 15 },
+            { width: 15 },
+            { width: 15 },
+            { width: 15 },
+            { width: 15 },
+            { width: 15 },
+            { width: 15 },
+          ];
+          XLSX.utils.book_append_sheet(
+            workbook,
+            cashFlowSheet,
+            "Cash Flow Analysis"
+          );
+
+          // 4. Sensitivity Analysis Tab
+          if (calculationResults.sensitivity) {
+            const sensitivityData = [
+              ["Sensitivity Analysis - Net Worth Impact (15-Year)"],
+              [""],
+              [
+                "Parameter",
+                "-30%",
+                "-20%",
+                "-10%",
+                "Base Case",
+                "+10%",
+                "+20%",
+                "+30%",
+              ],
+            ];
+
+            Object.keys(calculationResults.sensitivity.netWorth).forEach(
+              (paramKey) => {
+                const param = calculationResults.sensitivity.netWorth[paramKey];
+                sensitivityData.push([
+                  param.displayName,
+                  param.financed[0],
+                  param.financed[1],
+                  param.financed[2],
+                  param.financed[3],
+                  param.financed[4],
+                  param.financed[5],
+                  param.financed[6],
+                ]);
+              }
+            );
+
+            const sensitivitySheet = XLSX.utils.aoa_to_sheet(sensitivityData);
+            sensitivitySheet["!cols"] = [
+              { width: 25 },
+              { width: 15 },
+              { width: 15 },
+              { width: 15 },
+              { width: 15 },
+              { width: 15 },
+              { width: 15 },
+              { width: 15 },
+            ];
+            XLSX.utils.book_append_sheet(
+              workbook,
+              sensitivitySheet,
+              "Sensitivity Analysis"
+            );
+          }
+
+          // 5. Break-Even Analysis Tab
+          if (calculationResults.breakEven) {
+            const be = calculationResults.breakEven;
+            const breakEvenData = [
+              ["Break-Even Analysis"],
+              [""],
+              ["Metric", "Self-Financed", "Bank Financed", "Difference"],
+              [
+                "Cash Flow Break-Even Year",
+                be.cashFlowBreakEven.self,
+                be.cashFlowBreakEven.financed,
+                be.cashFlowBreakEven.financed - be.cashFlowBreakEven.self,
+              ],
+              [
+                "ROI vs S&P 500 Break-Even",
+                be.roiBreakEven.self,
+                be.roiBreakEven.financed,
+                be.roiBreakEven.financed - be.roiBreakEven.self,
+              ],
+              [""],
+              ["Additional Metrics", "", "", ""],
+              ["Minimum Rent for Break-Even", be.minRentBreakEven, "", ""],
+              ["Maximum Purchase Price (12% ROI)", be.maxPurchasePrice, "", ""],
+            ];
+
+            const breakEvenSheet = XLSX.utils.aoa_to_sheet(breakEvenData);
+            breakEvenSheet["!cols"] = [
+              { width: 30 },
+              { width: 15 },
+              { width: 15 },
+              { width: 15 },
+            ];
+            XLSX.utils.book_append_sheet(
+              workbook,
+              breakEvenSheet,
+              "Break-Even Analysis"
+            );
+          }
+
+          // 6. ROI Comparison Tab
+          if (calculationResults.roiComparison) {
+            const roi = calculationResults.roiComparison;
+            const roiData = [
+              ["ROI Comparison (15-Year Projection)"],
+              [""],
+              [
+                "Investment Type",
+                "Initial Investment",
+                "Final Value",
+                "Total Return",
+                "Annual Return (%)",
+                "Risk Level",
+              ],
+              [
+                "Real Estate (Self-Financed)",
+                roi.investments.self,
+                roi.finalValues.self,
+                roi.finalValues.self - roi.investments.self,
+                (roi.annualReturns.self * 100).toFixed(1),
+                "Medium",
+              ],
+              [
+                "Real Estate (Financed)",
+                roi.investments.financed,
+                roi.finalValues.financed,
+                roi.finalValues.financed - roi.investments.financed,
+                (roi.annualReturns.financed * 100).toFixed(1),
+                "Medium",
+              ],
+              [
+                "S&P 500 Index",
+                roi.investments.self,
+                roi.finalValues.sp500,
+                roi.finalValues.sp500 - roi.investments.self,
+                "10.0",
+                "Medium",
+              ],
+              [
+                "Corporate Bonds",
+                roi.investments.self,
+                roi.finalValues.bonds,
+                roi.finalValues.bonds - roi.investments.self,
+                "4.5",
+                "Low",
+              ],
+              [
+                "High-Yield Savings",
+                roi.investments.self,
+                roi.finalValues.savings,
+                roi.finalValues.savings - roi.investments.self,
+                "2.0",
+                "Very Low",
+              ],
+            ];
+
+            const roiSheet = XLSX.utils.aoa_to_sheet(roiData);
+            roiSheet["!cols"] = [
+              { width: 25 },
+              { width: 20 },
+              { width: 20 },
+              { width: 20 },
+              { width: 15 },
+              { width: 15 },
+            ];
+            XLSX.utils.book_append_sheet(workbook, roiSheet, "ROI Comparison");
+          }
+
+          // 7. Summary Tab
+          const lastComp =
+            calculationResults.comparison[
+              calculationResults.comparison.length - 1
+            ];
+          const lastSelf =
+            calculationResults.selfFinanced[
+              calculationResults.selfFinanced.length - 1
+            ];
+          const lastFin =
+            calculationResults.financed[calculationResults.financed.length - 1];
+
+          const summaryData = [
+            ["Investment Summary (15-Year Results)"],
+            [""],
+            ["Metric", "Self-Financed", "Bank Financed", "Difference"],
+            [
+              "Total Units",
+              lastComp.selfTotalUnits,
+              lastComp.financedTotalUnits,
+              lastComp.financedTotalUnits - lastComp.selfTotalUnits,
+            ],
+            [
+              "Year 15 Annual Income",
+              lastSelf.cashFlow,
+              lastFin.cashFlow,
+              lastFin.cashFlow - lastSelf.cashFlow,
+            ],
+            [
+              "15-Year Cumulative Cash Flow",
+              lastSelf.cumulative,
+              lastFin.cumulative,
+              lastFin.cumulative - lastSelf.cumulative,
+            ],
+            [
+              "Total Asset Value",
+              lastSelf.assetValue,
+              lastFin.assetValue,
+              lastFin.assetValue - lastSelf.assetValue,
+            ],
+            [
+              "Net Worth",
+              lastSelf.netWorth,
+              lastFin.netWorth,
+              lastFin.netWorth - lastSelf.netWorth,
+            ],
+            [
+              "Remaining Cash",
+              calculationResults.finalSelfAvailableCash || 0,
+              calculationResults.finalFinancedAvailableCash || 0,
+              (calculationResults.finalFinancedAvailableCash || 0) -
+                (calculationResults.finalSelfAvailableCash || 0),
+            ],
+            ["Total Loan Balance", "N/A", lastFin.loanBalance, "N/A"],
+            [""],
+            ["Recommendation", "", "", ""],
+            [
+              "Strategy Winner",
+              lastFin.netWorth > lastSelf.netWorth
+                ? "Bank Financed"
+                : "Self-Financed",
+              "",
+              "",
+            ],
+            [
+              "Net Worth Difference",
+              Math.abs(lastFin.netWorth - lastSelf.netWorth),
+              "",
+              "",
+            ],
+            [
+              "Cash Flow Difference",
+              Math.abs(lastFin.cumulative - lastSelf.cumulative),
+              "",
+              "",
+            ],
+          ];
+
+          const summarySheet = XLSX.utils.aoa_to_sheet(summaryData);
+          summarySheet["!cols"] = [
+            { width: 30 },
+            { width: 20 },
+            { width: 20 },
+            { width: 20 },
+          ];
+          XLSX.utils.book_append_sheet(workbook, summarySheet, "Summary");
+
+          // 8. Model Documentation Tab
+          const docData = [
+            ["Rental Investment Model Documentation"],
+            [""],
+            ["Model Overview", ""],
+            [
+              "This Excel model compares two rental property investment strategies over 15 years:",
+            ],
+            ["1. Self-Financed Strategy: Purchase properties with 100% cash"],
+            [
+              "2. Bank-Financed Strategy: Purchase properties using mortgage financing",
+            ],
+            [""],
+            ["Key Features", ""],
+            [
+              "• Cash Flow Reinvestment: Positive cash flows automatically reinvested",
+            ],
+            ["• Cohort Tracking: Properties tracked by acquisition year"],
+            [
+              "• Realistic Expense Modeling: Insurance, taxes, maintenance, management",
+            ],
+            ["• Tax Structure Options: Passthrough LLC vs Corporate taxation"],
+            ["• Sensitivity Analysis: Parameter impact testing"],
+            ["• Break-Even Analysis: Profitability timing"],
+            ["• ROI Comparisons: vs traditional investments"],
+            [""],
+            ["Tab Descriptions", ""],
+            ["Input Parameters", "Model configuration and assumptions"],
+            [
+              "Strategy Comparison",
+              "Year-by-year comparison of both strategies",
+            ],
+            ["Cash Flow Analysis", "Detailed cash flow projections"],
+            ["Sensitivity Analysis", "Parameter sensitivity testing"],
+            ["Break-Even Analysis", "Profitability and ROI break-even points"],
+            ["ROI Comparison", "Comparison with traditional investments"],
+            ["Summary", "Final results and recommendations"],
+            [""],
+            ["Model Limitations", ""],
+            ["• Assumes constant market conditions"],
+            ["• Simplified tax treatment"],
+            ["• No transaction costs for selling"],
+            ["• Assumes properties always available"],
+            ["• Does not account for management time value"],
+            [""],
+            ["Usage Instructions", ""],
+            ["1. Review Input Parameters tab for current assumptions"],
+            ["2. Modify parameters as needed for your scenario"],
+            ["3. All other tabs will update automatically with formulas"],
+            ["4. Use Sensitivity Analysis to test parameter variations"],
+            ["5. Check Break-Even Analysis for profitability timing"],
+            ["6. Compare ROI with traditional investments"],
+            ["7. Review Summary for final recommendations"],
+          ];
+
+          const docSheet = XLSX.utils.aoa_to_sheet(docData);
+          docSheet["!cols"] = [{ width: 50 }, { width: 60 }];
+          XLSX.utils.book_append_sheet(workbook, docSheet, "Documentation");
+
+          // Save the workbook - use more robust method
+          console.log("Starting Excel generation...");
+
+          // Convert workbook to binary
+          const wbout = XLSX.write(workbook, {
+            bookType: "xlsx",
+            type: "array",
+          });
+          console.log(
+            "Workbook binary created, size:",
+            wbout.byteLength,
+            "bytes"
+          );
+
+          // Create blob
+          const blob = new Blob([wbout], {
+            type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+          });
+          console.log("Blob created, size:", blob.size, "bytes");
+
+          // Create download link and trigger download
+          const url = window.URL.createObjectURL(blob);
+          console.log("Download URL created:", url);
+
+          // Try multiple download methods
+          let downloadSuccess = false;
+
+          // Method 1: Standard download link
+          try {
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = "rental_investment_model.xlsx";
+            a.style.display = "none";
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            downloadSuccess = true;
+            console.log("Method 1 (standard) download triggered");
+          } catch (e) {
+            console.log("Method 1 failed:", e);
+          }
+
+          // Method 2: Direct window.open if Method 1 failed
+          if (!downloadSuccess) {
+            try {
+              window.open(url, "_blank");
+              downloadSuccess = true;
+              console.log("Method 2 (window.open) download triggered");
+            } catch (e) {
+              console.log("Method 2 failed:", e);
+            }
+          }
+
+          // Method 3: Create visible link for manual click
+          if (!downloadSuccess) {
+            const manualLink = document.createElement("a");
+            manualLink.href = url;
+            manualLink.download = "rental_investment_model.xlsx";
+            manualLink.textContent = "📥 Click here to download Excel file";
+            manualLink.style.cssText =
+              "position: fixed; top: 20px; right: 20px; background: #28a745; color: white; padding: 15px; border-radius: 8px; text-decoration: none; z-index: 10000; box-shadow: 0 4px 8px rgba(0,0,0,0.3);";
+            document.body.appendChild(manualLink);
+
+            // Auto-remove after 10 seconds
+            setTimeout(() => {
+              if (document.body.contains(manualLink)) {
+                document.body.removeChild(manualLink);
+              }
+            }, 10000);
+
+            console.log(
+              "Method 3 (manual link) created - click the green button in top-right"
+            );
+          }
+
+          // Clean up
+          setTimeout(() => {
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+            console.log("Cleanup completed");
+          }, 100);
+
+          // Show success message and restore button state
+          setTimeout(() => {
+            if (event && event.target) {
+              event.target.textContent = "✅ Downloaded!";
+              setTimeout(() => {
+                event.target.textContent = originalText;
+                event.target.style.pointerEvents = "auto";
+              }, 2000);
+            }
+
+            // Show user notification
+            alert(
+              "✅ Excel file downloaded successfully!\n\n📁 File: rental_investment_model.xlsx\n📍 Location: Your Downloads folder\n\n📊 The file contains 8 tabs with all your analysis data."
+            );
+          }, 1000);
+        } catch (error) {
+          console.error("Error generating Excel file:", error);
+          console.log("Falling back to CSV download");
+
+          // Fallback to CSV if Excel fails completely
+          try {
+            downloadCSV();
+            alert(
+              "Excel generation failed, downloaded CSV instead. You can open this in Excel."
+            );
+          } catch (csvError) {
+            console.error("CSV fallback also failed:", csvError);
+            alert("Both Excel and CSV generation failed: " + error.message);
+          }
+
+          // Restore button state on error
+          if (event && event.target) {
+            event.target.textContent = originalText;
+            event.target.style.pointerEvents = "auto";
+          }
+        }
+      }
+
+      function performSensitivityAnalysis(baseParams) {
+        const sensitivityResults = {
+          netWorth: {},
+          cashFlow: {},
+        };
+
+        const parametersToTest = {
+          interestRate: "Interest Rate",
+          appreciationRate: "Property Appreciation",
+          rentGrowthRate: "Rent Growth Rate",
+          vacancyRate: "Vacancy Rate",
+          initialCost: "Initial Property Cost",
+          rentalRate: "Rent/Price Ratio",
+          managementRate: "Management Fee",
+          capexRate: "CapEx Reserves",
+        };
+
+        const variations = [-0.3, -0.2, -0.1, 0, 0.1, 0.2, 0.3];
+
+        Object.keys(parametersToTest).forEach((paramKey) => {
+          sensitivityResults.netWorth[paramKey] = {
+            displayName: parametersToTest[paramKey],
+            selfFinanced: [],
+            financed: [],
+          };
+          sensitivityResults.cashFlow[paramKey] = {
+            displayName: parametersToTest[paramKey],
+            selfFinanced: [],
+            financed: [],
+          };
+
+          variations.forEach((variation) => {
+            const testParams = { ...baseParams };
+
+            if (paramKey === "initialCost") {
+              testParams[paramKey] = baseParams[paramKey] * (1 + variation);
+            } else {
+              testParams[paramKey] = Math.max(
+                0,
+                baseParams[paramKey] + baseParams[paramKey] * variation
+              );
+            }
+
+            try {
+              const results = performCalculations(testParams);
+              const lastSelf =
+                results.selfFinanced[results.selfFinanced.length - 1];
+              const lastFin = results.financed[results.financed.length - 1];
+
+              sensitivityResults.netWorth[paramKey].selfFinanced.push(
+                lastSelf.netWorth
+              );
+              sensitivityResults.netWorth[paramKey].financed.push(
+                lastFin.netWorth
+              );
+              sensitivityResults.cashFlow[paramKey].selfFinanced.push(
+                lastSelf.cumulative
+              );
+              sensitivityResults.cashFlow[paramKey].financed.push(
+                lastFin.cumulative
+              );
+            } catch (error) {
+              sensitivityResults.netWorth[paramKey].selfFinanced.push(0);
+              sensitivityResults.netWorth[paramKey].financed.push(0);
+              sensitivityResults.cashFlow[paramKey].selfFinanced.push(0);
+              sensitivityResults.cashFlow[paramKey].financed.push(0);
+            }
+          });
+        });
+
+        return sensitivityResults;
+      }
+
+      function performBreakEvenAnalysis(baseParams, baseResults) {
+        const breakEven = {};
+
+        let cashFlowBreakEvenSelf = 0;
+        let cashFlowBreakEvenFinanced = 0;
+
+        for (let i = 0; i < baseResults.selfFinanced.length; i++) {
+          if (
+            baseResults.selfFinanced[i].cashFlow > 0 &&
+            cashFlowBreakEvenSelf === 0
+          ) {
+            cashFlowBreakEvenSelf = i + 1;
+          }
+          if (
+            baseResults.financed[i].cashFlow > 0 &&
+            cashFlowBreakEvenFinanced === 0
+          ) {
+            cashFlowBreakEvenFinanced = i + 1;
+          }
+        }
+
+        breakEven.cashFlowBreakEven = {
+          self: cashFlowBreakEvenSelf,
+          financed: cashFlowBreakEvenFinanced,
+        };
+
+        const totalInvestmentSelf =
+          baseParams.annualBudget * baseParams.selfPurchaseYears;
+        const totalInvestmentFinanced =
+          baseParams.annualBudget * baseParams.financedPurchaseYears;
+
+        let roiBreakEvenSelf = 0;
+        let roiBreakEvenFinanced = 0;
+
+        for (let i = 0; i < baseResults.selfFinanced.length; i++) {
+          const years = i + 1;
+          const spReturn = totalInvestmentSelf * Math.pow(1.1, years);
+
+          if (
+            baseResults.selfFinanced[i].netWorth +
+              baseResults.selfFinanced[i].cumulative >
+              spReturn &&
+            roiBreakEvenSelf === 0
+          ) {
+            roiBreakEvenSelf = years;
+          }
+
+          const spReturnFinanced =
+            totalInvestmentFinanced * Math.pow(1.1, years);
+          if (
+            baseResults.financed[i].netWorth +
+              baseResults.financed[i].cumulative >
+              spReturnFinanced &&
+            roiBreakEvenFinanced === 0
+          ) {
+            roiBreakEvenFinanced = years;
+          }
+        }
+
+        breakEven.roiBreakEven = {
+          self: roiBreakEvenSelf || 15,
+          financed: roiBreakEvenFinanced || 15,
+        };
+
+        const testParams = { ...baseParams };
+        let minRent = baseParams.rentalRate;
+
+        for (let testRent = 0.005; testRent <= 0.03; testRent += 0.001) {
+          testParams.rentalRate = testRent;
+          try {
+            const results = performCalculations(testParams);
+            if (results.selfFinanced[0].cashFlow > 0) {
+              minRent = testRent;
+              break;
+            }
+          } catch (error) {
+            continue;
+          }
+        }
+
+        breakEven.minRentBreakEven = minRent * baseParams.initialCost * 12;
+
+        let maxPrice = baseParams.initialCost;
+        for (
+          let testPrice = baseParams.initialCost * 0.5;
+          testPrice <= baseParams.initialCost * 1.5;
+          testPrice += 1000
+        ) {
+          testParams.initialCost = testPrice;
+          testParams.rentalRate = baseParams.rentalRate;
+          try {
+            const results = performCalculations(testParams);
+            const finalSelf =
+              results.selfFinanced[results.selfFinanced.length - 1];
+            const totalReturn = finalSelf.netWorth + finalSelf.cumulative;
+            const annualReturn =
+              Math.pow(totalReturn / totalInvestmentSelf, 1 / 15) - 1;
+
+            if (annualReturn >= 0.12) {
+              maxPrice = testPrice;
+            } else {
+              break;
+            }
+          } catch (error) {
+            break;
+          }
+        }
+
+        breakEven.maxPurchasePrice = maxPrice;
+
+        return breakEven;
+      }
+
+      function performROIComparison(baseParams, baseResults) {
+        const totalInvestmentSelf =
+          baseParams.annualBudget * baseParams.selfPurchaseYears;
+        const totalInvestmentFinanced =
+          baseParams.annualBudget * baseParams.financedPurchaseYears;
+
+        const finalSelf =
+          baseResults.selfFinanced[baseResults.selfFinanced.length - 1];
+        const finalFinanced =
+          baseResults.financed[baseResults.financed.length - 1];
+
+        const selfTotalReturn = finalSelf.netWorth + finalSelf.cumulative;
+        const financedTotalReturn =
+          finalFinanced.netWorth + finalFinanced.cumulative;
+
+        const selfAnnualReturn =
+          Math.pow(selfTotalReturn / totalInvestmentSelf, 1 / 15) - 1;
+        const financedAnnualReturn =
+          Math.pow(financedTotalReturn / totalInvestmentFinanced, 1 / 15) - 1;
+
+        const spFinal = totalInvestmentSelf * Math.pow(1.1, 15);
+        const bondsFinal = totalInvestmentSelf * Math.pow(1.045, 15);
+        const savingsFinal = totalInvestmentSelf * Math.pow(1.02, 15);
+
+        const yearlyComparison = [];
+        for (let year = 1; year <= 15; year++) {
+          const spValue = totalInvestmentSelf * Math.pow(1.1, year);
+          const bondsValue = totalInvestmentSelf * Math.pow(1.045, year);
+          const savingsValue = totalInvestmentSelf * Math.pow(1.02, year);
+
+          const selfValue =
+            baseResults.selfFinanced[year - 1].netWorth +
+            baseResults.selfFinanced[year - 1].cumulative;
+          const financedValue =
+            baseResults.financed[year - 1].netWorth +
+            baseResults.financed[year - 1].cumulative;
+
+          yearlyComparison.push({
+            year,
+            realEstateSelf: selfValue,
+            realEstateFinanced: financedValue,
+            sp500: spValue,
+            bonds: bondsValue,
+            savings: savingsValue,
+          });
+        }
+
+        return {
+          annualReturns: {
+            self: selfAnnualReturn,
+            financed: financedAnnualReturn,
+            sp500: 0.1,
+            bonds: 0.045,
+            savings: 0.02,
+          },
+          finalValues: {
+            self: selfTotalReturn,
+            financed: financedTotalReturn,
+            sp500: spFinal,
+            bonds: bondsFinal,
+            savings: savingsFinal,
+          },
+          yearlyComparison: yearlyComparison,
+          investments: {
+            self: totalInvestmentSelf,
+            financed: totalInvestmentFinanced,
+          },
+        };
+      }
+
+      function updateSensitivityAnalysis() {
+        if (!calculationResults.sensitivity) return;
+
+        const netWorthTbody = document.getElementById(
+          "sensitivityNetWorthBody"
+        );
+        const cashFlowTbody = document.getElementById(
+          "sensitivityCashFlowBody"
+        );
+
+        if (netWorthTbody) {
+          netWorthTbody.innerHTML = "";
+          Object.keys(calculationResults.sensitivity.netWorth).forEach(
+            (paramKey) => {
+              const param = calculationResults.sensitivity.netWorth[paramKey];
+              const tr = document.createElement("tr");
+              tr.innerHTML = `
+               <td><strong>${param.displayName}</strong></td>
+               <td>${formatCurrency(param.financed[0])}</td>
+               <td>${formatCurrency(param.financed[1])}</td>
+               <td>${formatCurrency(param.financed[2])}</td>
+               <td><strong>${formatCurrency(param.financed[3])}</strong></td>
+               <td>${formatCurrency(param.financed[4])}</td>
+               <td>${formatCurrency(param.financed[5])}</td>
+               <td>${formatCurrency(param.financed[6])}</td>
+             `;
+              netWorthTbody.appendChild(tr);
+            }
+          );
+        }
+
+        if (cashFlowTbody) {
+          cashFlowTbody.innerHTML = "";
+          Object.keys(calculationResults.sensitivity.cashFlow).forEach(
+            (paramKey) => {
+              const param = calculationResults.sensitivity.cashFlow[paramKey];
+              const tr = document.createElement("tr");
+              tr.innerHTML = `
+               <td><strong>${param.displayName}</strong></td>
+               <td>${formatCurrency(param.financed[0])}</td>
+               <td>${formatCurrency(param.financed[1])}</td>
+               <td>${formatCurrency(param.financed[2])}</td>
+               <td><strong>${formatCurrency(param.financed[3])}</strong></td>
+               <td>${formatCurrency(param.financed[4])}</td>
+               <td>${formatCurrency(param.financed[5])}</td>
+               <td>${formatCurrency(param.financed[6])}</td>
+             `;
+              cashFlowTbody.appendChild(tr);
+            }
+          );
+        }
+      }
+
+      function updateBreakEvenAnalysis() {
+        if (!calculationResults.breakEven) return;
+
+        const be = calculationResults.breakEven;
+
+        document.getElementById(
+          "cashFlowBreakEven"
+        ).textContent = `Self: Year ${be.cashFlowBreakEven.self}, Financed: Year ${be.cashFlowBreakEven.financed}`;
+        document.getElementById(
+          "roiBreakEven"
+        ).textContent = `Self: Year ${be.roiBreakEven.self}, Financed: Year ${be.roiBreakEven.financed}`;
+        document.getElementById("minRentBreakEven").textContent =
+          formatCurrency(be.minRentBreakEven);
+        document.getElementById("maxPurchasePrice").textContent =
+          formatCurrency(be.maxPurchasePrice);
+
+        const tbody = document.getElementById("breakEvenBody");
+        if (tbody) {
+          tbody.innerHTML = `
+             <tr>
+               <td><strong>Cash Flow Break-Even Year</strong></td>
+               <td>Year ${be.cashFlowBreakEven.self}</td>
+               <td>Year ${be.cashFlowBreakEven.financed}</td>
+               <td>${
+                 be.cashFlowBreakEven.financed - be.cashFlowBreakEven.self
+               } years</td>
+             </tr>
+             <tr>
+               <td><strong>ROI vs S&P 500 Break-Even</strong></td>
+               <td>Year ${be.roiBreakEven.self}</td>
+               <td>Year ${be.roiBreakEven.financed}</td>
+               <td>${be.roiBreakEven.financed - be.roiBreakEven.self} years</td>
+             </tr>
+           `;
+        }
+      }
+
+      function updateROIComparison() {
+        if (!calculationResults.roiComparison) return;
+
+        const roi = calculationResults.roiComparison;
+
+        document.getElementById("realEstateROISelf").textContent = `${(
+          roi.annualReturns.self * 100
+        ).toFixed(1)}%`;
+        document.getElementById("realEstateROIFinanced").textContent = `${(
+          roi.annualReturns.financed * 100
+        ).toFixed(1)}%`;
+
+        const comparisonTbody = document.getElementById("roiComparisonBody");
+        if (comparisonTbody) {
+          comparisonTbody.innerHTML = `
+             <tr>
+               <td><strong>Real Estate (Self-Financed)</strong></td>
+               <td>${formatCurrency(roi.investments.self)}</td>
+               <td>${formatCurrency(roi.finalValues.self)}</td>
+               <td>${formatCurrency(
+                 roi.finalValues.self - roi.investments.self
+               )}</td>
+               <td>${(roi.annualReturns.self * 100).toFixed(1)}%</td>
+               <td>Medium</td>
+             </tr>
+             <tr>
+               <td><strong>Real Estate (Financed)</strong></td>
+               <td>${formatCurrency(roi.investments.financed)}</td>
+               <td>${formatCurrency(roi.finalValues.financed)}</td>
+               <td>${formatCurrency(
+                 roi.finalValues.financed - roi.investments.financed
+               )}</td>
+               <td>${(roi.annualReturns.financed * 100).toFixed(1)}%</td>
+               <td>Medium</td>
+             </tr>
+             <tr>
+               <td><strong>S&P 500 Index</strong></td>
+               <td>${formatCurrency(roi.investments.self)}</td>
+               <td>${formatCurrency(roi.finalValues.sp500)}</td>
+               <td>${formatCurrency(
+                 roi.finalValues.sp500 - roi.investments.self
+               )}</td>
+               <td>10.0%</td>
+               <td>Medium</td>
+             </tr>
+             <tr>
+               <td><strong>Corporate Bonds</strong></td>
+               <td>${formatCurrency(roi.investments.self)}</td>
+               <td>${formatCurrency(roi.finalValues.bonds)}</td>
+               <td>${formatCurrency(
+                 roi.finalValues.bonds - roi.investments.self
+               )}</td>
+               <td>4.5%</td>
+               <td>Low</td>
+             </tr>
+             <tr>
+               <td><strong>High-Yield Savings</strong></td>
+               <td>${formatCurrency(roi.investments.self)}</td>
+               <td>${formatCurrency(roi.finalValues.savings)}</td>
+               <td>${formatCurrency(
+                 roi.finalValues.savings - roi.investments.self
+               )}</td>
+               <td>2.0%</td>
+               <td>Very Low</td>
+             </tr>
+           `;
+        }
+
+        const yearlyTbody = document.getElementById("roiYearlyBody");
+        if (yearlyTbody) {
+          yearlyTbody.innerHTML = "";
+          roi.yearlyComparison.forEach((row) => {
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+               <td>${row.year}</td>
+               <td>${formatCurrency(row.realEstateSelf)}</td>
+               <td>${formatCurrency(row.realEstateFinanced)}</td>
+               <td>${formatCurrency(row.sp500)}</td>
+               <td>${formatCurrency(row.bonds)}</td>
+               <td>${formatCurrency(row.savings)}</td>
+             `;
+            yearlyTbody.appendChild(tr);
+          });
+        }
+      }
+    </script>
+  </body>
+</html>
