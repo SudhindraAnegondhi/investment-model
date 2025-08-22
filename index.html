@@ -803,7 +803,9 @@
       .balance-container {
         display: grid;
         grid-template-columns: 1fr 1fr;
-        gap: 15px;
+        gap: 20px;
+        max-width: 95%;
+        margin: 0 auto;
       }
 
       .pl-section,
@@ -812,6 +814,8 @@
         padding: 15px;
         border-radius: 8px;
         border-left: 4px solid #667eea;
+        max-width: 100%;
+        margin: 0 auto;
       }
 
       .pl-section h3,
@@ -823,7 +827,8 @@
 
       .pl-table,
       .balance-table {
-        width: 100%;
+        width: 90%;
+        margin: 0 auto;
         border-collapse: collapse;
         font-size: 11px;
       }
@@ -883,6 +888,7 @@
         .balance-container {
           grid-template-columns: 1fr;
           gap: 15px;
+          max-width: 98%;
         }
 
         .modal-tabs {
@@ -892,6 +898,11 @@
         .modal-tab {
           text-align: center;
           border-bottom: 1px solid #eee;
+        }
+        
+        .pl-table,
+        .balance-table {
+          width: 95%;
         }
       }
 
