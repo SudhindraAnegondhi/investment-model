@@ -854,6 +854,12 @@
       .balance-table td:last-child {
         text-align: right;
         font-weight: 600;
+        width: 30%;
+      }
+      
+      .pl-table td:first-child,
+      .balance-table td:first-child {
+        width: 70%;
       }
 
       .positive {
@@ -899,7 +905,7 @@
           text-align: center;
           border-bottom: 1px solid #eee;
         }
-        
+
         .pl-table,
         .balance-table {
           width: 95%;
@@ -2447,8 +2453,12 @@
             propertyTax: selfMetrics.propertyTax,
             depreciation: selfMetrics.depreciation,
             capex: selfCapEx,
-            totalOperatingExpenses: selfMetrics.management + selfMetrics.maintenance + selfMetrics.insurance + selfMetrics.propertyTax,
-            vacancyLoss: selfMetrics.gpr - selfMetrics.egi
+            totalOperatingExpenses:
+              selfMetrics.management +
+              selfMetrics.maintenance +
+              selfMetrics.insurance +
+              selfMetrics.propertyTax,
+            vacancyLoss: selfMetrics.gpr - selfMetrics.egi,
           });
 
           results.financed.push({
@@ -2468,11 +2478,21 @@
             propertyTax: finMetrics.propertyTax,
             depreciation: finMetrics.depreciation,
             capex: finCapEx,
-            totalOperatingExpenses: finMetrics.management + finMetrics.maintenance + finMetrics.insurance + finMetrics.propertyTax,
+            totalOperatingExpenses:
+              finMetrics.management +
+              finMetrics.maintenance +
+              finMetrics.insurance +
+              finMetrics.propertyTax,
             vacancyLoss: finMetrics.gpr - finMetrics.egi,
-            principalPayment: totalAnnualEMI > 0 ? totalAnnualEMI - calculateAnnualInterest(financedLoans, year) : 0,
-            interestPayment: totalAnnualEMI > 0 ? calculateAnnualInterest(financedLoans, year) : 0,
-            totalDebtService: totalAnnualEMI
+            principalPayment:
+              totalAnnualEMI > 0
+                ? totalAnnualEMI - calculateAnnualInterest(financedLoans, year)
+                : 0,
+            interestPayment:
+              totalAnnualEMI > 0
+                ? calculateAnnualInterest(financedLoans, year)
+                : 0,
+            totalDebtService: totalAnnualEMI,
           });
         }
 
@@ -2587,13 +2607,13 @@
              <td>${row.selfTotalUnits}</td>
              <td class="${
                row.selfCashFlow >= 0 ? "positive" : "negative"
-                     }">${formatNumber(row.selfCashFlow)}</td>
+             }">${formatNumber(row.selfCashFlow)}</td>
         <td>${formatNumber(row.selfAssetValue)}</td>
              <td>${row.financedNewUnits}</td>
              <td>${row.financedTotalUnits}</td>
              <td class="${
                row.financedCashFlow >= 0 ? "positive" : "negative"
-                     }">${formatNumber(row.financedCashFlow)}</td>
+             }">${formatNumber(row.financedCashFlow)}</td>
         <td>${formatNumber(row.financedAssetValue)}</td>
         <td>${formatNumber(row.totalLoanBalance)}</td>
         <td>${formatNumber(row.financedNetEquity)}</td>
@@ -2617,13 +2637,13 @@
              <td>${self[i].year}</td>
              <td class="${
                self[i].cashFlow >= 0 ? "positive" : "negative"
-                     }">${formatNumber(self[i].cashFlow)}</td>
+             }">${formatNumber(self[i].cashFlow)}</td>
         <td>${formatNumber(self[i].cumulative)}</td>
         <td>${formatNumber(self[i].assetValue)}</td>
         <td>${formatNumber(self[i].netWorth)}</td>
              <td class="${
                fin[i].cashFlow >= 0 ? "positive" : "negative"
-                     }">${formatNumber(fin[i].cashFlow)}</td>
+             }">${formatNumber(fin[i].cashFlow)}</td>
         <td>${formatNumber(fin[i].cumulative)}</td>
         <td>${formatNumber(fin[i].assetValue)}</td>
         <td>${formatNumber(fin[i].loanBalance)}</td>
@@ -2655,8 +2675,9 @@
           calculationResults.financed[calculationResults.financed.length - 1];
 
         // Update card elements
-        document.getElementById("totalSelfUnits").textContent =
-          formatNumber(lastComp.selfTotalUnits);
+        document.getElementById("totalSelfUnits").textContent = formatNumber(
+          lastComp.selfTotalUnits
+        );
         document.getElementById("totalFinancedUnits").textContent =
           formatNumber(lastComp.financedTotalUnits);
         document.getElementById("selfYear15Income").textContent =
@@ -2757,23 +2778,23 @@
       }
 
       function formatCurrency(n) {
-        return new Intl.NumberFormat('en-US', {
-          style: 'currency',
-          currency: 'USD',
+        return new Intl.NumberFormat("en-US", {
+          style: "currency",
+          currency: "USD",
           minimumFractionDigits: 0,
-          maximumFractionDigits: 0
+          maximumFractionDigits: 0,
         }).format(n);
       }
 
       function formatNumber(n) {
-        return new Intl.NumberFormat('en-US').format(Math.round(n));
+        return new Intl.NumberFormat("en-US").format(Math.round(n));
       }
 
       function formatPercentage(n) {
-        return new Intl.NumberFormat('en-US', {
-          style: 'percent',
+        return new Intl.NumberFormat("en-US", {
+          style: "percent",
           minimumFractionDigits: 1,
-          maximumFractionDigits: 1
+          maximumFractionDigits: 1,
         }).format(n);
       }
 
@@ -3873,8 +3894,10 @@
 
         const roi = calculationResults.roiComparison;
 
-        document.getElementById("realEstateROISelf").textContent = formatPercentage(roi.annualReturns.self);
-        document.getElementById("realEstateROIFinanced").textContent = formatPercentage(roi.annualReturns.financed);
+        document.getElementById("realEstateROISelf").textContent =
+          formatPercentage(roi.annualReturns.self);
+        document.getElementById("realEstateROIFinanced").textContent =
+          formatPercentage(roi.annualReturns.financed);
 
         const comparisonTbody = document.getElementById("roiComparisonBody");
         if (comparisonTbody) {
@@ -3966,11 +3989,11 @@
         closeBtn.onclick = closeModal;
 
         // Close modal when clicking outside
-        window.onclick = function(event) {
+        window.onclick = function (event) {
           if (event.target === modal) {
             closeModal();
           }
-        }
+        };
       }
 
       function closeModal() {
@@ -3980,18 +4003,18 @@
 
       function showModalTab(tabName) {
         // Hide all tab contents
-        const tabContents = document.querySelectorAll('.modal-tab-content');
-        tabContents.forEach(content => content.classList.remove('active'));
+        const tabContents = document.querySelectorAll(".modal-tab-content");
+        tabContents.forEach((content) => content.classList.remove("active"));
 
         // Remove active class from all tabs
-        const tabs = document.querySelectorAll('.modal-tab');
-        tabs.forEach(tab => tab.classList.remove('active'));
+        const tabs = document.querySelectorAll(".modal-tab");
+        tabs.forEach((tab) => tab.classList.remove("active"));
 
         // Show selected tab content
-        document.getElementById(tabName).classList.add('active');
+        document.getElementById(tabName).classList.add("active");
 
         // Add active class to clicked tab
-        event.target.classList.add('active');
+        event.target.classList.add("active");
       }
 
       function populateModalData(year, index) {
@@ -4013,75 +4036,156 @@
         // Self-Financed P&L
         selfPLBody.innerHTML = `
           <tr><th colspan="2">Income</th></tr>
-          <tr><td>Gross Potential Rent</td><td class="positive">${formatCurrency(selfData.gpr || 0)}</td></tr>
-          <tr><td>Vacancy Loss</td><td class="negative">${formatCurrency(selfData.vacancyLoss || 0)}</td></tr>
-          <tr><td>Effective Gross Income</td><td class="positive">${formatCurrency(selfData.egi || 0)}</td></tr>
+          <tr><td>Gross Potential Rent</td><td class="positive">${formatCurrency(
+            selfData.gpr || 0
+          )}</td></tr>
+          <tr><td>Vacancy Loss</td><td class="negative">${formatCurrency(
+            selfData.vacancyLoss || 0
+          )}</td></tr>
+          <tr><td>Effective Gross Income</td><td class="positive">${formatCurrency(
+            selfData.egi || 0
+          )}</td></tr>
           <tr><th colspan="2">Operating Expenses</th></tr>
-          <tr><td>Property Management</td><td class="negative">${formatCurrency(selfData.management || 0)}</td></tr>
-          <tr><td>Property Tax</td><td class="negative">${formatCurrency(selfData.propertyTax || 0)}</td></tr>
-          <tr><td>Insurance</td><td class="negative">${formatCurrency(selfData.insurance || 0)}</td></tr>
-          <tr><td>Maintenance</td><td class="negative">${formatCurrency(selfData.maintenance || 0)}</td></tr>
-          <tr><td>Total Operating Expenses</td><td class="negative">${formatCurrency(selfData.totalOperatingExpenses || 0)}</td></tr>
+          <tr><td>Property Management</td><td class="negative">${formatCurrency(
+            selfData.management || 0
+          )}</td></tr>
+          <tr><td>Property Tax</td><td class="negative">${formatCurrency(
+            selfData.propertyTax || 0
+          )}</td></tr>
+          <tr><td>Insurance</td><td class="negative">${formatCurrency(
+            selfData.insurance || 0
+          )}</td></tr>
+          <tr><td>Maintenance</td><td class="negative">${formatCurrency(
+            selfData.maintenance || 0
+          )}</td></tr>
+          <tr><td>Total Operating Expenses</td><td class="negative">${formatCurrency(
+            selfData.totalOperatingExpenses || 0
+          )}</td></tr>
           <tr><th colspan="2">Net Operating Income</th></tr>
-          <tr><td>NOI</td><td class="${selfData.noi >= 0 ? 'positive' : 'negative'}">${formatCurrency(selfData.noi || 0)}</td></tr>
-          <tr><td>CapEx</td><td class="negative">${formatCurrency(selfData.capex || 0)}</td></tr>
+          <tr><td>NOI</td><td class="${
+            selfData.noi >= 0 ? "positive" : "negative"
+          }">${formatCurrency(selfData.noi || 0)}</td></tr>
+          <tr><td>CapEx</td><td class="negative">${formatCurrency(
+            selfData.capex || 0
+          )}</td></tr>
           <tr><th colspan="2">Cash Flow</th></tr>
-          <tr><td>Annual Cash Flow</td><td class="${selfData.cashFlow >= 0 ? 'positive' : 'negative'}">${formatCurrency(selfData.cashFlow)}</td></tr>
+          <tr><td>Annual Cash Flow</td><td class="${
+            selfData.cashFlow >= 0 ? "positive" : "negative"
+          }">${formatCurrency(selfData.cashFlow)}</td></tr>
         `;
 
         // Bank-Financed P&L
         financedPLBody.innerHTML = `
           <tr><th colspan="2">Income</th></tr>
-          <tr><td>Gross Potential Rent</td><td class="positive">${formatCurrency(financedData.gpr || 0)}</td></tr>
-          <tr><td>Vacancy Loss</td><td class="negative">${formatCurrency(financedData.vacancyLoss || 0)}</td></tr>
-          <tr><td>Effective Gross Income</td><td class="positive">${formatCurrency(financedData.egi || 0)}</td></tr>
+          <tr><td>Gross Potential Rent</td><td class="positive">${formatCurrency(
+            financedData.gpr || 0
+          )}</td></tr>
+          <tr><td>Vacancy Loss</td><td class="negative">${formatCurrency(
+            financedData.vacancyLoss || 0
+          )}</td></tr>
+          <tr><td>Effective Gross Income</td><td class="positive">${formatCurrency(
+            financedData.egi || 0
+          )}</td></tr>
           <tr><th colspan="2">Operating Expenses</th></tr>
-          <tr><td>Property Management</td><td class="negative">${formatCurrency(financedData.management || 0)}</td></tr>
-          <tr><td>Property Tax</td><td class="negative">${formatCurrency(financedData.propertyTax || 0)}</td></tr>
-          <tr><td>Insurance</td><td class="negative">${formatCurrency(financedData.insurance || 0)}</td></tr>
-          <tr><td>Maintenance</td><td class="negative">${formatCurrency(financedData.maintenance || 0)}</td></tr>
-          <tr><td>Total Operating Expenses</td><td class="negative">${formatCurrency(financedData.totalOperatingExpenses || 0)}</td></tr>
+          <tr><td>Property Management</td><td class="negative">${formatCurrency(
+            financedData.management || 0
+          )}</td></tr>
+          <tr><td>Property Tax</td><td class="negative">${formatCurrency(
+            financedData.propertyTax || 0
+          )}</td></tr>
+          <tr><td>Insurance</td><td class="negative">${formatCurrency(
+            financedData.insurance || 0
+          )}</td></tr>
+          <tr><td>Maintenance</td><td class="negative">${formatCurrency(
+            financedData.maintenance || 0
+          )}</td></tr>
+          <tr><td>Total Operating Expenses</td><td class="negative">${formatCurrency(
+            financedData.totalOperatingExpenses || 0
+          )}</td></tr>
           <tr><th colspan="2">Net Operating Income</th></tr>
-          <tr><td>NOI</td><td class="${financedData.noi >= 0 ? 'positive' : 'negative'}">${formatCurrency(financedData.noi || 0)}</td></tr>
-          <tr><td>CapEx</td><td class="negative">${formatCurrency(financedData.capex || 0)}</td></tr>
+          <tr><td>NOI</td><td class="${
+            financedData.noi >= 0 ? "positive" : "negative"
+          }">${formatCurrency(financedData.noi || 0)}</td></tr>
+          <tr><td>CapEx</td><td class="negative">${formatCurrency(
+            financedData.capex || 0
+          )}</td></tr>
           <tr><th colspan="2">Debt Service</th></tr>
-          <tr><td>Principal Payment</td><td class="negative">${formatCurrency(financedData.principalPayment || 0)}</td></tr>
-          <tr><td>Interest Payment</td><td class="negative">${formatCurrency(financedData.interestPayment || 0)}</td></tr>
-          <tr><td>Total Debt Service</td><td class="negative">${formatCurrency(financedData.totalDebtService || 0)}</td></tr>
+          <tr><td>Principal Payment</td><td class="negative">${formatCurrency(
+            financedData.principalPayment || 0
+          )}</td></tr>
+          <tr><td>Interest Payment</td><td class="negative">${formatCurrency(
+            financedData.interestPayment || 0
+          )}</td></tr>
+          <tr><td>Total Debt Service</td><td class="negative">${formatCurrency(
+            financedData.totalDebtService || 0
+          )}</td></tr>
           <tr><th colspan="2">Cash Flow</th></tr>
-          <tr><td>Annual Cash Flow</td><td class="${financedData.cashFlow >= 0 ? 'positive' : 'negative'}">${formatCurrency(financedData.cashFlow)}</td></tr>
+          <tr><td>Annual Cash Flow</td><td class="${
+            financedData.cashFlow >= 0 ? "positive" : "negative"
+          }">${formatCurrency(financedData.cashFlow)}</td></tr>
         `;
       }
 
-      function populateBalanceSheetData(comparisonData, selfData, financedData, year) {
+      function populateBalanceSheetData(
+        comparisonData,
+        selfData,
+        financedData,
+        year
+      ) {
         const selfBalanceBody = document.getElementById("selfBalanceBody");
-        const financedBalanceBody = document.getElementById("financedBalanceBody");
+        const financedBalanceBody = document.getElementById(
+          "financedBalanceBody"
+        );
 
         // Self-Financed Balance Sheet
         selfBalanceBody.innerHTML = `
           <tr><th colspan="2">Assets</th></tr>
-          <tr><td>Total Units Owned</td><td>${formatNumber(comparisonData.selfTotalUnits)}</td></tr>
-          <tr><td>Property Asset Value</td><td class="positive">${formatCurrency(selfData.assetValue)}</td></tr>
+          <tr><td>Total Units Owned</td><td>${formatNumber(
+            comparisonData.selfTotalUnits
+          )}</td></tr>
+          <tr><td>Property Asset Value</td><td class="positive">${formatCurrency(
+            selfData.assetValue
+          )}</td></tr>
           <tr><th colspan="2">Net Worth</th></tr>
-          <tr><td>Total Net Worth</td><td class="positive">${formatCurrency(selfData.netWorth)}</td></tr>
+          <tr><td>Total Net Worth</td><td class="positive">${formatCurrency(
+            selfData.netWorth
+          )}</td></tr>
           <tr><th colspan="2">Cash Flow Summary</th></tr>
-          <tr><td>Annual Cash Flow</td><td class="${selfData.cashFlow >= 0 ? 'positive' : 'negative'}">${formatCurrency(selfData.cashFlow)}</td></tr>
-          <tr><td>Cumulative Cash Flow</td><td class="${selfData.cumulative >= 0 ? 'positive' : 'negative'}">${formatCurrency(selfData.cumulative)}</td></tr>
+          <tr><td>Annual Cash Flow</td><td class="${
+            selfData.cashFlow >= 0 ? "positive" : "negative"
+          }">${formatCurrency(selfData.cashFlow)}</td></tr>
+          <tr><td>Cumulative Cash Flow</td><td class="${
+            selfData.cumulative >= 0 ? "positive" : "negative"
+          }">${formatCurrency(selfData.cumulative)}</td></tr>
         `;
 
         // Bank-Financed Balance Sheet
         financedBalanceBody.innerHTML = `
           <tr><th colspan="2">Assets</th></tr>
-          <tr><td>Total Units Owned</td><td>${formatNumber(comparisonData.financedTotalUnits)}</td></tr>
-          <tr><td>Property Asset Value</td><td class="positive">${formatCurrency(financedData.assetValue)}</td></tr>
+          <tr><td>Total Units Owned</td><td>${formatNumber(
+            comparisonData.financedTotalUnits
+          )}</td></tr>
+          <tr><td>Property Asset Value</td><td class="positive">${formatCurrency(
+            financedData.assetValue
+          )}</td></tr>
           <tr><th colspan="2">Liabilities</th></tr>
-          <tr><td>Total Loan Balance</td><td class="negative">${formatCurrency(financedData.loanBalance)}</td></tr>
+          <tr><td>Total Loan Balance</td><td class="negative">${formatCurrency(
+            financedData.loanBalance
+          )}</td></tr>
           <tr><th colspan="2">Net Equity</th></tr>
-          <tr><td>Net Worth</td><td class="positive">${formatCurrency(financedData.netWorth)}</td></tr>
+          <tr><td>Net Worth</td><td class="positive">${formatCurrency(
+            financedData.netWorth
+          )}</td></tr>
           <tr><th colspan="2">Cash Flow Summary</th></tr>
-          <tr><td>Annual Cash Flow</td><td class="${financedData.cashFlow >= 0 ? 'positive' : 'negative'}">${formatCurrency(financedData.cashFlow)}</td></tr>
-          <tr><td>Cumulative Cash Flow</td><td class="${financedData.cumulative >= 0 ? 'positive' : 'negative'}">${formatCurrency(financedData.cumulative)}</td></tr>
-          <tr><td>Principal Paid</td><td class="positive">${formatCurrency(financedData.principalPayment || 0)}</td></tr>
+          <tr><td>Annual Cash Flow</td><td class="${
+            financedData.cashFlow >= 0 ? "positive" : "negative"
+          }">${formatCurrency(financedData.cashFlow)}</td></tr>
+          <tr><td>Cumulative Cash Flow</td><td class="${
+            financedData.cumulative >= 0 ? "positive" : "negative"
+          }">${formatCurrency(financedData.cumulative)}</td></tr>
+          <tr><td>Principal Paid</td><td class="positive">${formatCurrency(
+            financedData.principalPayment || 0
+          )}</td></tr>
         `;
       }
     </script>
