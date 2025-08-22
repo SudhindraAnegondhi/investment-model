@@ -2471,6 +2471,9 @@
             params
           );
 
+          const selfCumulativeDepreciation = calcCumulativeDepreciation(year, selfCohorts, params);
+          const financedCumulativeDepreciation = calcCumulativeDepreciation(year, financedCohorts, params);
+
           const selfNetWorth = selfAssetValue;
           const financedNetWorth = financedAssetValue - totalLoanBalance;
 
@@ -2507,6 +2510,7 @@
             insurance: selfMetrics.insurance,
             propertyTax: selfMetrics.propertyTax,
             depreciation: selfMetrics.depreciation,
+            cumulativeDepreciation: selfCumulativeDepreciation,
             capex: selfCapEx,
             totalOperatingExpenses:
               selfMetrics.management +
@@ -2532,6 +2536,7 @@
             insurance: finMetrics.insurance,
             propertyTax: finMetrics.propertyTax,
             depreciation: finMetrics.depreciation,
+            cumulativeDepreciation: financedCumulativeDepreciation,
             capex: finCapEx,
             totalOperatingExpenses:
               finMetrics.management +
@@ -2639,6 +2644,19 @@
           value += currentValuePerUnit * c.units;
         });
         return value;
+      }
+
+      function calcCumulativeDepreciation(year, cohorts, params) {
+        let cumulativeDepreciation = 0;
+        cohorts.forEach((c) => {
+          const yearsOwned = year - c.yearOriginated;
+          const buildingValuePerUnit = c.costPerUnit * (1 - params.landPercent);
+          const maxDepreciationYears = Math.min(yearsOwned, 27.5);
+          if (maxDepreciationYears > 0) {
+            cumulativeDepreciation += (buildingValuePerUnit / 27.5) * maxDepreciationYears * c.units;
+          }
+        });
+        return cumulativeDepreciation;
       }
 
       function updateTables() {
@@ -4233,6 +4251,17 @@
           <tr><td>Property Asset Value</td><td class="positive">${formatCurrency(
             selfData.assetValue
           )}</td></tr>
+          <tr><th colspan="2">Depreciation</th></tr>
+          <tr><td>Current Year Depreciation</td><td class="negative">${formatCurrency(
+            selfData.depreciation || 0
+          )}</td></tr>
+          <tr><td>Accumulated Depreciation</td><td class="negative">${formatCurrency(
+            selfData.cumulativeDepreciation || 0
+          )}</td></tr>
+          <tr><th colspan="2">Net Assets</th></tr>
+          <tr><td>Net Asset Value</td><td class="positive">${formatCurrency(
+            selfData.assetValue - (selfData.cumulativeDepreciation || 0)
+          )}</td></tr>
           <tr><th colspan="2">Net Worth</th></tr>
           <tr><td>Total Net Worth</td><td class="positive">${formatCurrency(
             selfData.netWorth
@@ -4254,6 +4283,17 @@
           )}</td></tr>
           <tr><td>Property Asset Value</td><td class="positive">${formatCurrency(
             financedData.assetValue
+          )}</td></tr>
+          <tr><th colspan="2">Depreciation</th></tr>
+          <tr><td>Current Year Depreciation</td><td class="negative">${formatCurrency(
+            financedData.depreciation || 0
+          )}</td></tr>
+          <tr><td>Accumulated Depreciation</td><td class="negative">${formatCurrency(
+            financedData.cumulativeDepreciation || 0
+          )}</td></tr>
+          <tr><th colspan="2">Net Assets</th></tr>
+          <tr><td>Net Asset Value</td><td class="positive">${formatCurrency(
+            financedData.assetValue - (financedData.cumulativeDepreciation || 0)
           )}</td></tr>
           <tr><th colspan="2">Liabilities</th></tr>
           <tr><td>Total Loan Balance</td><td class="negative">${formatCurrency(
