@@ -291,7 +291,7 @@
         gap: 12px;
         margin: 15px 0;
       }
-      
+
       /* Break-even analysis cards should always be visible */
       #breakeven .summary-cards {
         display: grid;
@@ -489,7 +489,7 @@
         .summary-cards {
           display: none;
         }
-        
+
         /* Break-even analysis cards should always be visible on mobile */
         #breakeven .summary-cards {
           display: grid;
@@ -572,7 +572,7 @@
         .summary-cards {
           display: none;
         }
-        
+
         /* Break-even analysis cards should always be visible on tablet */
         #breakeven .summary-cards {
           display: grid;
@@ -799,14 +799,14 @@
         display: block;
       }
 
-      .p&l-container,
+      .pl-container,
       .balance-container {
         display: grid;
         grid-template-columns: 1fr 1fr;
         gap: 20px;
       }
 
-      .p&l-section,
+      .pl-section,
       .balance-section {
         background: #f8f9fa;
         padding: 20px;
@@ -814,22 +814,22 @@
         border-left: 4px solid #667eea;
       }
 
-      .p&l-section h3,
+      .pl-section h3,
       .balance-section h3 {
         margin: 0 0 15px 0;
         color: #333;
         font-size: 1.1em;
       }
 
-      .p&l-table,
+      .pl-table,
       .balance-table {
         width: 100%;
         border-collapse: collapse;
         font-size: 13px;
       }
 
-      .p&l-table th,
-      .p&l-table td,
+      .pl-table th,
+      .pl-table td,
       .balance-table th,
       .balance-table td {
         padding: 8px 12px;
@@ -837,7 +837,7 @@
         border-bottom: 1px solid #eee;
       }
 
-      .p&l-table th,
+      .pl-table th,
       .balance-table th {
         background: #667eea;
         color: white;
@@ -845,7 +845,7 @@
         font-size: 12px;
       }
 
-      .p&l-table td:last-child,
+      .pl-table td:last-child,
       .balance-table td:last-child {
         text-align: right;
         font-weight: 600;
@@ -879,7 +879,7 @@
           padding: 15px;
         }
 
-        .p&l-container,
+        .pl-container,
         .balance-container {
           grid-template-columns: 1fr;
           gap: 15px;
@@ -2021,27 +2021,31 @@
         </div>
         <div class="modal-body">
           <div class="modal-tabs">
-            <button class="modal-tab active" onclick="showModalTab('p&l')">Profit & Loss</button>
-            <button class="modal-tab" onclick="showModalTab('balance')">Balance Sheet</button>
+            <button class="modal-tab active" onclick="showModalTab('pl')">
+              Profit & Loss
+            </button>
+            <button class="modal-tab" onclick="showModalTab('balance')">
+              Balance Sheet
+            </button>
           </div>
-          
-          <div id="p&l" class="modal-tab-content active">
-            <div class="p&l-container">
-              <div class="p&l-section">
+
+          <div id="pl" class="modal-tab-content active">
+            <div class="pl-container">
+              <div class="pl-section">
                 <h3>💰 Self-Financed Strategy</h3>
-                <table class="p&l-table">
-                  <tbody id="selfP&LBody"></tbody>
+                <table class="pl-table">
+                  <tbody id="selfPLBody"></tbody>
                 </table>
               </div>
-              <div class="p&l-section">
+              <div class="pl-section">
                 <h3>🏦 Bank-Financed Strategy</h3>
-                <table class="p&l-table">
-                  <tbody id="financedP&LBody"></tbody>
+                <table class="pl-table">
+                  <tbody id="financedPLBody"></tbody>
                 </table>
               </div>
             </div>
           </div>
-          
+
           <div id="balance" class="modal-tab-content">
             <div class="balance-container">
               <div class="balance-section">
@@ -3912,17 +3916,17 @@
       function showYearModal(year, index) {
         const modal = document.getElementById("yearModal");
         const modalYear = document.getElementById("modalYear");
-        
+
         modalYear.textContent = year;
         modal.style.display = "block";
-        
+
         // Populate modal data
         populateModalData(year, index);
-        
+
         // Add event listeners
         const closeBtn = modal.querySelector(".close");
         closeBtn.onclick = closeModal;
-        
+
         // Close modal when clicking outside
         window.onclick = function(event) {
           if (event.target === modal) {
@@ -3940,14 +3944,14 @@
         // Hide all tab contents
         const tabContents = document.querySelectorAll('.modal-tab-content');
         tabContents.forEach(content => content.classList.remove('active'));
-        
+
         // Remove active class from all tabs
         const tabs = document.querySelectorAll('.modal-tab');
         tabs.forEach(tab => tab.classList.remove('active'));
-        
+
         // Show selected tab content
         document.getElementById(tabName).classList.add('active');
-        
+
         // Add active class to clicked tab
         event.target.classList.add('active');
       }
@@ -3956,20 +3960,20 @@
         const comparisonData = calculationResults.comparison[index];
         const selfData = calculationResults.selfFinanced[index];
         const financedData = calculationResults.financed[index];
-        
+
         // Populate Profit & Loss
-        populateP&LData(selfData, financedData, year);
-        
+        populatePLData(selfData, financedData, year);
+
         // Populate Balance Sheet
         populateBalanceSheetData(comparisonData, selfData, financedData, year);
       }
 
-      function populateP&LData(selfData, financedData, year) {
-        const selfP&LBody = document.getElementById("selfP&LBody");
-        const financedP&LBody = document.getElementById("financedP&LBody");
-        
+      function populatePLData(selfData, financedData, year) {
+        const selfPLBody = document.getElementById("selfPLBody");
+        const financedPLBody = document.getElementById("financedPLBody");
+
         // Self-Financed P&L
-        selfP&LBody.innerHTML = `
+        selfPLBody.innerHTML = `
           <tr>
             <th colspan="2">Income</th>
           </tr>
@@ -4031,9 +4035,9 @@
             <td class="${selfData.cashFlow >= 0 ? 'positive' : 'negative'}">${formatCurrency(selfData.cashFlow)}</td>
           </tr>
         `;
-        
+
         // Bank-Financed P&L
-        financedP&LBody.innerHTML = `
+        financedPLBody.innerHTML = `
           <tr>
             <th colspan="2">Income</th>
           </tr>
@@ -4115,7 +4119,7 @@
       function populateBalanceSheetData(comparisonData, selfData, financedData, year) {
         const selfBalanceBody = document.getElementById("selfBalanceBody");
         const financedBalanceBody = document.getElementById("financedBalanceBody");
-        
+
         // Self-Financed Balance Sheet
         selfBalanceBody.innerHTML = `
           <tr>
@@ -4152,7 +4156,7 @@
             <td class="${selfData.cumulative >= 0 ? 'positive' : 'negative'}">${formatCurrency(selfData.cumulative)}</td>
           </tr>
         `;
-        
+
         // Bank-Financed Balance Sheet
         financedBalanceBody.innerHTML = `
           <tr>
