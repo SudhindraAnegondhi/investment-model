@@ -764,6 +764,35 @@
         overflow-y: auto;
       }
 
+      .strategy-selector {
+        display: flex;
+        margin-bottom: 15px;
+        border-bottom: 2px solid #eee;
+        justify-content: center;
+      }
+
+      .strategy-btn {
+        padding: 10px 20px;
+        cursor: pointer;
+        border: none;
+        background: none;
+        font-size: 13px;
+        font-weight: 600;
+        color: #666;
+        border-bottom: 3px solid transparent;
+        transition: all 0.3s ease;
+        margin: 0 10px;
+      }
+
+      .strategy-btn.active {
+        color: #667eea;
+        border-bottom-color: #667eea;
+      }
+
+      .strategy-btn:hover {
+        background: rgba(102, 126, 234, 0.1);
+      }
+
       .modal-tabs {
         display: flex;
         margin-bottom: 15px;
@@ -801,9 +830,7 @@
 
       .pl-container,
       .balance-container {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 20px;
+        display: block;
         max-width: 95%;
         margin: 0 auto;
       }
@@ -856,10 +883,10 @@
         font-weight: 600;
         width: 30%;
       }
-      
+
       .pl-table td:first-child,
       .balance-table td:first-child {
-        width: 70%;
+        width: 50%;
       }
 
       .positive {
@@ -892,9 +919,18 @@
 
         .pl-container,
         .balance-container {
-          grid-template-columns: 1fr;
-          gap: 15px;
           max-width: 98%;
+        }
+        
+        .strategy-selector {
+          flex-direction: column;
+          align-items: center;
+        }
+        
+        .strategy-btn {
+          margin: 5px 0;
+          width: 100%;
+          text-align: center;
         }
 
         .modal-tabs {
@@ -2037,6 +2073,10 @@
           <span class="close">&times;</span>
         </div>
         <div class="modal-body">
+          <div class="strategy-selector">
+            <button class="strategy-btn active" onclick="switchStrategy('self')">💰 Self-Financed</button>
+            <button class="strategy-btn" onclick="switchStrategy('financed')">🏦 Bank-Financed</button>
+          </div>
           <div class="modal-tabs">
             <button class="modal-tab active" onclick="showModalTab('pl')">
               Profit & Loss
@@ -2048,13 +2088,13 @@
 
           <div id="pl" class="modal-tab-content active">
             <div class="pl-container">
-              <div class="pl-section">
+              <div id="selfPLSection" class="pl-section active">
                 <h3>💰 Self-Financed Strategy</h3>
                 <table class="pl-table">
                   <tbody id="selfPLBody"></tbody>
                 </table>
               </div>
-              <div class="pl-section">
+              <div id="financedPLSection" class="pl-section" style="display: none;">
                 <h3>🏦 Bank-Financed Strategy</h3>
                 <table class="pl-table">
                   <tbody id="financedPLBody"></tbody>
@@ -2065,13 +2105,13 @@
 
           <div id="balance" class="modal-tab-content">
             <div class="balance-container">
-              <div class="balance-section">
+              <div id="selfBalanceSection" class="balance-section active">
                 <h3>💰 Self-Financed Strategy</h3>
                 <table class="balance-table">
                   <tbody id="selfBalanceBody"></tbody>
                 </table>
               </div>
-              <div class="balance-section">
+              <div id="financedBalanceSection" class="balance-section" style="display: none;">
                 <h3>🏦 Bank-Financed Strategy</h3>
                 <table class="balance-table">
                   <tbody id="financedBalanceBody"></tbody>
@@ -4015,6 +4055,35 @@
 
         // Add active class to clicked tab
         event.target.classList.add("active");
+      }
+
+      function switchStrategy(strategy) {
+        // Remove active class from all strategy buttons
+        const strategyBtns = document.querySelectorAll(".strategy-btn");
+        strategyBtns.forEach((btn) => btn.classList.remove("active"));
+
+        // Add active class to clicked button
+        event.target.classList.add("active");
+
+        // Hide all strategy sections
+        const selfPLSection = document.getElementById("selfPLSection");
+        const financedPLSection = document.getElementById("financedPLSection");
+        const selfBalanceSection = document.getElementById("selfBalanceSection");
+        const financedBalanceSection = document.getElementById("financedBalanceSection");
+
+        if (strategy === "self") {
+          // Show self-financed sections
+          selfPLSection.style.display = "block";
+          financedPLSection.style.display = "none";
+          selfBalanceSection.style.display = "block";
+          financedBalanceSection.style.display = "none";
+        } else {
+          // Show bank-financed sections
+          selfPLSection.style.display = "none";
+          financedPLSection.style.display = "block";
+          selfBalanceSection.style.display = "none";
+          financedBalanceSection.style.display = "block";
+        }
       }
 
       function populateModalData(year, index) {
