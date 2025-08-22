@@ -291,6 +291,11 @@
         gap: 12px;
         margin: 15px 0;
       }
+      
+      /* Break-even analysis cards should always be visible */
+      #breakeven .summary-cards {
+        display: grid;
+      }
 
       .card {
         background: white;
@@ -465,7 +470,8 @@
         }
 
         table {
-          min-width: 700px;
+          min-width: 100%;
+          max-width: 100%;
           font-size: 10px;
         }
 
@@ -482,6 +488,13 @@
 
         .summary-cards {
           display: none;
+        }
+        
+        /* Break-even analysis cards should always be visible on mobile */
+        #breakeven .summary-cards {
+          display: grid;
+          grid-template-columns: 1fr;
+          gap: 8px;
         }
 
         .summary-table-container {
@@ -552,11 +565,19 @@
         }
 
         table {
-          min-width: 900px;
+          min-width: 100%;
+          max-width: 100%;
         }
 
         .summary-cards {
           display: none;
+        }
+        
+        /* Break-even analysis cards should always be visible on tablet */
+        #breakeven .summary-cards {
+          display: grid;
+          grid-template-columns: repeat(2, 1fr);
+          gap: 10px;
         }
 
         .summary-table-container {
@@ -2264,21 +2285,21 @@
           const tr = document.createElement("tr");
           tr.innerHTML = `
              <td>${row.year}</td>
-             <td>${Math.round(row.propertyCost).toLocaleString()}</td>
+             <td>${formatNumber(row.propertyCost)}</td>
              <td>${row.selfNewUnits}</td>
              <td>${row.selfTotalUnits}</td>
              <td class="${
                row.selfCashFlow >= 0 ? "positive" : "negative"
-             }">${Math.round(row.selfCashFlow).toLocaleString()}</td>
-             <td>${Math.round(row.selfAssetValue).toLocaleString()}</td>
+                     }">${formatNumber(row.selfCashFlow)}</td>
+        <td>${formatNumber(row.selfAssetValue)}</td>
              <td>${row.financedNewUnits}</td>
              <td>${row.financedTotalUnits}</td>
              <td class="${
                row.financedCashFlow >= 0 ? "positive" : "negative"
-             }">${Math.round(row.financedCashFlow).toLocaleString()}</td>
-             <td>${Math.round(row.financedAssetValue).toLocaleString()}</td>
-             <td>${Math.round(row.totalLoanBalance).toLocaleString()}</td>
-             <td>${Math.round(row.financedNetEquity).toLocaleString()}</td>
+                     }">${formatNumber(row.financedCashFlow)}</td>
+        <td>${formatNumber(row.financedAssetValue)}</td>
+        <td>${formatNumber(row.totalLoanBalance)}</td>
+        <td>${formatNumber(row.financedNetEquity)}</td>
            `;
           tbody.appendChild(tr);
         });
@@ -2299,20 +2320,20 @@
              <td>${self[i].year}</td>
              <td class="${
                self[i].cashFlow >= 0 ? "positive" : "negative"
-             }">${Math.round(self[i].cashFlow).toLocaleString()}</td>
-             <td>${Math.round(self[i].cumulative).toLocaleString()}</td>
-             <td>${Math.round(self[i].assetValue).toLocaleString()}</td>
-             <td>${Math.round(self[i].netWorth).toLocaleString()}</td>
+                     }">${formatNumber(self[i].cashFlow)}</td>
+        <td>${formatNumber(self[i].cumulative)}</td>
+        <td>${formatNumber(self[i].assetValue)}</td>
+        <td>${formatNumber(self[i].netWorth)}</td>
              <td class="${
                fin[i].cashFlow >= 0 ? "positive" : "negative"
-             }">${Math.round(fin[i].cashFlow).toLocaleString()}</td>
-             <td>${Math.round(fin[i].cumulative).toLocaleString()}</td>
-             <td>${Math.round(fin[i].assetValue).toLocaleString()}</td>
-             <td>${Math.round(fin[i].loanBalance).toLocaleString()}</td>
-             <td>${Math.round(fin[i].netWorth).toLocaleString()}</td>
+                     }">${formatNumber(fin[i].cashFlow)}</td>
+        <td>${formatNumber(fin[i].cumulative)}</td>
+        <td>${formatNumber(fin[i].assetValue)}</td>
+        <td>${formatNumber(fin[i].loanBalance)}</td>
+        <td>${formatNumber(fin[i].netWorth)}</td>
              <td class="${
                cashDiff >= 0 ? "positive" : "negative"
-             }">${Math.round(cashDiff).toLocaleString()}</td>
+             }">${formatNumber(cashDiff)}</td>
            `;
           tbody.appendChild(tr);
         }
@@ -2338,9 +2359,9 @@
 
         // Update card elements
         document.getElementById("totalSelfUnits").textContent =
-          lastComp.selfTotalUnits.toLocaleString();
+          formatNumber(lastComp.selfTotalUnits);
         document.getElementById("totalFinancedUnits").textContent =
-          lastComp.financedTotalUnits.toLocaleString();
+          formatNumber(lastComp.financedTotalUnits);
         document.getElementById("selfYear15Income").textContent =
           formatCurrency(lastSelf.cashFlow);
         document.getElementById("financedYear15Income").textContent =
@@ -2369,9 +2390,9 @@
 
         // Update table elements
         document.getElementById("totalSelfUnitsTable").textContent =
-          lastComp.selfTotalUnits.toLocaleString();
+          formatNumber(lastComp.selfTotalUnits);
         document.getElementById("totalFinancedUnitsTable").textContent =
-          lastComp.financedTotalUnits.toLocaleString();
+          formatNumber(lastComp.financedTotalUnits);
         document.getElementById("selfYear15IncomeTable").textContent =
           formatCurrency(lastSelf.cashFlow);
         document.getElementById("financedYear15IncomeTable").textContent =
@@ -2439,9 +2460,24 @@
       }
 
       function formatCurrency(n) {
-        const sign = n < 0 ? "-" : "";
-        const val = Math.abs(Math.round(n)).toLocaleString();
-        return `${sign}$${val}`;
+        return new Intl.NumberFormat('en-US', {
+          style: 'currency',
+          currency: 'USD',
+          minimumFractionDigits: 0,
+          maximumFractionDigits: 0
+        }).format(n);
+      }
+
+      function formatNumber(n) {
+        return new Intl.NumberFormat('en-US').format(Math.round(n));
+      }
+
+      function formatPercentage(n) {
+        return new Intl.NumberFormat('en-US', {
+          style: 'percent',
+          minimumFractionDigits: 1,
+          maximumFractionDigits: 1
+        }).format(n);
       }
 
       function downloadCSV() {
@@ -2874,7 +2910,7 @@
                 roi.investments.self,
                 roi.finalValues.self,
                 roi.finalValues.self - roi.investments.self,
-                (roi.annualReturns.self * 100).toFixed(1),
+                formatPercentage(roi.annualReturns.self),
                 "Medium",
               ],
               [
@@ -2882,7 +2918,7 @@
                 roi.investments.financed,
                 roi.finalValues.financed,
                 roi.finalValues.financed - roi.investments.financed,
-                (roi.annualReturns.financed * 100).toFixed(1),
+                formatPercentage(roi.annualReturns.financed),
                 "Medium",
               ],
               [
@@ -3540,12 +3576,8 @@
 
         const roi = calculationResults.roiComparison;
 
-        document.getElementById("realEstateROISelf").textContent = `${(
-          roi.annualReturns.self * 100
-        ).toFixed(1)}%`;
-        document.getElementById("realEstateROIFinanced").textContent = `${(
-          roi.annualReturns.financed * 100
-        ).toFixed(1)}%`;
+        document.getElementById("realEstateROISelf").textContent = formatPercentage(roi.annualReturns.self);
+        document.getElementById("realEstateROIFinanced").textContent = formatPercentage(roi.annualReturns.financed);
 
         const comparisonTbody = document.getElementById("roiComparisonBody");
         if (comparisonTbody) {
@@ -3557,7 +3589,7 @@
                <td>${formatCurrency(
                  roi.finalValues.self - roi.investments.self
                )}</td>
-               <td>${(roi.annualReturns.self * 100).toFixed(1)}%</td>
+               <td>${formatPercentage(roi.annualReturns.self)}</td>
                <td>Medium</td>
              </tr>
              <tr>
@@ -3567,7 +3599,7 @@
                <td>${formatCurrency(
                  roi.finalValues.financed - roi.investments.financed
                )}</td>
-               <td>${(roi.annualReturns.financed * 100).toFixed(1)}%</td>
+               <td>${formatPercentage(roi.annualReturns.financed)}</td>
                <td>Medium</td>
              </tr>
              <tr>
