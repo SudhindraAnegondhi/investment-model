@@ -716,6 +716,7 @@
         overflow: hidden;
         box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
         animation: modalSlideIn 0.3s ease-out;
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       }
 
       @keyframes modalSlideIn {
@@ -758,6 +759,52 @@
         opacity: 0.7;
       }
 
+      .swipe-indicator {
+        color: rgba(255, 255, 255, 0.6);
+        font-size: 16px;
+        font-weight: bold;
+        animation: pulse 2s infinite;
+        cursor: pointer;
+        padding: 0 10px;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        user-select: none;
+      }
+
+      .swipe-indicator:hover {
+        opacity: 1;
+        color: white;
+        transform: scale(1.1);
+      }
+
+      .swipe-indicator:active {
+        transform: scale(0.95);
+      }
+
+      .swipe-indicator.left {
+        margin-right: auto;
+      }
+
+      .swipe-indicator.right {
+        margin-left: auto;
+      }
+
+      @keyframes pulse {
+        0%,
+        100% {
+          opacity: 0.6;
+        }
+        50% {
+          opacity: 1;
+        }
+      }
+
+      @media (max-width: 768px) {
+        .swipe-indicator {
+          font-size: 14px;
+          padding: 0 5px;
+        }
+      }
+
       .modal-body {
         padding: 15px;
         max-height: calc(95vh - 80px);
@@ -794,6 +841,12 @@
         border-color: #667eea;
       }
 
+      .strategy-btn.active:hover {
+        color: white;
+        background: #5a6fd8;
+        border-color: #5a6fd8;
+      }
+
       .strategy-btn:hover {
         background: #f8f9fa;
         border-color: #667eea;
@@ -828,6 +881,12 @@
         border-color: #667eea;
       }
 
+      .modal-tab.active:hover {
+        color: white;
+        background: #5a6fd8;
+        border-color: #5a6fd8;
+      }
+
       .modal-tab:hover {
         background: #f8f9fa;
         border-color: #667eea;
@@ -858,6 +917,14 @@
         margin: 0 auto;
         transition: all 0.3s ease;
         animation: fadeInUp 0.4s ease-out;
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      .pl-section.fade-out,
+      .balance-section.fade-out {
+        opacity: 0;
+        transform: translateY(10px);
       }
 
       @keyframes fadeInUp {
@@ -2110,7 +2177,9 @@
     <div id="yearModal" class="modal">
       <div class="modal-content">
         <div class="modal-header">
+          <div class="swipe-indicator left">◀</div>
           <h2>📊 Year <span id="modalYear"></span> - Detailed Analysis</h2>
+          <div class="swipe-indicator right">▶</div>
           <span class="close">&times;</span>
         </div>
         <div class="modal-body">
@@ -4104,6 +4173,10 @@
         modalYear.textContent = year;
         modal.style.display = "block";
 
+        // Store current year and index for navigation
+        window.currentModalYear = year;
+        window.currentModalIndex = index;
+
         // Populate modal data
         populateModalData(year, index);
 
@@ -4117,11 +4190,177 @@
             closeModal();
           }
         };
+
+        // Add swipe event listeners
+        addSwipeListeners();
+
+        // Add click handlers for swipe indicators
+        const leftIndicator = modal.querySelector(".swipe-indicator.left");
+        const rightIndicator = modal.querySelector(".swipe-indicator.right");
+
+        leftIndicator.onclick = () => navigateToYear(-1);
+        rightIndicator.onclick = () => navigateToYear(1);
+
+        // Add keyboard navigation
+        document.addEventListener("keydown", handleKeyNavigation);
       }
 
       function closeModal() {
         const modal = document.getElementById("yearModal");
         modal.style.display = "none";
+
+        // Remove swipe event listeners
+        removeSwipeListeners();
+
+        // Remove keyboard navigation
+        document.removeEventListener("keydown", handleKeyNavigation);
+      }
+
+      function handleKeyNavigation(e) {
+        if (e.key === "ArrowLeft") {
+          navigateToYear(-1);
+        } else if (e.key === "ArrowRight") {
+          navigateToYear(1);
+        } else if (e.key === "Escape") {
+          closeModal();
+        }
+      }
+
+      function addSwipeListeners() {
+        const modal = document.getElementById("yearModal");
+        let startX = 0;
+        let startY = 0;
+        let endX = 0;
+        let endY = 0;
+
+        function handleTouchStart(e) {
+          startX = e.touches[0].clientX;
+          startY = e.touches[0].clientY;
+        }
+
+        function handleTouchEnd(e) {
+          endX = e.changedTouches[0].clientX;
+          endY = e.changedTouches[0].clientY;
+          handleSwipe();
+        }
+
+        function handleSwipe() {
+          const deltaX = endX - startX;
+          const deltaY = endY - startY;
+          const minSwipeDistance = 40; // Reduced for more responsive swipes
+          const maxVerticalDistance = 80; // Reduced for better horizontal detection
+
+          // Check if it's a horizontal swipe with minimal vertical movement
+          if (
+            Math.abs(deltaX) > minSwipeDistance &&
+            Math.abs(deltaY) < maxVerticalDistance
+          ) {
+            // Add haptic feedback if available
+            if (navigator.vibrate) {
+              navigator.vibrate(50);
+            }
+
+            if (deltaX > 0) {
+              // Swipe right - go to previous year
+              navigateToYear(-1);
+            } else {
+              // Swipe left - go to next year
+              navigateToYear(1);
+            }
+          }
+        }
+
+        modal.addEventListener("touchstart", handleTouchStart, {
+          passive: true,
+        });
+        modal.addEventListener("touchend", handleTouchEnd, { passive: true });
+
+        // Store listeners for removal
+        modal.swipeListeners = { handleTouchStart, handleTouchEnd };
+      }
+
+      function removeSwipeListeners() {
+        const modal = document.getElementById("yearModal");
+        if (modal.swipeListeners) {
+          modal.removeEventListener(
+            "touchstart",
+            modal.swipeListeners.handleTouchStart
+          );
+          modal.removeEventListener(
+            "touchend",
+            modal.swipeListeners.handleTouchEnd
+          );
+          modal.swipeListeners = null;
+        }
+      }
+
+      function navigateToYear(direction) {
+        const currentIndex = window.currentModalIndex;
+        const comparisonTable = document.getElementById("comparisonTable");
+        const rows = comparisonTable.querySelectorAll("tbody tr");
+
+        if (!rows || rows.length === 0) return;
+
+        const newIndex = currentIndex + direction;
+
+        // Check bounds
+        if (newIndex < 0 || newIndex >= rows.length) return;
+
+        // Get the year from the new row
+        const newRow = rows[newIndex];
+        const yearCell = newRow.querySelector("td:first-child");
+        if (!yearCell) return;
+
+        const newYear = parseInt(yearCell.textContent);
+
+        // Add smooth slide animation
+        const modal = document.getElementById("yearModal");
+        const slideDistance = direction > 0 ? -20 : 20;
+
+        // Slide out
+        modal.style.transform = `translateX(${slideDistance}px)`;
+        modal.style.opacity = "0.8";
+
+        // Update content and slide back in
+        setTimeout(() => {
+          // Update current year and index
+          window.currentModalYear = newYear;
+          window.currentModalIndex = newIndex;
+
+          // Update modal content with fade effect
+          document.getElementById("modalYear").textContent = newYear;
+
+          // Fade out current content
+          const sections = document.querySelectorAll(
+            ".pl-section, .balance-section"
+          );
+          sections.forEach((section) => {
+            if (section.style.display !== "none") {
+              section.classList.add("fade-out");
+            }
+          });
+
+          // Update data and fade in
+          setTimeout(() => {
+            populateModalData(newYear, newIndex);
+
+            // Fade in new content
+            setTimeout(() => {
+              const newSections = document.querySelectorAll(
+                ".pl-section, .balance-section"
+              );
+              newSections.forEach((section) => {
+                if (section.style.display !== "none") {
+                  section.classList.remove("fade-out");
+                }
+              });
+            }, 50);
+          }, 100);
+
+          // Slide back in
+          modal.style.transform = "translateX(0)";
+          modal.style.opacity = "1";
+        }, 150);
       }
 
       function showModalTab(tabName) {
@@ -4318,6 +4557,8 @@
         );
 
         // Self-Financed Balance Sheet
+        const selfNetAssetValue =
+          selfData.assetValue - (selfData.cumulativeDepreciation || 0);
         selfBalanceBody.innerHTML = `
           <tr><th colspan="2">Assets</th></tr>
           <tr><td>Total Units Owned</td><td>${formatNumber(
@@ -4326,31 +4567,46 @@
           <tr><td>Property Asset Value</td><td class="positive">${formatCurrency(
             selfData.assetValue
           )}</td></tr>
-          <tr><th colspan="2">Depreciation</th></tr>
-          <tr><td>Current Year Depreciation</td><td class="negative">${formatCurrency(
-            selfData.depreciation || 0
-          )}</td></tr>
-          <tr><td>Accumulated Depreciation</td><td class="negative">${formatCurrency(
+          <tr><td>Less: Accumulated Depreciation</td><td class="negative">${formatCurrency(
             selfData.cumulativeDepreciation || 0
           )}</td></tr>
-          <tr><th colspan="2">Net Assets</th></tr>
-          <tr><td>Net Asset Value</td><td class="positive">${formatCurrency(
-            selfData.assetValue - (selfData.cumulativeDepreciation || 0)
-          )}</td></tr>
-          <tr><th colspan="2">Net Worth</th></tr>
-          <tr><td>Total Net Worth</td><td class="positive">${formatCurrency(
+          <tr><td><strong>Net Property Assets</strong></td><td class="positive"><strong>${formatCurrency(
+            selfNetAssetValue
+          )}</strong></td></tr>
+          <tr><td>Cash (Cumulative Cash Flow)</td><td class="${
+            selfData.cumulative >= 0 ? "positive" : "negative"
+          }">${formatCurrency(selfData.cumulative)}</td></tr>
+          <tr><th colspan="2"><strong>TOTAL ASSETS</strong></th></tr>
+          <tr><td><strong>Total Assets</strong></td><td class="positive"><strong>${formatCurrency(
+            selfNetAssetValue + selfData.cumulative
+          )}</strong></td></tr>
+          <tr><th colspan="2">Liabilities</th></tr>
+          <tr><td>Total Liabilities</td><td class="negative">$0</td></tr>
+          <tr><th colspan="2">Equity</th></tr>
+          <tr><td>Net Worth (Equity)</td><td class="positive">${formatCurrency(
             selfData.netWorth
           )}</td></tr>
+          <tr><th colspan="2"><strong>TOTAL LIABILITIES & EQUITY</strong></th></tr>
+          <tr><td><strong>Total Liabilities & Equity</strong></td><td class="positive"><strong>${formatCurrency(
+            selfData.netWorth
+          )}</strong></td></tr>
           <tr><th colspan="2">Cash Flow Summary</th></tr>
           <tr><td>Annual Cash Flow</td><td class="${
             selfData.cashFlow >= 0 ? "positive" : "negative"
           }">${formatCurrency(selfData.cashFlow)}</td></tr>
-          <tr><td>Cumulative Cash Flow</td><td class="${
-            selfData.cumulative >= 0 ? "positive" : "negative"
-          }">${formatCurrency(selfData.cumulative)}</td></tr>
+          <tr><td>Current Year Depreciation</td><td class="negative">${formatCurrency(
+            selfData.depreciation || 0
+          )}</td></tr>
         `;
 
         // Bank-Financed Balance Sheet
+        const financedNetAssetValue =
+          financedData.assetValue - (financedData.cumulativeDepreciation || 0);
+        const financedTotalAssets =
+          financedNetAssetValue + financedData.cumulative;
+        const financedTotalLiabilitiesEquity =
+          financedData.loanBalance + financedData.netWorth;
+
         financedBalanceBody.innerHTML = `
           <tr><th colspan="2">Assets</th></tr>
           <tr><td>Total Units Owned</td><td>${formatNumber(
@@ -4359,33 +4615,39 @@
           <tr><td>Property Asset Value</td><td class="positive">${formatCurrency(
             financedData.assetValue
           )}</td></tr>
-          <tr><th colspan="2">Depreciation</th></tr>
-          <tr><td>Current Year Depreciation</td><td class="negative">${formatCurrency(
-            financedData.depreciation || 0
-          )}</td></tr>
-          <tr><td>Accumulated Depreciation</td><td class="negative">${formatCurrency(
+          <tr><td>Less: Accumulated Depreciation</td><td class="negative">${formatCurrency(
             financedData.cumulativeDepreciation || 0
           )}</td></tr>
-          <tr><th colspan="2">Net Assets</th></tr>
-          <tr><td>Net Asset Value</td><td class="positive">${formatCurrency(
-            financedData.assetValue - (financedData.cumulativeDepreciation || 0)
-          )}</td></tr>
+          <tr><td><strong>Net Property Assets</strong></td><td class="positive"><strong>${formatCurrency(
+            financedNetAssetValue
+          )}</strong></td></tr>
+          <tr><td>Cash (Cumulative Cash Flow)</td><td class="${
+            financedData.cumulative >= 0 ? "positive" : "negative"
+          }">${formatCurrency(financedData.cumulative)}</td></tr>
+          <tr><th colspan="2"><strong>TOTAL ASSETS</strong></th></tr>
+          <tr><td><strong>Total Assets</strong></td><td class="positive"><strong>${formatCurrency(
+            financedTotalAssets
+          )}</strong></td></tr>
           <tr><th colspan="2">Liabilities</th></tr>
           <tr><td>Total Loan Balance</td><td class="negative">${formatCurrency(
             financedData.loanBalance
           )}</td></tr>
-          <tr><th colspan="2">Net Equity</th></tr>
-          <tr><td>Net Worth</td><td class="positive">${formatCurrency(
+          <tr><th colspan="2">Equity</th></tr>
+          <tr><td>Net Worth (Equity)</td><td class="positive">${formatCurrency(
             financedData.netWorth
           )}</td></tr>
+          <tr><th colspan="2"><strong>TOTAL LIABILITIES & EQUITY</strong></th></tr>
+          <tr><td><strong>Total Liabilities & Equity</strong></td><td class="positive"><strong>${formatCurrency(
+            financedTotalLiabilitiesEquity
+          )}</strong></td></tr>
           <tr><th colspan="2">Cash Flow Summary</th></tr>
           <tr><td>Annual Cash Flow</td><td class="${
             financedData.cashFlow >= 0 ? "positive" : "negative"
           }">${formatCurrency(financedData.cashFlow)}</td></tr>
-          <tr><td>Cumulative Cash Flow</td><td class="${
-            financedData.cumulative >= 0 ? "positive" : "negative"
-          }">${formatCurrency(financedData.cumulative)}</td></tr>
-          <tr><td>Principal Paid</td><td class="positive">${formatCurrency(
+          <tr><td>Current Year Depreciation</td><td class="negative">${formatCurrency(
+            financedData.depreciation || 0
+          )}</td></tr>
+          <tr><td>Principal Paid This Year</td><td class="positive">${formatCurrency(
             financedData.principalPayment || 0
           )}</td></tr>
         `;
