@@ -692,6 +692,209 @@
         outline-offset: 2px;
       }
 
+      /* Modal Styles */
+      .modal {
+        display: none;
+        position: fixed;
+        z-index: 10000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(5px);
+      }
+
+      .modal-content {
+        background-color: white;
+        margin: 2% auto;
+        padding: 0;
+        border-radius: 12px;
+        width: 95%;
+        max-width: 1200px;
+        max-height: 90vh;
+        overflow: hidden;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        animation: modalSlideIn 0.3s ease-out;
+      }
+
+      @keyframes modalSlideIn {
+        from {
+          opacity: 0;
+          transform: translateY(-50px) scale(0.9);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0) scale(1);
+        }
+      }
+
+      .modal-header {
+        background: linear-gradient(45deg, #667eea, #764ba2);
+        color: white;
+        padding: 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-radius: 12px 12px 0 0;
+      }
+
+      .modal-header h2 {
+        margin: 0;
+        color: white;
+        font-size: 1.4em;
+      }
+
+      .close {
+        color: white;
+        font-size: 28px;
+        font-weight: bold;
+        cursor: pointer;
+        line-height: 1;
+        transition: opacity 0.2s;
+      }
+
+      .close:hover {
+        opacity: 0.7;
+      }
+
+      .modal-body {
+        padding: 20px;
+        max-height: calc(90vh - 100px);
+        overflow-y: auto;
+      }
+
+      .modal-tabs {
+        display: flex;
+        margin-bottom: 20px;
+        border-bottom: 2px solid #eee;
+      }
+
+      .modal-tab {
+        padding: 12px 24px;
+        cursor: pointer;
+        border: none;
+        background: none;
+        font-size: 14px;
+        font-weight: 600;
+        color: #666;
+        border-bottom: 3px solid transparent;
+        transition: all 0.3s ease;
+      }
+
+      .modal-tab.active {
+        color: #667eea;
+        border-bottom-color: #667eea;
+      }
+
+      .modal-tab:hover {
+        background: rgba(102, 126, 234, 0.1);
+      }
+
+      .modal-tab-content {
+        display: none;
+      }
+
+      .modal-tab-content.active {
+        display: block;
+      }
+
+      .p&l-container,
+      .balance-container {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+      }
+
+      .p&l-section,
+      .balance-section {
+        background: #f8f9fa;
+        padding: 20px;
+        border-radius: 8px;
+        border-left: 4px solid #667eea;
+      }
+
+      .p&l-section h3,
+      .balance-section h3 {
+        margin: 0 0 15px 0;
+        color: #333;
+        font-size: 1.1em;
+      }
+
+      .p&l-table,
+      .balance-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 13px;
+      }
+
+      .p&l-table th,
+      .p&l-table td,
+      .balance-table th,
+      .balance-table td {
+        padding: 8px 12px;
+        text-align: left;
+        border-bottom: 1px solid #eee;
+      }
+
+      .p&l-table th,
+      .balance-table th {
+        background: #667eea;
+        color: white;
+        font-weight: 600;
+        font-size: 12px;
+      }
+
+      .p&l-table td:last-child,
+      .balance-table td:last-child {
+        text-align: right;
+        font-weight: 600;
+      }
+
+      .positive {
+        color: #28a745;
+      }
+
+      .negative {
+        color: #dc3545;
+      }
+
+      /* Mobile responsive modal */
+      @media (max-width: 768px) {
+        .modal-content {
+          width: 98%;
+          margin: 1% auto;
+          max-height: 95vh;
+        }
+
+        .modal-header {
+          padding: 15px;
+        }
+
+        .modal-header h2 {
+          font-size: 1.2em;
+        }
+
+        .modal-body {
+          padding: 15px;
+        }
+
+        .p&l-container,
+        .balance-container {
+          grid-template-columns: 1fr;
+          gap: 15px;
+        }
+
+        .modal-tabs {
+          flex-direction: column;
+        }
+
+        .modal-tab {
+          text-align: center;
+          border-bottom: 1px solid #eee;
+        }
+      }
+
       .calculate-btn:focus {
         outline: none;
         box-shadow: 0 8px 32px rgba(102, 126, 234, 0.3),
@@ -1809,6 +2012,56 @@
       </div>
     </div>
 
+    <!-- Modal for Year Details -->
+    <div id="yearModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>📊 Year <span id="modalYear"></span> - Detailed Analysis</h2>
+          <span class="close">&times;</span>
+        </div>
+        <div class="modal-body">
+          <div class="modal-tabs">
+            <button class="modal-tab active" onclick="showModalTab('p&l')">Profit & Loss</button>
+            <button class="modal-tab" onclick="showModalTab('balance')">Balance Sheet</button>
+          </div>
+          
+          <div id="p&l" class="modal-tab-content active">
+            <div class="p&l-container">
+              <div class="p&l-section">
+                <h3>💰 Self-Financed Strategy</h3>
+                <table class="p&l-table">
+                  <tbody id="selfP&LBody"></tbody>
+                </table>
+              </div>
+              <div class="p&l-section">
+                <h3>🏦 Bank-Financed Strategy</h3>
+                <table class="p&l-table">
+                  <tbody id="financedP&LBody"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+          
+          <div id="balance" class="modal-tab-content">
+            <div class="balance-container">
+              <div class="balance-section">
+                <h3>💰 Self-Financed Strategy</h3>
+                <table class="balance-table">
+                  <tbody id="selfBalanceBody"></tbody>
+                </table>
+              </div>
+              <div class="balance-section">
+                <h3>🏦 Bank-Financed Strategy</h3>
+                <table class="balance-table">
+                  <tbody id="financedBalanceBody"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <script>
       let calculationResults = {};
 
@@ -2281,8 +2534,10 @@
         if (!tbody || !calculationResults.comparison) return;
 
         tbody.innerHTML = "";
-        calculationResults.comparison.forEach((row) => {
+        calculationResults.comparison.forEach((row, index) => {
           const tr = document.createElement("tr");
+          tr.style.cursor = "pointer";
+          tr.onclick = () => showYearModal(row.year, index);
           tr.innerHTML = `
              <td>${row.year}</td>
              <td>${formatNumber(row.propertyCost)}</td>
@@ -3651,6 +3906,300 @@
             yearlyTbody.appendChild(tr);
           });
         }
+      }
+
+      // Modal Functions
+      function showYearModal(year, index) {
+        const modal = document.getElementById("yearModal");
+        const modalYear = document.getElementById("modalYear");
+        
+        modalYear.textContent = year;
+        modal.style.display = "block";
+        
+        // Populate modal data
+        populateModalData(year, index);
+        
+        // Add event listeners
+        const closeBtn = modal.querySelector(".close");
+        closeBtn.onclick = closeModal;
+        
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+          if (event.target === modal) {
+            closeModal();
+          }
+        }
+      }
+
+      function closeModal() {
+        const modal = document.getElementById("yearModal");
+        modal.style.display = "none";
+      }
+
+      function showModalTab(tabName) {
+        // Hide all tab contents
+        const tabContents = document.querySelectorAll('.modal-tab-content');
+        tabContents.forEach(content => content.classList.remove('active'));
+        
+        // Remove active class from all tabs
+        const tabs = document.querySelectorAll('.modal-tab');
+        tabs.forEach(tab => tab.classList.remove('active'));
+        
+        // Show selected tab content
+        document.getElementById(tabName).classList.add('active');
+        
+        // Add active class to clicked tab
+        event.target.classList.add('active');
+      }
+
+      function populateModalData(year, index) {
+        const comparisonData = calculationResults.comparison[index];
+        const selfData = calculationResults.selfFinanced[index];
+        const financedData = calculationResults.financed[index];
+        
+        // Populate Profit & Loss
+        populateP&LData(selfData, financedData, year);
+        
+        // Populate Balance Sheet
+        populateBalanceSheetData(comparisonData, selfData, financedData, year);
+      }
+
+      function populateP&LData(selfData, financedData, year) {
+        const selfP&LBody = document.getElementById("selfP&LBody");
+        const financedP&LBody = document.getElementById("financedP&LBody");
+        
+        // Self-Financed P&L
+        selfP&LBody.innerHTML = `
+          <tr>
+            <th colspan="2">Income</th>
+          </tr>
+          <tr>
+            <td>Gross Potential Rent</td>
+            <td class="positive">${formatCurrency(selfData.grossPotentialRent || 0)}</td>
+          </tr>
+          <tr>
+            <td>Effective Gross Income</td>
+            <td class="positive">${formatCurrency(selfData.effectiveGrossIncome || 0)}</td>
+          </tr>
+          <tr>
+            <th colspan="2">Expenses</th>
+          </tr>
+          <tr>
+            <td>Property Management</td>
+            <td class="negative">${formatCurrency(selfData.propertyManagement || 0)}</td>
+          </tr>
+          <tr>
+            <td>Property Tax</td>
+            <td class="negative">${formatCurrency(selfData.propertyTax || 0)}</td>
+          </tr>
+          <tr>
+            <td>Insurance</td>
+            <td class="negative">${formatCurrency(selfData.insurance || 0)}</td>
+          </tr>
+          <tr>
+            <td>Maintenance</td>
+            <td class="negative">${formatCurrency(selfData.maintenance || 0)}</td>
+          </tr>
+          <tr>
+            <td>Utilities</td>
+            <td class="negative">${formatCurrency(selfData.utilities || 0)}</td>
+          </tr>
+          <tr>
+            <td>HOA Fees</td>
+            <td class="negative">${formatCurrency(selfData.hoaFees || 0)}</td>
+          </tr>
+          <tr>
+            <td>Vacancy Loss</td>
+            <td class="negative">${formatCurrency(selfData.vacancyLoss || 0)}</td>
+          </tr>
+          <tr>
+            <td>Total Operating Expenses</td>
+            <td class="negative">${formatCurrency(selfData.totalOperatingExpenses || 0)}</td>
+          </tr>
+          <tr>
+            <th colspan="2">Net Operating Income</th>
+          </tr>
+          <tr>
+            <td>NOI</td>
+            <td class="${selfData.noi >= 0 ? 'positive' : 'negative'}">${formatCurrency(selfData.noi || 0)}</td>
+          </tr>
+          <tr>
+            <th colspan="2">Cash Flow</th>
+          </tr>
+          <tr>
+            <td>Annual Cash Flow</td>
+            <td class="${selfData.cashFlow >= 0 ? 'positive' : 'negative'}">${formatCurrency(selfData.cashFlow)}</td>
+          </tr>
+        `;
+        
+        // Bank-Financed P&L
+        financedP&LBody.innerHTML = `
+          <tr>
+            <th colspan="2">Income</th>
+          </tr>
+          <tr>
+            <td>Gross Potential Rent</td>
+            <td class="positive">${formatCurrency(financedData.grossPotentialRent || 0)}</td>
+          </tr>
+          <tr>
+            <td>Effective Gross Income</td>
+            <td class="positive">${formatCurrency(financedData.effectiveGrossIncome || 0)}</td>
+          </tr>
+          <tr>
+            <th colspan="2">Expenses</th>
+          </tr>
+          <tr>
+            <td>Property Management</td>
+            <td class="negative">${formatCurrency(financedData.propertyManagement || 0)}</td>
+          </tr>
+          <tr>
+            <td>Property Tax</td>
+            <td class="negative">${formatCurrency(financedData.propertyTax || 0)}</td>
+          </tr>
+          <tr>
+            <td>Insurance</td>
+            <td class="negative">${formatCurrency(financedData.insurance || 0)}</td>
+          </tr>
+          <tr>
+            <td>Maintenance</td>
+            <td class="negative">${formatCurrency(financedData.maintenance || 0)}</td>
+          </tr>
+          <tr>
+            <td>Utilities</td>
+            <td class="negative">${formatCurrency(financedData.utilities || 0)}</td>
+          </tr>
+          <tr>
+            <td>HOA Fees</td>
+            <td class="negative">${formatCurrency(financedData.hoaFees || 0)}</td>
+          </tr>
+          <tr>
+            <td>Vacancy Loss</td>
+            <td class="negative">${formatCurrency(financedData.vacancyLoss || 0)}</td>
+          </tr>
+          <tr>
+            <td>Total Operating Expenses</td>
+            <td class="negative">${formatCurrency(financedData.totalOperatingExpenses || 0)}</td>
+          </tr>
+          <tr>
+            <th colspan="2">Net Operating Income</th>
+          </tr>
+          <tr>
+            <td>NOI</td>
+            <td class="${financedData.noi >= 0 ? 'positive' : 'negative'}">${formatCurrency(financedData.noi || 0)}</td>
+          </tr>
+          <tr>
+            <th colspan="2">Debt Service</th>
+          </tr>
+          <tr>
+            <td>Principal Payment</td>
+            <td class="negative">${formatCurrency(financedData.principalPayment || 0)}</td>
+          </tr>
+          <tr>
+            <td>Interest Payment</td>
+            <td class="negative">${formatCurrency(financedData.interestPayment || 0)}</td>
+          </tr>
+          <tr>
+            <td>Total Debt Service</td>
+            <td class="negative">${formatCurrency(financedData.totalDebtService || 0)}</td>
+          </tr>
+          <tr>
+            <th colspan="2">Cash Flow</th>
+          </tr>
+          <tr>
+            <td>Annual Cash Flow</td>
+            <td class="${financedData.cashFlow >= 0 ? 'positive' : 'negative'}">${formatCurrency(financedData.cashFlow)}</td>
+          </tr>
+        `;
+      }
+
+      function populateBalanceSheetData(comparisonData, selfData, financedData, year) {
+        const selfBalanceBody = document.getElementById("selfBalanceBody");
+        const financedBalanceBody = document.getElementById("financedBalanceBody");
+        
+        // Self-Financed Balance Sheet
+        selfBalanceBody.innerHTML = `
+          <tr>
+            <th colspan="2">Assets</th>
+          </tr>
+          <tr>
+            <td>Total Units Owned</td>
+            <td>${formatNumber(comparisonData.selfTotalUnits)}</td>
+          </tr>
+          <tr>
+            <td>Property Asset Value</td>
+            <td class="positive">${formatCurrency(selfData.assetValue)}</td>
+          </tr>
+          <tr>
+            <td>Cash Reserves</td>
+            <td class="positive">${formatCurrency(selfData.cashReserves || 0)}</td>
+          </tr>
+          <tr>
+            <th colspan="2">Total Assets</th>
+          </tr>
+          <tr>
+            <td>Net Worth</td>
+            <td class="positive">${formatCurrency(selfData.netWorth)}</td>
+          </tr>
+          <tr>
+            <th colspan="2">Cash Flow Summary</th>
+          </tr>
+          <tr>
+            <td>Annual Cash Flow</td>
+            <td class="${selfData.cashFlow >= 0 ? 'positive' : 'negative'}">${formatCurrency(selfData.cashFlow)}</td>
+          </tr>
+          <tr>
+            <td>Cumulative Cash Flow</td>
+            <td class="${selfData.cumulative >= 0 ? 'positive' : 'negative'}">${formatCurrency(selfData.cumulative)}</td>
+          </tr>
+        `;
+        
+        // Bank-Financed Balance Sheet
+        financedBalanceBody.innerHTML = `
+          <tr>
+            <th colspan="2">Assets</th>
+          </tr>
+          <tr>
+            <td>Total Units Owned</td>
+            <td>${formatNumber(comparisonData.financedTotalUnits)}</td>
+          </tr>
+          <tr>
+            <td>Property Asset Value</td>
+            <td class="positive">${formatCurrency(financedData.assetValue)}</td>
+          </tr>
+          <tr>
+            <td>Cash Reserves</td>
+            <td class="positive">${formatCurrency(financedData.cashReserves || 0)}</td>
+          </tr>
+          <tr>
+            <th colspan="2">Liabilities</th>
+          </tr>
+          <tr>
+            <td>Total Loan Balance</td>
+            <td class="negative">${formatCurrency(financedData.loanBalance)}</td>
+          </tr>
+          <tr>
+            <th colspan="2">Net Equity</th>
+          </tr>
+          <tr>
+            <td>Net Worth</td>
+            <td class="positive">${formatCurrency(financedData.netWorth)}</td>
+          </tr>
+          <tr>
+            <th colspan="2">Cash Flow Summary</th>
+          </tr>
+          <tr>
+            <td>Annual Cash Flow</td>
+            <td class="${financedData.cashFlow >= 0 ? 'positive' : 'negative'}">${formatCurrency(financedData.cashFlow)}</td>
+          </tr>
+          <tr>
+            <td>Cumulative Cash Flow</td>
+            <td class="${financedData.cumulative >= 0 ? 'positive' : 'negative'}">${formatCurrency(financedData.cumulative)}</td>
+          </tr>
+          <tr>
+            <td>Principal Paid</td>
+            <td class="positive">${formatCurrency(financedData.principalPayment || 0)}</td>
+          </tr>
+        `;
       }
     </script>
   </body>
