@@ -2442,13 +2442,23 @@
           }
 
           financedTotalCashForPurchases += financedAvailableCash;
-          
+
           // Debug logging for budget allocation
           if (year >= 8 && year <= 10) {
             console.log(`Year ${year} - Budget Allocation:`);
-            console.log(`  Annual Budget Added: ${year <= params.financedPurchaseYears ? '$' + params.annualBudget.toLocaleString() : '$0'}`);
-            console.log(`  Available Cash Added: $${financedAvailableCash.toLocaleString()}`);
-            console.log(`  Total Cash for Purchases: $${financedTotalCashForPurchases.toLocaleString()}`);
+            console.log(
+              `  Annual Budget Added: ${
+                year <= params.financedPurchaseYears
+                  ? "$" + params.annualBudget.toLocaleString()
+                  : "$0"
+              }`
+            );
+            console.log(
+              `  Available Cash Added: $${financedAvailableCash.toLocaleString()}`
+            );
+            console.log(
+              `  Total Cash for Purchases: $${financedTotalCashForPurchases.toLocaleString()}`
+            );
           }
 
           if (financedTotalCashForPurchases > 0) {
@@ -2459,30 +2469,53 @@
               loanAmountPerUnit * params.loanOriginationPercent;
             const upfrontPerUnit =
               downPaymentPerUnit + closingCostPerUnit + originationFeePerUnit;
-            
+
             // Debug logging for year 9
             if (year === 9) {
               console.log(`Year ${year} - Bank Financed Purchase Analysis:`);
               console.log(`Property Cost: $${propertyCost.toLocaleString()}`);
               console.log(`LTV Ratio: ${params.ltvRatio}%`);
-              console.log(`Loan Amount per Unit: $${loanAmountPerUnit.toLocaleString()}`);
-              console.log(`Down Payment per Unit: $${downPaymentPerUnit.toLocaleString()}`);
-              console.log(`Closing Cost per Unit: $${closingCostPerUnit.toLocaleString()}`);
-              console.log(`Origination Fee per Unit: $${originationFeePerUnit.toLocaleString()}`);
-              console.log(`Total Upfront per Unit: $${upfrontPerUnit.toLocaleString()}`);
-              console.log(`Available Cash: $${financedTotalCashForPurchases.toLocaleString()}`);
-              console.log(`Units that can be purchased: ${financedTotalCashForPurchases / upfrontPerUnit}`);
+              console.log(
+                `Loan Amount per Unit: $${loanAmountPerUnit.toLocaleString()}`
+              );
+              console.log(
+                `Down Payment per Unit: $${downPaymentPerUnit.toLocaleString()}`
+              );
+              console.log(
+                `Closing Cost per Unit: $${closingCostPerUnit.toLocaleString()}`
+              );
+              console.log(
+                `Origination Fee per Unit: $${originationFeePerUnit.toLocaleString()}`
+              );
+              console.log(
+                `Total Upfront per Unit: $${upfrontPerUnit.toLocaleString()}`
+              );
+              console.log(
+                `Available Cash: $${financedTotalCashForPurchases.toLocaleString()}`
+              );
+              console.log(
+                `Units that can be purchased: ${
+                  financedTotalCashForPurchases / upfrontPerUnit
+                }`
+              );
             }
-            
+
             financedNewUnits = Math.floor(
               financedTotalCashForPurchases / upfrontPerUnit
             );
-            
+
             // Debug logging for final purchase result
             if (year >= 8 && year <= 10) {
-              console.log(`  Final Result: ${financedNewUnits} units purchased`);
-              console.log(`  Remaining Cash: $${(financedTotalCashForPurchases - (financedNewUnits * upfrontPerUnit)).toLocaleString()}`);
-              console.log('---');
+              console.log(
+                `  Final Result: ${financedNewUnits} units purchased`
+              );
+              console.log(
+                `  Remaining Cash: $${(
+                  financedTotalCashForPurchases -
+                  financedNewUnits * upfrontPerUnit
+                ).toLocaleString()}`
+              );
+              console.log("---");
             }
 
             if (financedNewUnits > 0) {
@@ -2603,13 +2636,19 @@
           if (financedCashFlow > 0) {
             financedAvailableCash += financedCashFlow;
           }
-          
+
           // Debug logging for cash flow accumulation
           if (year >= 8 && year <= 10) {
             console.log(`Year ${year} - Cash Flow Summary:`);
-            console.log(`  Financed Cash Flow: $${financedCashFlow.toLocaleString()}`);
-            console.log(`  Available Cash: $${financedAvailableCash.toLocaleString()}`);
-            console.log(`  Cumulative Cash Flow: $${financedCumulativeCashFlow.toLocaleString()}`);
+            console.log(
+              `  Financed Cash Flow: $${financedCashFlow.toLocaleString()}`
+            );
+            console.log(
+              `  Available Cash: $${financedAvailableCash.toLocaleString()}`
+            );
+            console.log(
+              `  Cumulative Cash Flow: $${financedCumulativeCashFlow.toLocaleString()}`
+            );
           }
 
           const selfAssetValue = calcAssetValue(year, selfCohorts, params);
