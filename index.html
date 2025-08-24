@@ -2662,11 +2662,15 @@
                 units: financedNewUnits,
                 costPerUnit: propertyCost,
               });
-              
+
               if (year <= 5) {
-                console.log(`Year ${year}: Successfully purchased ${financedNewUnits} bank-financed units`);
+                console.log(
+                  `Year ${year}: Successfully purchased ${financedNewUnits} bank-financed units`
+                );
                 console.log(`  Total spent: $${totalSpent.toLocaleString()}`);
-                console.log(`  Remaining cash: $${financedAvailableCash.toLocaleString()}`);
+                console.log(
+                  `  Remaining cash: $${financedAvailableCash.toLocaleString()}`
+                );
               }
 
               const monthlyRate = params.interestRate / 12;
@@ -2819,7 +2823,9 @@
             console.log(`Year ${year} - Units Purchased:`);
             console.log(`  Self-Financed: ${selfNewUnits} units`);
             console.log(`  Bank-Financed: ${financedNewUnits} units`);
-            console.log(`  Total Self: ${selfTotalUnits}, Total Financed: ${financedTotalUnits}`);
+            console.log(
+              `  Total Self: ${selfTotalUnits}, Total Financed: ${financedTotalUnits}`
+            );
           }
 
           results.comparison.push({
@@ -2936,10 +2942,9 @@
 
         cohorts.forEach((c) => {
           const yearsOwned = year - c.yearOriginated;
-          const monthlyRentAtAcq = c.costPerUnit * params.rentalRate;
+          const annualRentAtAcq = c.costPerUnit * params.rentalRate;
           const annualRentPerUnit =
-            monthlyRentAtAcq *
-            12 *
+            annualRentAtAcq *
             Math.pow(1 + params.rentGrowthRate, Math.max(0, yearsOwned));
           gpr += annualRentPerUnit * c.units;
 
