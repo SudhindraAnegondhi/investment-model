@@ -2473,9 +2473,16 @@
 
             // Purchase maximum units possible (real estate is a long-term investment)
             financedNewUnits = maxUnitsPossible;
-            
+
             if (year <= 5) {
-              console.log(`Year ${year}: Purchasing ${financedNewUnits} units (real estate is long-term investment)`);
+              console.log(
+                `Year ${year}: Purchasing ${financedNewUnits} units (real estate is long-term investment)`
+              );
+              console.log(`  Available Cash: $${financedTotalCashForPurchases.toLocaleString()}`);
+              console.log(`  Upfront Cost per Unit: $${upfrontPerUnit.toLocaleString()}`);
+              console.log(`  Max Units Possible: ${maxUnitsPossible}`);
+              console.log(`  Loan Amount per Unit: $${loanAmountPerUnit.toLocaleString()}`);
+              console.log(`  Down Payment per Unit: $${downPaymentPerUnit.toLocaleString()}`);
             }
 
             if (financedNewUnits > 0) {
