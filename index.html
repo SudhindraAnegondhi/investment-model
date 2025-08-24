@@ -2464,6 +2464,8 @@
               console.log(
                 `Year ${year}: Attempting to purchase with $${financedTotalCashForPurchases.toLocaleString()} available cash`
               );
+              console.log(`Property Cost: $${propertyCost.toLocaleString()}`);
+              console.log(`Upfront Cost per Unit: $${upfrontPerUnit.toLocaleString()}`);
               console.log(`Max units possible: ${maxUnitsPossible}`);
             }
 
@@ -2509,6 +2511,9 @@
 
               // Check cash flow for current year and next 2 years
               let willBeProfitable = false;
+              if (year <= 5) {
+                console.log(`Year ${year}: Testing profitability for ${unitsToTest} units...`);
+              }
               for (
                 let testYear = year;
                 testYear <= Math.min(year + 2, projectionYears);
@@ -2537,6 +2542,12 @@
                 let tempCashFlow;
                 if (params.passthroughLLC === "yes") {
                   tempCashFlow = finMetrics.noi - totalAnnualEMI - finCapEx;
+                  if (year <= 5 && unitsToTest === maxUnitsPossible) {
+                    console.log(`    NOI: $${finMetrics.noi.toLocaleString()}`);
+                    console.log(`    Annual EMI: $${totalAnnualEMI.toLocaleString()}`);
+                    console.log(`    CapEx: $${finCapEx.toLocaleString()}`);
+                    console.log(`    Cash Flow: $${tempCashFlow.toLocaleString()}`);
+                  }
                 } else {
                   const financedInterestDeduction =
                     totalAnnualEMI > 0
@@ -2557,7 +2568,12 @@
                 // If cash flow becomes positive within 3 years, we can purchase
                 if (tempCashFlow >= 0) {
                   willBeProfitable = true;
+                  if (year <= 5) {
+                    console.log(`  Year ${testYear}: Cash flow = $${tempCashFlow.toLocaleString()} ✅ PROFITABLE`);
+                  }
                   break;
+                } else if (year <= 5) {
+                  console.log(`  Year ${testYear}: Cash flow = $${tempCashFlow.toLocaleString()} ❌`);
                 }
               }
 
