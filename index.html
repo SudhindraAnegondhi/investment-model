@@ -2452,12 +2452,62 @@
             const upfrontPerUnit =
               downPaymentPerUnit + closingCostPerUnit + originationFeePerUnit;
 
-            const maxUnitsPossible = Math.floor(
-              financedTotalCashForPurchases / upfrontPerUnit
-            );
+            // Calculate debt service requirements
+            const monthlyRate = params.interestRate / 12;
+            const totalPayments = params.loanTerm * 12;
+            let monthlyEMIPerUnit;
 
-            // Purchase units based on available cash and DSCR
-            financedNewUnits = 0;
+            if (params.interestRate === 0) {
+              monthlyEMIPerUnit = loanAmountPerUnit / totalPayments;
+            } else {
+              monthlyEMIPerUnit =
+                (loanAmountPerUnit *
+                  (monthlyRate * Math.pow(1 + monthlyRate, totalPayments))) /
+                (Math.pow(1 + monthlyRate, totalPayments) - 1);
+            }
+
+            const annualEMIPerUnit = monthlyEMIPerUnit * 12;
+
+            // Calculate rental income and operating expenses per unit
+            const annualRentPerUnit = propertyCost * params.rentalRate;
+            const propertyManagementPerUnit = annualRentPerUnit * params.propertyManagementRate;
+            const propertyTaxPerUnit = propertyCost * params.propertyTaxRate;
+            const insurancePerUnit = propertyCost * params.insuranceRate;
+            const maintenancePerUnit = annualRentPerUnit * params.maintenanceRate;
+
+            // Calculate net operating income per unit
+            const noiPerUnit = annualRentPerUnit - propertyManagementPerUnit - propertyTaxPerUnit - insurancePerUnit - maintenancePerUnit;
+
+            // Calculate cash flow per unit (NOI - debt service)
+            const cashFlowPerUnit = noiPerUnit - annualEMIPerUnit;
+
+            // Calculate how many units we can afford to service
+            // We need to ensure we have enough cash flow to cover debt service
+            let maxUnitsByCashFlow = 0;
+            if (cashFlowPerUnit >= 0) {
+              // If cash flow is positive, we can purchase units based on upfront costs
+              maxUnitsByCashFlow = Math.floor(
+                financedTotalCashForPurchases / upfrontPerUnit
+              );
+            } else {
+              // If cash flow is negative, we need to limit purchases based on available cash flow
+              // Calculate how much negative cash flow we can absorb with our available cash
+              const maxNegativeCashFlow = financedTotalCashForPurchases;
+              const unitsWeCanService = Math.floor(
+                maxNegativeCashFlow / Math.abs(cashFlowPerUnit)
+              );
+              
+              // Also check how many units we can afford upfront
+              const maxUnitsByUpfront = Math.floor(
+                financedTotalCashForPurchases / upfrontPerUnit
+              );
+              
+              // Take the minimum of the two constraints
+              maxUnitsByCashFlow = Math.min(unitsWeCanService, maxUnitsByUpfront);
+            }
+
+            // Purchase units based on affordability
+            financedNewUnits = maxUnitsByCashFlow;
 
             // Debug: Log the purchase attempt
             if (year <= 5) {
@@ -2465,18 +2515,21 @@
                 `Year ${year}: Attempting to purchase with $${financedTotalCashForPurchases.toLocaleString()} available cash`
               );
               console.log(`Property Cost: $${propertyCost.toLocaleString()}`);
-              console.log(
-                `Upfront Cost per Unit: $${upfrontPerUnit.toLocaleString()}`
-              );
-              console.log(`Max units possible: ${maxUnitsPossible}`);
+              console.log(`Down Payment: $${downPaymentPerUnit.toLocaleString()} (${((1-params.ltvRatio)*100).toFixed(0)}% of $${propertyCost.toLocaleString()})`);
+              console.log(`Closing Costs: $${closingCostPerUnit.toLocaleString()} (${(params.closingCostPercent*100).toFixed(0)}% of $${propertyCost.toLocaleString()})`);
+              console.log(`Origination Fee: $${originationFeePerUnit.toLocaleString()} (${(params.loanOriginationPercent*100).toFixed(0)}% of $${loanAmountPerUnit.toLocaleString()} loan)`);
+              console.log(`Total Upfront: $${upfrontPerUnit.toLocaleString()} per unit`);
+              console.log(`Annual Rent: $${annualRentPerUnit.toLocaleString()}`);
+              console.log(`Operating Expenses: $${(propertyManagementPerUnit + propertyTaxPerUnit + insurancePerUnit + maintenancePerUnit).toLocaleString()}`);
+              console.log(`NOI per Unit: $${noiPerUnit.toLocaleString()}`);
+              console.log(`Annual EMI per Unit: $${annualEMIPerUnit.toLocaleString()}`);
+              console.log(`Cash Flow per Unit: $${cashFlowPerUnit.toLocaleString()}`);
+              console.log(`Max units by cash flow: ${maxUnitsByCashFlow}`);
             }
-
-            // Purchase maximum units possible (real estate is a long-term investment)
-            financedNewUnits = maxUnitsPossible;
 
             if (year <= 5) {
               console.log(
-                `Year ${year}: Purchasing ${financedNewUnits} units (real estate is long-term investment)`
+                `Year ${year}: Purchasing ${financedNewUnits} units based on affordability`
               );
               console.log(
                 `  Available Cash: $${financedTotalCashForPurchases.toLocaleString()}`
@@ -2484,7 +2537,6 @@
               console.log(
                 `  Upfront Cost per Unit: $${upfrontPerUnit.toLocaleString()}`
               );
-              console.log(`  Max Units Possible: ${maxUnitsPossible}`);
               console.log(
                 `  Loan Amount per Unit: $${loanAmountPerUnit.toLocaleString()}`
               );
@@ -2511,19 +2563,6 @@
                 console.log(
                   `  Remaining cash: $${financedAvailableCash.toLocaleString()}`
                 );
-              }
-
-              const monthlyRate = params.interestRate / 12;
-              const totalPayments = params.loanTerm * 12;
-              let monthlyEMIPerUnit;
-
-              if (params.interestRate === 0) {
-                monthlyEMIPerUnit = loanAmountPerUnit / totalPayments;
-              } else {
-                monthlyEMIPerUnit =
-                  (loanAmountPerUnit *
-                    (monthlyRate * Math.pow(1 + monthlyRate, totalPayments))) /
-                  (Math.pow(1 + monthlyRate, totalPayments) - 1);
               }
 
               financedLoans.push({
