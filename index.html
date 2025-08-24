@@ -2456,19 +2456,26 @@
               financedTotalCashForPurchases / upfrontPerUnit
             );
 
-            // Check if purchasing units would result in positive cash flow
+            // Check if purchasing units would result in positive cash flow within 3 years
             let financedNewUnits = 0;
-            
-            for (let unitsToTest = maxUnitsPossible; unitsToTest > 0; unitsToTest--) {
+
+            for (
+              let unitsToTest = maxUnitsPossible;
+              unitsToTest > 0;
+              unitsToTest--
+            ) {
               // Temporarily add these units to test cash flow
-              const tempCohorts = [...financedCohorts, {
-                yearOriginated: year,
-                units: unitsToTest,
-                costPerUnit: propertyCost,
-              }];
-              
+              const tempCohorts = [
+                ...financedCohorts,
+                {
+                  yearOriginated: year,
+                  units: unitsToTest,
+                  costPerUnit: propertyCost,
+                },
+              ];
+
               const tempLoans = [...financedLoans];
-              
+
               // Calculate EMI for these units
               const monthlyRate = params.interestRate / 12;
               const totalPayments = params.loanTerm * 12;
@@ -2492,47 +2499,57 @@
                 yearOriginated: year,
               });
 
-              // Calculate total EMI for all loans
-              let totalAnnualEMI = 0;
-              tempLoans.forEach((loan) => {
-                const monthsElapsed = (year - loan.yearOriginated) * 12;
-                if (monthsElapsed < loan.totalPayments) {
-                  totalAnnualEMI += loan.monthlyEMIPerUnit * 12 * loan.units;
-                }
-              });
+              // Check cash flow for current year and next 2 years
+              let willBeProfitable = false;
+              for (let testYear = year; testYear <= Math.min(year + 2, projectionYears); testYear++) {
+                // Calculate total EMI for all loans in test year
+                let totalAnnualEMI = 0;
+                tempLoans.forEach((loan) => {
+                  const monthsElapsed = (testYear - loan.yearOriginated) * 12;
+                  if (monthsElapsed < loan.totalPayments) {
+                    totalAnnualEMI += loan.monthlyEMIPerUnit * 12 * loan.units;
+                  }
+                });
 
-              // Calculate income and expenses for this year
-              const finMetrics = calcIncomeAndExpenses(
-                year,
-                tempCohorts,
-                params,
-                financedTotalUnits + unitsToTest
-              );
-
-              const finCapEx = finMetrics.egi * params.capexRate;
-
-              // Calculate cash flow
-              let tempCashFlow;
-              if (params.passthroughLLC === "yes") {
-                tempCashFlow = finMetrics.noi - totalAnnualEMI - finCapEx;
-              } else {
-                const financedInterestDeduction =
-                  totalAnnualEMI > 0
-                    ? calculateAnnualInterest(tempLoans, year)
-                    : 0;
-                const financedTaxableIncome = Math.max(
-                  0,
-                  finMetrics.noi -
-                    financedInterestDeduction -
-                    finMetrics.depreciation
+                // Calculate income and expenses for test year
+                const finMetrics = calcIncomeAndExpenses(
+                  testYear,
+                  tempCohorts,
+                  params,
+                  financedTotalUnits + unitsToTest
                 );
-                const financedTax = financedTaxableIncome * params.incomeTaxRate;
-                tempCashFlow =
-                  finMetrics.noi - totalAnnualEMI - finCapEx - financedTax;
+
+                const finCapEx = finMetrics.egi * params.capexRate;
+
+                // Calculate cash flow
+                let tempCashFlow;
+                if (params.passthroughLLC === "yes") {
+                  tempCashFlow = finMetrics.noi - totalAnnualEMI - finCapEx;
+                } else {
+                  const financedInterestDeduction =
+                    totalAnnualEMI > 0
+                      ? calculateAnnualInterest(tempLoans, testYear)
+                      : 0;
+                  const financedTaxableIncome = Math.max(
+                    0,
+                    finMetrics.noi -
+                      financedInterestDeduction -
+                      finMetrics.depreciation
+                  );
+                  const financedTax =
+                    financedTaxableIncome * params.incomeTaxRate;
+                  tempCashFlow =
+                    finMetrics.noi - totalAnnualEMI - finCapEx - financedTax;
+                }
+
+                // If cash flow becomes positive within 3 years, we can purchase
+                if (tempCashFlow >= 0) {
+                  willBeProfitable = true;
+                  break;
+                }
               }
 
-              // If cash flow is positive, we can purchase these units
-              if (tempCashFlow >= 0) {
+              if (willBeProfitable) {
                 financedNewUnits = unitsToTest;
                 break;
               }
