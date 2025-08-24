@@ -2516,8 +2516,8 @@
               closingCostPerUnit +
               annualEMIPerUnit;
 
-            // Calculate available cash (only actual cash we have)
-            const availableCash = financedTotalCashForPurchases;
+            // Calculate available cash (actual cash + projected rental income from units to be purchased)
+            const availableCash = financedTotalCashForPurchases + annualRentPerUnit - vacancyLossPerUnit;
 
             // Calculate units affordable
             const maxUnitsAffordable = Math.floor(
@@ -2547,9 +2547,10 @@
               console.log(
                 `Cash Required per Unit: $${cashRequiredPerUnit.toLocaleString()}`
               );
-              console.log(
-                `Available Cash: $${availableCash.toLocaleString()}`
-              );
+              console.log(`Available Cash: $${financedTotalCashForPurchases.toLocaleString()}`);
+              console.log(`Projected Annual Rent: $${annualRentPerUnit.toLocaleString()}`);
+              console.log(`Projected Vacancy Loss: $${vacancyLossPerUnit.toLocaleString()}`);
+              console.log(`Total Available Cash: $${availableCash.toLocaleString()}`);
               console.log(
                 `Units Affordable: ${availableCash.toLocaleString()} ÷ ${cashRequiredPerUnit.toLocaleString()} = ${maxUnitsAffordable} units`
               );
@@ -2563,7 +2564,7 @@
                 `  Cash Required per Unit: $${cashRequiredPerUnit.toLocaleString()}`
               );
               console.log(
-                `  Available Cash: $${availableCash.toLocaleString()}`
+                `  Total Available Cash: $${availableCash.toLocaleString()}`
               );
               console.log(
                 `  Cash Balance C/F: $${(
