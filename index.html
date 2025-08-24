@@ -2500,39 +2500,59 @@
             // Units Affordable = Available Cash ÷ Cash Required per Unit
 
             // Calculate operating expenses per unit
-            const operatingExpensesPerUnit = propertyManagementPerUnit + propertyTaxPerUnit + insurancePerUnit + maintenancePerUnit;
-            
+            const operatingExpensesPerUnit =
+              propertyManagementPerUnit +
+              propertyTaxPerUnit +
+              insurancePerUnit +
+              maintenancePerUnit;
+
             // Calculate vacancy loss per unit
             const vacancyLossPerUnit = annualRentPerUnit * params.vacancyRate;
-            
+
             // Calculate cash required per unit (down payment + operating expenses + closing costs + 1 year EMI)
-            const cashRequiredPerUnit = downPaymentPerUnit + operatingExpensesPerUnit + closingCostPerUnit + annualEMIPerUnit;
-            
-            // Calculate available cash (total cash + rental income - vacancy loss)
-            const availableCash = financedTotalCashForPurchases + annualRentPerUnit - vacancyLossPerUnit;
-            
+            const cashRequiredPerUnit =
+              downPaymentPerUnit +
+              operatingExpensesPerUnit +
+              closingCostPerUnit +
+              annualEMIPerUnit;
+
+            // Calculate available cash (only actual cash we have)
+            const availableCash = financedTotalCashForPurchases;
+
             // Calculate units affordable
-            const maxUnitsAffordable = Math.floor(availableCash / cashRequiredPerUnit);
-            
+            const maxUnitsAffordable = Math.floor(
+              availableCash / cashRequiredPerUnit
+            );
+
             // Purchase units based on new affordability calculation
             financedNewUnits = Math.max(0, maxUnitsAffordable);
 
             // Debug: Log the purchase attempt
             if (year <= 5) {
-              console.log(
-                `Year ${year}: New Affordability Calculation`
-              );
+              console.log(`Year ${year}: New Affordability Calculation`);
               console.log(`Property Cost: $${propertyCost.toLocaleString()}`);
-              console.log(`Down Payment: $${downPaymentPerUnit.toLocaleString()} (${((1-params.ltvRatio)*100).toFixed(0)}% of $${propertyCost.toLocaleString()})`);
-              console.log(`Operating Expenses: $${operatingExpensesPerUnit.toLocaleString()}`);
-              console.log(`Closing Costs: $${closingCostPerUnit.toLocaleString()}`);
+              console.log(
+                `Down Payment: $${downPaymentPerUnit.toLocaleString()} (${(
+                  (1 - params.ltvRatio) *
+                  100
+                ).toFixed(0)}% of $${propertyCost.toLocaleString()})`
+              );
+              console.log(
+                `Operating Expenses: $${operatingExpensesPerUnit.toLocaleString()}`
+              );
+              console.log(
+                `Closing Costs: $${closingCostPerUnit.toLocaleString()}`
+              );
               console.log(`Annual EMI: $${annualEMIPerUnit.toLocaleString()}`);
-              console.log(`Cash Required per Unit: $${cashRequiredPerUnit.toLocaleString()}`);
-              console.log(`Available Cash: $${financedTotalCashForPurchases.toLocaleString()}`);
-              console.log(`Annual Rent: $${annualRentPerUnit.toLocaleString()}`);
-              console.log(`Vacancy Loss: $${vacancyLossPerUnit.toLocaleString()}`);
-              console.log(`Total Available Cash: $${availableCash.toLocaleString()}`);
-              console.log(`Units Affordable: ${availableCash.toLocaleString()} ÷ ${cashRequiredPerUnit.toLocaleString()} = ${maxUnitsAffordable} units`);
+              console.log(
+                `Cash Required per Unit: $${cashRequiredPerUnit.toLocaleString()}`
+              );
+              console.log(
+                `Available Cash: $${availableCash.toLocaleString()}`
+              );
+              console.log(
+                `Units Affordable: ${availableCash.toLocaleString()} ÷ ${cashRequiredPerUnit.toLocaleString()} = ${maxUnitsAffordable} units`
+              );
             }
 
             if (year <= 5) {
@@ -2543,10 +2563,13 @@
                 `  Cash Required per Unit: $${cashRequiredPerUnit.toLocaleString()}`
               );
               console.log(
-                `  Total Available Cash: $${availableCash.toLocaleString()}`
+                `  Available Cash: $${availableCash.toLocaleString()}`
               );
               console.log(
-                `  Cash Balance C/F: $${(availableCash - (financedNewUnits * cashRequiredPerUnit)).toLocaleString()}`
+                `  Cash Balance C/F: $${(
+                  availableCash -
+                  financedNewUnits * cashRequiredPerUnit
+                ).toLocaleString()}`
               );
             }
 
