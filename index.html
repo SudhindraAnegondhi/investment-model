@@ -2662,6 +2662,12 @@
                 units: financedNewUnits,
                 costPerUnit: propertyCost,
               });
+              
+              if (year <= 5) {
+                console.log(`Year ${year}: Successfully purchased ${financedNewUnits} bank-financed units`);
+                console.log(`  Total spent: $${totalSpent.toLocaleString()}`);
+                console.log(`  Remaining cash: $${financedAvailableCash.toLocaleString()}`);
+              }
 
               const monthlyRate = params.interestRate / 12;
               const totalPayments = params.loanTerm * 12;
@@ -2739,12 +2745,16 @@
           let selfCashFlow, financedCashFlow;
 
           if (params.passthroughLLC === "yes") {
-            // Only add CapEx if cash flow would be positive
+            // Only add CapEx if cash flow would be positive after CapEx
             const selfCashFlowBeforeCapEx = selfMetrics.noi;
             const financedCashFlowBeforeCapEx = finMetrics.noi - totalAnnualEMI;
-            
-            selfCashFlow = selfCashFlowBeforeCapEx - (selfCashFlowBeforeCapEx > 0 ? selfCapEx : 0);
-            financedCashFlow = financedCashFlowBeforeCapEx - (financedCashFlowBeforeCapEx > 0 ? finCapEx : 0);
+
+            selfCashFlow =
+              selfCashFlowBeforeCapEx -
+              (selfCashFlowBeforeCapEx - selfCapEx > 0 ? selfCapEx : 0);
+            financedCashFlow =
+              financedCashFlowBeforeCapEx -
+              (financedCashFlowBeforeCapEx - finCapEx > 0 ? finCapEx : 0);
           } else {
             const selfTaxableIncome = Math.max(
               0,
@@ -2764,9 +2774,12 @@
                 finMetrics.depreciation
             );
             const financedTax = financedTaxableIncome * params.incomeTaxRate;
-            // Only add CapEx if cash flow would be positive
-            const financedCashFlowBeforeCapEx = finMetrics.noi - totalAnnualEMI - financedTax;
-            financedCashFlow = financedCashFlowBeforeCapEx - (financedCashFlowBeforeCapEx > 0 ? finCapEx : 0);
+            // Only add CapEx if cash flow would be positive after CapEx
+            const financedCashFlowBeforeCapEx =
+              finMetrics.noi - totalAnnualEMI - financedTax;
+            financedCashFlow =
+              financedCashFlowBeforeCapEx -
+              (financedCashFlowBeforeCapEx - finCapEx > 0 ? finCapEx : 0);
           }
 
           if (selfCashFlow > 0) {
@@ -2800,6 +2813,14 @@
 
           selfCumulativeCashFlow += selfCashFlow;
           financedCumulativeCashFlow += financedCashFlow;
+
+          // Debug: Log new units purchased
+          if (year <= 5) {
+            console.log(`Year ${year} - Units Purchased:`);
+            console.log(`  Self-Financed: ${selfNewUnits} units`);
+            console.log(`  Bank-Financed: ${financedNewUnits} units`);
+            console.log(`  Total Self: ${selfTotalUnits}, Total Financed: ${financedTotalUnits}`);
+          }
 
           results.comparison.push({
             year,
