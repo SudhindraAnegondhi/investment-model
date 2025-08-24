@@ -2441,9 +2441,9 @@
             financedTotalCashForPurchases += params.annualBudget;
           }
 
-                    financedTotalCashForPurchases += financedAvailableCash;
+          financedTotalCashForPurchases += financedAvailableCash;
 
-                    if (financedTotalCashForPurchases > 0) {
+          if (financedTotalCashForPurchases > 0) {
             const loanAmountPerUnit = propertyCost * params.ltvRatio;
             const downPaymentPerUnit = propertyCost - loanAmountPerUnit;
             const closingCostPerUnit = propertyCost * params.closingCostPercent;
@@ -2451,10 +2451,92 @@
               loanAmountPerUnit * params.loanOriginationPercent;
             const upfrontPerUnit =
               downPaymentPerUnit + closingCostPerUnit + originationFeePerUnit;
-            
-            financedNewUnits = Math.floor(
+
+            const maxUnitsPossible = Math.floor(
               financedTotalCashForPurchases / upfrontPerUnit
             );
+
+            // Check if purchasing units would result in positive cash flow
+            let financedNewUnits = 0;
+            
+            for (let unitsToTest = maxUnitsPossible; unitsToTest > 0; unitsToTest--) {
+              // Temporarily add these units to test cash flow
+              const tempCohorts = [...financedCohorts, {
+                yearOriginated: year,
+                units: unitsToTest,
+                costPerUnit: propertyCost,
+              }];
+              
+              const tempLoans = [...financedLoans];
+              
+              // Calculate EMI for these units
+              const monthlyRate = params.interestRate / 12;
+              const totalPayments = params.loanTerm * 12;
+              let monthlyEMIPerUnit;
+
+              if (params.interestRate === 0) {
+                monthlyEMIPerUnit = loanAmountPerUnit / totalPayments;
+              } else {
+                monthlyEMIPerUnit =
+                  (loanAmountPerUnit *
+                    (monthlyRate * Math.pow(1 + monthlyRate, totalPayments))) /
+                  (Math.pow(1 + monthlyRate, totalPayments) - 1);
+              }
+
+              tempLoans.push({
+                units: unitsToTest,
+                loanAmountPerUnit,
+                monthlyEMIPerUnit,
+                monthlyRate,
+                totalPayments,
+                yearOriginated: year,
+              });
+
+              // Calculate total EMI for all loans
+              let totalAnnualEMI = 0;
+              tempLoans.forEach((loan) => {
+                const monthsElapsed = (year - loan.yearOriginated) * 12;
+                if (monthsElapsed < loan.totalPayments) {
+                  totalAnnualEMI += loan.monthlyEMIPerUnit * 12 * loan.units;
+                }
+              });
+
+              // Calculate income and expenses for this year
+              const finMetrics = calcIncomeAndExpenses(
+                year,
+                tempCohorts,
+                params,
+                financedTotalUnits + unitsToTest
+              );
+
+              const finCapEx = finMetrics.egi * params.capexRate;
+
+              // Calculate cash flow
+              let tempCashFlow;
+              if (params.passthroughLLC === "yes") {
+                tempCashFlow = finMetrics.noi - totalAnnualEMI - finCapEx;
+              } else {
+                const financedInterestDeduction =
+                  totalAnnualEMI > 0
+                    ? calculateAnnualInterest(tempLoans, year)
+                    : 0;
+                const financedTaxableIncome = Math.max(
+                  0,
+                  finMetrics.noi -
+                    financedInterestDeduction -
+                    finMetrics.depreciation
+                );
+                const financedTax = financedTaxableIncome * params.incomeTaxRate;
+                tempCashFlow =
+                  finMetrics.noi - totalAnnualEMI - finCapEx - financedTax;
+              }
+
+              // If cash flow is positive, we can purchase these units
+              if (tempCashFlow >= 0) {
+                financedNewUnits = unitsToTest;
+                break;
+              }
+            }
 
             if (financedNewUnits > 0) {
               const totalSpent = financedNewUnits * upfrontPerUnit;
@@ -2571,7 +2653,7 @@
             selfAvailableCash += selfCashFlow;
           }
 
-                    if (financedCashFlow > 0) {
+          if (financedCashFlow > 0) {
             financedAvailableCash += financedCashFlow;
           }
 
