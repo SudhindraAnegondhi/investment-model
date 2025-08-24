@@ -2457,7 +2457,7 @@
             );
 
             // Purchase units based on available cash and DSCR
-            let financedNewUnits = 0;
+            financedNewUnits = 0;
 
             // Debug: Log the purchase attempt
             if (year <= 5) {
@@ -2478,11 +2478,19 @@
               console.log(
                 `Year ${year}: Purchasing ${financedNewUnits} units (real estate is long-term investment)`
               );
-              console.log(`  Available Cash: $${financedTotalCashForPurchases.toLocaleString()}`);
-              console.log(`  Upfront Cost per Unit: $${upfrontPerUnit.toLocaleString()}`);
+              console.log(
+                `  Available Cash: $${financedTotalCashForPurchases.toLocaleString()}`
+              );
+              console.log(
+                `  Upfront Cost per Unit: $${upfrontPerUnit.toLocaleString()}`
+              );
               console.log(`  Max Units Possible: ${maxUnitsPossible}`);
-              console.log(`  Loan Amount per Unit: $${loanAmountPerUnit.toLocaleString()}`);
-              console.log(`  Down Payment per Unit: $${downPaymentPerUnit.toLocaleString()}`);
+              console.log(
+                `  Loan Amount per Unit: $${loanAmountPerUnit.toLocaleString()}`
+              );
+              console.log(
+                `  Down Payment per Unit: $${downPaymentPerUnit.toLocaleString()}`
+              );
             }
 
             if (financedNewUnits > 0) {
