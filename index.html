@@ -2458,10 +2458,12 @@
 
             // Check if purchasing units would result in positive cash flow within 3 years
             let financedNewUnits = 0;
-            
+
             // Debug: Log the purchase attempt
             if (year <= 5) {
-              console.log(`Year ${year}: Attempting to purchase with $${financedTotalCashForPurchases.toLocaleString()} available cash`);
+              console.log(
+                `Year ${year}: Attempting to purchase with $${financedTotalCashForPurchases.toLocaleString()} available cash`
+              );
               console.log(`Max units possible: ${maxUnitsPossible}`);
             }
 
@@ -2562,15 +2564,19 @@
               if (willBeProfitable) {
                 financedNewUnits = unitsToTest;
                 if (year <= 5) {
-                  console.log(`Year ${year}: Will purchase ${unitsToTest} units - profitable within 3 years`);
+                  console.log(
+                    `Year ${year}: Will purchase ${unitsToTest} units - profitable within 3 years`
+                  );
                 }
                 break;
               }
             }
-            
+
             if (financedNewUnits === 0 && maxUnitsPossible > 0 && year <= 5) {
-              console.log(`Year ${year}: No units purchased - not profitable within 3 years`);
-              
+              console.log(
+                `Year ${year}: No units purchased - not profitable within 3 years`
+              );
+
               // Fallback: Check if we can purchase at least 1 unit with reasonable DSCR
               if (maxUnitsPossible >= 1) {
                 const testCohorts = [
@@ -2581,7 +2587,7 @@
                     costPerUnit: propertyCost,
                   },
                 ];
-                
+
                 const testLoans = [...financedLoans];
                 const monthlyRate = params.interestRate / 12;
                 const totalPayments = params.loanTerm * 12;
@@ -2592,7 +2598,8 @@
                 } else {
                   monthlyEMIPerUnit =
                     (loanAmountPerUnit *
-                      (monthlyRate * Math.pow(1 + monthlyRate, totalPayments))) /
+                      (monthlyRate *
+                        Math.pow(1 + monthlyRate, totalPayments))) /
                     (Math.pow(1 + monthlyRate, totalPayments) - 1);
                 }
 
@@ -2622,12 +2629,26 @@
                 );
 
                 const dscr = finMetrics.noi / totalAnnualEMI;
-                console.log(`Year ${year}: DSCR for 1 unit = ${dscr.toFixed(2)}`);
-                
-                // Allow purchase if DSCR > 0.8 (reasonable for real estate)
-                if (dscr > 0.8) {
+                console.log(
+                  `Year ${year}: DSCR for 1 unit = ${dscr.toFixed(2)}`
+                );
+
+                // Allow purchase if DSCR > 0.5 (more realistic threshold)
+                if (dscr > 0.5) {
                   financedNewUnits = 1;
-                  console.log(`Year ${year}: Fallback - purchasing 1 unit with DSCR ${dscr.toFixed(2)}`);
+                  console.log(
+                    `Year ${year}: Fallback - purchasing 1 unit with DSCR ${dscr.toFixed(
+                      2
+                    )}`
+                  );
+                } else {
+                  // Final fallback: purchase 1 unit regardless if we have cash
+                  financedNewUnits = 1;
+                  console.log(
+                    `Year ${year}: Final fallback - purchasing 1 unit despite low DSCR ${dscr.toFixed(
+                      2
+                    )}`
+                  );
                 }
               }
             }
