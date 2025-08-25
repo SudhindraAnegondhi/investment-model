@@ -1177,13 +1177,15 @@
     <!-- Year Detail Modal -->
     <div id="yearModal" class="modal">
       <div class="modal-content">
-                    <div class="modal-header">
-                <h2>Year <span id="modalYear"></span> - Detailed Analysis</h2>
-                <div style="display: flex; align-items: center; gap: 10px;">
-                    <span style="font-size: 12px; opacity: 0.8;">← Swipe to navigate years →</span>
-                    <span class="close" onclick="closeModal()">&times;</span>
-                </div>
-            </div>
+        <div class="modal-header">
+          <h2>Year <span id="modalYear"></span> - Detailed Analysis</h2>
+          <div style="display: flex; align-items: center; gap: 10px">
+            <span style="font-size: 12px; opacity: 0.8"
+              >← Swipe to navigate years →</span
+            >
+            <span class="close" onclick="closeModal()">&times;</span>
+          </div>
+        </div>
         <div class="modal-body">
           <div class="strategy-selector">
             <button
@@ -1798,14 +1800,14 @@
       function showYearModal(year, index) {
         const modal = document.getElementById("yearModal");
         const modalYear = document.getElementById("modalYear");
-        
+
         currentModalYear = year;
         currentModalIndex = index;
-        
+
         modalYear.textContent = year;
         populateYearDetails(year, index);
         modal.style.display = "block";
-        
+
         // Add swipe event listeners
         addSwipeListeners();
       }
@@ -1833,36 +1835,41 @@
           const minSwipeDistance = 50;
 
           // Check if it's a horizontal swipe (not vertical)
-          if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > minSwipeDistance) {
-            const modalContent = document.querySelector('.modal-content');
-            
+          if (
+            Math.abs(deltaX) > Math.abs(deltaY) &&
+            Math.abs(deltaX) > minSwipeDistance
+          ) {
+            const modalContent = document.querySelector(".modal-content");
+
             if (deltaX > 0) {
               // Swipe right - go to previous year
-              modalContent.classList.add('swipe-right');
+              modalContent.classList.add("swipe-right");
               setTimeout(() => {
                 navigateToYear(currentModalIndex - 1);
-                modalContent.classList.remove('swipe-right');
+                modalContent.classList.remove("swipe-right");
               }, 150);
             } else {
               // Swipe left - go to next year
-              modalContent.classList.add('swipe-left');
+              modalContent.classList.add("swipe-left");
               setTimeout(() => {
                 navigateToYear(currentModalIndex + 1);
-                modalContent.classList.remove('swipe-left');
+                modalContent.classList.remove("swipe-left");
               }, 150);
             }
           }
         };
 
         // Remove existing listeners
-        modal.removeEventListener('touchstart', handleTouchStart);
-        modal.removeEventListener('touchmove', handleTouchMove);
-        modal.removeEventListener('touchend', handleTouchEnd);
+        modal.removeEventListener("touchstart", handleTouchStart);
+        modal.removeEventListener("touchmove", handleTouchMove);
+        modal.removeEventListener("touchend", handleTouchEnd);
 
         // Add new listeners
-        modal.addEventListener('touchstart', handleTouchStart, { passive: true });
-        modal.addEventListener('touchmove', handleTouchMove, { passive: true });
-        modal.addEventListener('touchend', handleTouchEnd, { passive: true });
+        modal.addEventListener("touchstart", handleTouchStart, {
+          passive: true,
+        });
+        modal.addEventListener("touchmove", handleTouchMove, { passive: true });
+        modal.addEventListener("touchend", handleTouchEnd, { passive: true });
       }
 
       function navigateToYear(newIndex) {
@@ -2293,17 +2300,16 @@
         const lastFin =
           calculationResults.financed[calculationResults.financed.length - 1];
 
-        // Calculate ROI for real estate investments
-        const selfROI = calculateROI(
-          lastSelf.netWorth,
-          lastSelf.cumulative,
-          15
-        );
-        const financedROI = calculateROI(
-          lastFin.netWorth,
-          lastFin.cumulative,
-          15
-        );
+        // Calculate actual cash invested for each strategy
+        const selfTotalInvested = calculateTotalCashInvested('self');
+        const financedTotalInvested = calculateTotalCashInvested('financed');
+
+        // Calculate ROI for real estate investments (including CapEx reserves)
+        const selfTotalValue = lastSelf.netWorth + calculationResults.detailedData[14].selfCumulativeCapEx;
+        const financedTotalValue = lastFin.netWorth + calculationResults.detailedData[14].financedCumulativeCapEx;
+        
+        const selfROI = calculateROI(selfTotalValue, selfTotalInvested, 15);
+        const financedROI = calculateROI(financedTotalValue, financedTotalInvested, 15);
 
         // Update ROI cards
         document.getElementById("realEstateROISelf").textContent =
@@ -2312,10 +2318,26 @@
           formatPercentage(financedROI);
 
         // Update comparison table
-        updateROIComparisonTable(lastSelf, lastFin);
+        updateROIComparisonTable(lastSelf, lastFin, selfTotalInvested, financedTotalInvested, selfTotalValue, financedTotalValue);
 
         // Update yearly comparison
         updateROIYearlyComparison();
+      }
+
+      function calculateTotalCashInvested(strategy) {
+        let totalInvested = 0;
+        const params = calculationResults.inputParams;
+        
+        // Calculate total cash invested over the investment period
+        for (let year = 1; year <= Math.max(params.selfPurchaseYears, params.financedPurchaseYears); year++) {
+          if (strategy === 'self' && year <= params.selfPurchaseYears) {
+            totalInvested += params.annualBudget;
+          } else if (strategy === 'financed' && year <= params.financedPurchaseYears) {
+            totalInvested += params.annualBudget;
+          }
+        }
+        
+        return totalInvested;
       }
 
       function calculateROI(finalValue, totalInvestment, years) {
@@ -2323,98 +2345,73 @@
         return (Math.pow(finalValue / totalInvestment, 1 / years) - 1) * 100;
       }
 
-      function updateROIComparisonTable(selfData, finData) {
+      function updateROIComparisonTable(selfData, finData, selfTotalInvested, financedTotalInvested, selfTotalValue, financedTotalValue) {
         const tbody = document.getElementById("roiComparisonBody");
         if (!tbody) return;
-
-        const initialInvestment =
-          calculationResults.inputParams.annualBudget *
-          calculationResults.inputParams.selfPurchaseYears;
 
         tbody.innerHTML = `
                 <tr>
                     <td><strong>Real Estate (Self-Financed)</strong></td>
-                    <td>${formatCurrency(initialInvestment)}</td>
-                    <td>${formatCurrency(selfData.netWorth)}</td>
-                    <td>${formatCurrency(
-                      selfData.netWorth - initialInvestment
-                    )}</td>
-                    <td>${formatPercentage(
-                      calculateROI(selfData.netWorth, initialInvestment, 15)
-                    )}</td>
+                    <td>${formatCurrency(selfTotalInvested)}</td>
+                    <td>${formatCurrency(selfTotalValue)}</td>
+                    <td>${formatCurrency(selfTotalValue - selfTotalInvested)}</td>
+                    <td>${formatPercentage(calculateROI(selfTotalValue, selfTotalInvested, 15))}</td>
                     <td>Medium</td>
                 </tr>
                 <tr>
                     <td><strong>Real Estate (Financed)</strong></td>
-                    <td>${formatCurrency(initialInvestment)}</td>
-                    <td>${formatCurrency(finData.netWorth)}</td>
-                    <td>${formatCurrency(
-                      finData.netWorth - initialInvestment
-                    )}</td>
-                    <td>${formatPercentage(
-                      calculateROI(finData.netWorth, initialInvestment, 15)
-                    )}</td>
+                    <td>${formatCurrency(financedTotalInvested)}</td>
+                    <td>${formatCurrency(financedTotalValue)}</td>
+                    <td>${formatCurrency(financedTotalValue - financedTotalInvested)}</td>
+                    <td>${formatPercentage(calculateROI(financedTotalValue, financedTotalInvested, 15))}</td>
                     <td>Medium</td>
                 </tr>
                 <tr>
                     <td><strong>S&P 500 Index</strong></td>
-                    <td>${formatCurrency(initialInvestment)}</td>
-                    <td>${formatCurrency(
-                      initialInvestment * Math.pow(1.1, 15)
-                    )}</td>
-                    <td>${formatCurrency(
-                      initialInvestment * Math.pow(1.1, 15) - initialInvestment
-                    )}</td>
+                    <td>${formatCurrency(selfTotalInvested)}</td>
+                    <td>${formatCurrency(selfTotalInvested * Math.pow(1.10, 15))}</td>
+                    <td>${formatCurrency(selfTotalInvested * Math.pow(1.10, 15) - selfTotalInvested)}</td>
                     <td>10.0%</td>
                     <td>High</td>
                 </tr>
                 <tr>
                     <td><strong>Investment Grade Bonds</strong></td>
-                    <td>${formatCurrency(initialInvestment)}</td>
-                    <td>${formatCurrency(
-                      initialInvestment * Math.pow(1.045, 15)
-                    )}</td>
-                    <td>${formatCurrency(
-                      initialInvestment * Math.pow(1.045, 15) -
-                        initialInvestment
-                    )}</td>
+                    <td>${formatCurrency(selfTotalInvested)}</td>
+                    <td>${formatCurrency(selfTotalInvested * Math.pow(1.045, 15))}</td>
+                    <td>${formatCurrency(selfTotalInvested * Math.pow(1.045, 15) - selfTotalInvested)}</td>
                     <td>4.5%</td>
                     <td>Low</td>
                 </tr>
                 <tr>
                     <td><strong>Savings Account</strong></td>
-                    <td>${formatCurrency(initialInvestment)}</td>
-                    <td>${formatCurrency(
-                      initialInvestment * Math.pow(1.02, 15)
-                    )}</td>
-                    <td>${formatCurrency(
-                      initialInvestment * Math.pow(1.02, 15) - initialInvestment
-                    )}</td>
+                    <td>${formatCurrency(selfTotalInvested)}</td>
+                    <td>${formatCurrency(selfTotalInvested * Math.pow(1.02, 15))}</td>
+                    <td>${formatCurrency(selfTotalInvested * Math.pow(1.02, 15) - selfTotalInvested)}</td>
                     <td>2.0%</td>
                     <td>Very Low</td>
                 </tr>
             `;
       }
 
-      function updateROIYearlyComparison() {
+            function updateROIYearlyComparison() {
         const tbody = document.getElementById("roiYearlyBody");
         if (!tbody || !calculationResults.comparison) return;
 
-        const initialInvestment =
-          calculationResults.inputParams.annualBudget *
-          calculationResults.inputParams.selfPurchaseYears;
+        const selfTotalInvested = calculateTotalCashInvested('self');
+        const financedTotalInvested = calculateTotalCashInvested('financed');
 
         tbody.innerHTML = "";
         for (let year = 1; year <= 15; year++) {
-          const selfValue =
-            calculationResults.selfFinanced[year - 1].netWorth +
-            calculationResults.selfFinanced[year - 1].cumulative;
-          const finValue =
-            calculationResults.financed[year - 1].netWorth +
-            calculationResults.financed[year - 1].cumulative;
-          const spValue = initialInvestment * Math.pow(1.1, year);
-          const bondsValue = initialInvestment * Math.pow(1.045, year);
-          const savingsValue = initialInvestment * Math.pow(1.02, year);
+          // Real estate values including CapEx reserves
+          const selfValue = calculationResults.selfFinanced[year - 1].netWorth + 
+                           calculationResults.detailedData[year - 1].selfCumulativeCapEx;
+          const finValue = calculationResults.financed[year - 1].netWorth + 
+                          calculationResults.detailedData[year - 1].financedCumulativeCapEx;
+          
+          // Alternative investments (invested over the same timeline)
+          const spValue = calculateAlternativeInvestmentValue(selfTotalInvested, 0.10, year);
+          const bondsValue = calculateAlternativeInvestmentValue(selfTotalInvested, 0.045, year);
+          const savingsValue = calculateAlternativeInvestmentValue(selfTotalInvested, 0.02, year);
 
           const tr = document.createElement("tr");
           tr.innerHTML = `
@@ -2424,9 +2421,24 @@
                     <td>${formatCurrency(spValue)}</td>
                     <td>${formatCurrency(bondsValue)}</td>
                     <td>${formatCurrency(savingsValue)}</td>
-                `;
+                  `;
           tbody.appendChild(tr);
         }
+      }
+
+      function calculateAlternativeInvestmentValue(totalInvestment, annualReturn, years) {
+        // Calculate the value of alternative investments considering the investment timeline
+        const params = calculationResults.inputParams;
+        let value = 0;
+        
+        // For each year of investment, calculate the compound growth
+        for (let investYear = 1; investYear <= Math.min(years, Math.max(params.selfPurchaseYears, params.financedPurchaseYears)); investYear++) {
+          const investmentAmount = calculationResults.inputParams.annualBudget;
+          const yearsOfGrowth = years - investYear + 1;
+          value += investmentAmount * Math.pow(1 + annualReturn, yearsOfGrowth);
+        }
+        
+        return value;
       }
 
       function formatPercentage(value) {
