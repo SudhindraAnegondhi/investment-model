@@ -2541,32 +2541,9 @@
             const cashFlowPerUnitAffordability =
               noiPerUnitAffordability - annualEMIPerUnit;
 
-            // If cash flow is negative, reduce units purchased and use saved cash to offset negative cash flow
+            // If cash flow is negative, reduce units by 1
             if (cashFlowPerUnitAffordability < 0) {
-              // Start with max units and reduce by 1, using the saved cash to offset negative cash flow
-              let unitsToPurchase = maxUnitsAffordable;
-              let bestUnits = 0;
-              let bestCashFlow = -Infinity;
-              
-              while (unitsToPurchase >= 0) { // Include 0 units as an option
-                // Calculate cash saved by not purchasing (maxUnitsAffordable - unitsToPurchase) units
-                const cashSaved = (maxUnitsAffordable - unitsToPurchase) * cashRequiredPerUnit;
-                
-                // Calculate total cash flow for this many units
-                const totalCashFlow = unitsToPurchase * cashFlowPerUnitAffordability;
-                
-                // Net cash flow = total cash flow + cash saved
-                const netCashFlow = totalCashFlow + cashSaved;
-                
-                if (netCashFlow > bestCashFlow) {
-                  bestCashFlow = netCashFlow;
-                  bestUnits = unitsToPurchase;
-                }
-                
-                unitsToPurchase--;
-              }
-              
-              financedNewUnits = bestUnits;
+              financedNewUnits = Math.max(0, maxUnitsAffordable - 1);
             } else {
               // Cash flow is positive, purchase all affordable units
               financedNewUnits = maxUnitsAffordable;
@@ -2613,19 +2590,18 @@
               console.log(
                 `Cash Flow per Unit: $${cashFlowPerUnitAffordability.toLocaleString()}`
               );
-              console.log(
-                `Max Units Affordable: ${maxUnitsAffordable} units`
-              );
-              console.log(
-                `Units to Purchase: ${financedNewUnits} units`
-              );
+              console.log(`Max Units Affordable: ${maxUnitsAffordable} units`);
+              console.log(`Units to Purchase: ${financedNewUnits} units`);
               if (cashFlowPerUnitAffordability < 0 && financedNewUnits > 0) {
                 console.log(
-                  `Strategy: Reduced from ${maxUnitsAffordable} to ${financedNewUnits} units to achieve positive total cash flow`
+                  `Strategy: Reduced from ${maxUnitsAffordable} to ${financedNewUnits} units (negative cash flow per unit)`
                 );
-              } else if (cashFlowPerUnitAffordability < 0 && financedNewUnits === 0) {
+              } else if (
+                cashFlowPerUnitAffordability < 0 &&
+                financedNewUnits === 0
+              ) {
                 console.log(
-                  `Strategy: No units purchased - even 1 unit would create negative cash flow`
+                  `Strategy: No units purchased - negative cash flow per unit`
                 );
               } else {
                 console.log(
