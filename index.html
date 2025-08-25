@@ -2663,9 +2663,10 @@
 
             financedNewUnits = purchaseResult.unitsToPurchase;
             financedAvailableCash = purchaseResult.remainingCash;
-            
+
             // Store the correct cash flow from the purchase function
-            financedCashFlowFromPurchase = purchaseResult.projectedAnnualCashFlow;
+            financedCashFlowFromPurchase =
+              purchaseResult.projectedAnnualCashFlow;
 
             // Log the decision for debugging
             if (year <= 5) {
@@ -2807,8 +2808,20 @@
               (financedCashFlowBeforeCapEx - finCapEx > 0 ? finCapEx : 0);
           }
 
-          // Use the correct cash flow from the purchase function
-          financedCashFlow = financedCashFlowFromPurchase;
+          // Use the standard cash flow calculation for all units
+          // The purchase function ensures we only buy units that have positive cash flow
+          // So the total cash flow should be positive if units were purchased
+          
+          // If we have existing units, use the standard calculation
+          // If we only have new units this year, use the purchase function result
+          if (financedTotalUnits > financedNewUnits) {
+            // We have existing units, so use the standard calculation
+            // (This will be calculated correctly by the existing logic above)
+          } else if (financedNewUnits > 0) {
+            // All units are new this year, use the purchase function result
+            financedCashFlow = financedCashFlowFromPurchase;
+          }
+          // If financedNewUnits = 0 and financedTotalUnits = 0, financedCashFlow remains 0
 
           if (selfCashFlow > 0) {
             selfAvailableCash += selfCashFlow;
