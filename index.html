@@ -2525,29 +2525,51 @@
             // Calculate cash required per unit (down payment + closing costs + origination fee)
             // For bank financing, we only need the margin money upfront
             const cashRequiredPerUnit =
-              downPaymentPerUnit +
-              closingCostPerUnit +
-              originationFeePerUnit;
+              downPaymentPerUnit + closingCostPerUnit + originationFeePerUnit;
 
             // Calculate available cash (just the actual cash balance)
             // For bank financing, we don't need to include projected rental income in upfront calculation
             const availableCash = financedTotalCashForPurchases;
 
-            // Calculate units affordable
+            // Calculate units affordable based on cash availability
             const maxUnitsAffordable = Math.floor(
               availableCash / cashRequiredPerUnit
             );
 
-            // Calculate cash flow per unit to ensure it's positive
+            // Calculate cash flow per unit
             const noiPerUnitAffordability = egi - operatingExpensesPerUnit;
             const cashFlowPerUnitAffordability =
               noiPerUnitAffordability - annualEMIPerUnit;
 
-            // Only purchase units if cash flow is positive
-            if (cashFlowPerUnitAffordability >= 0) {
-              financedNewUnits = Math.max(0, maxUnitsAffordable);
+            // If cash flow is negative, reduce units purchased and use saved cash to offset negative cash flow
+            if (cashFlowPerUnitAffordability < 0) {
+              // Start with max units and reduce by 1, using the saved cash to offset negative cash flow
+              let unitsToPurchase = maxUnitsAffordable;
+              let bestUnits = 0;
+              let bestCashFlow = -Infinity;
+              
+              while (unitsToPurchase >= 0) { // Include 0 units as an option
+                // Calculate cash saved by not purchasing (maxUnitsAffordable - unitsToPurchase) units
+                const cashSaved = (maxUnitsAffordable - unitsToPurchase) * cashRequiredPerUnit;
+                
+                // Calculate total cash flow for this many units
+                const totalCashFlow = unitsToPurchase * cashFlowPerUnitAffordability;
+                
+                // Net cash flow = total cash flow + cash saved
+                const netCashFlow = totalCashFlow + cashSaved;
+                
+                if (netCashFlow > bestCashFlow) {
+                  bestCashFlow = netCashFlow;
+                  bestUnits = unitsToPurchase;
+                }
+                
+                unitsToPurchase--;
+              }
+              
+              financedNewUnits = bestUnits;
             } else {
-              financedNewUnits = 0; // Don't purchase if cash flow is negative
+              // Cash flow is positive, purchase all affordable units
+              financedNewUnits = maxUnitsAffordable;
             }
 
             // Debug: Log the purchase attempt
@@ -2589,12 +2611,27 @@
                 `Cash Flow per Unit: $${cashFlowPerUnitAffordability.toLocaleString()}`
               );
               console.log(
-                `Purchase Decision: ${
-                  cashFlowPerUnitAffordability >= 0
-                    ? "ALLOWED (positive cash flow)"
-                    : "BLOCKED (negative cash flow)"
-                }`
+                `Cash Flow per Unit: $${cashFlowPerUnitAffordability.toLocaleString()}`
               );
+              console.log(
+                `Max Units Affordable: ${maxUnitsAffordable} units`
+              );
+              console.log(
+                `Units to Purchase: ${financedNewUnits} units`
+              );
+              if (cashFlowPerUnitAffordability < 0 && financedNewUnits > 0) {
+                console.log(
+                  `Strategy: Reduced from ${maxUnitsAffordable} to ${financedNewUnits} units to achieve positive total cash flow`
+                );
+              } else if (cashFlowPerUnitAffordability < 0 && financedNewUnits === 0) {
+                console.log(
+                  `Strategy: No units purchased - even 1 unit would create negative cash flow`
+                );
+              } else {
+                console.log(
+                  `Strategy: Purchasing all ${financedNewUnits} affordable units (positive cash flow per unit)`
+                );
+              }
             }
 
             if (year <= 5) {
