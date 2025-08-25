@@ -2386,12 +2386,14 @@
           const remainingCashAfterPurchase =
             financedTotalCashForPurchases - upfrontCashRequired;
 
-          // Calculate projected annual cash flow from these units
+          // Calculate projected annual cash flow from these units PLUS available cash
           const projectedAnnualCashFlow = testUnits * netCashFlowPerUnit;
+          const annualAvailableCash = params.annualBudget; // Add annual budget as ongoing cash flow
+          const totalAnnualCashFlow = projectedAnnualCashFlow + annualAvailableCash;
 
           // Calculate end-of-year cash position
           const endOfYearCashPosition =
-            remainingCashAfterPurchase + projectedAnnualCashFlow;
+            remainingCashAfterPurchase + totalAnnualCashFlow;
 
           // We want to maximize units while maintaining a reasonable cash position
           if (endOfYearCashPosition >= minimumCashBuffer) {
@@ -2407,6 +2409,7 @@
         const finalRemainingCash =
           financedTotalCashForPurchases - finalUpfrontCash;
         const finalProjectedCashFlow = optimalUnits * netCashFlowPerUnit;
+        const finalTotalCashFlow = finalProjectedCashFlow + params.annualBudget;
 
         // 9. Create detailed reasoning
         let reasoning = "";
@@ -2414,7 +2417,8 @@
           const singleUnitEndPosition =
             financedTotalCashForPurchases -
             upfrontCostPerUnit +
-            netCashFlowPerUnit;
+            netCashFlowPerUnit +
+            params.annualBudget;
           reasoning = `No units purchased. Even 1 unit would result in end-of-year cash position of ${singleUnitEndPosition.toLocaleString()} which is below minimum buffer of ${minimumCashBuffer.toLocaleString()}.`;
         } else {
           let limitReason = "";
@@ -2424,18 +2428,19 @@
           ) {
             limitReason = ` (Limited to ${params.maxUnitsFinanced} units for years ≤ ${params.maxUnitsFinancedLimitYears})`;
           }
-          reasoning = `Purchased ${optimalUnits} units${limitReason}. Upfront cost: ${finalUpfrontCash.toLocaleString()}, Projected annual cash flow: ${finalProjectedCashFlow.toLocaleString()}, End-of-year cash position: ${(
-            finalRemainingCash + finalProjectedCashFlow
+          reasoning = `Purchased ${optimalUnits} units${limitReason}. Upfront cost: ${finalUpfrontCash.toLocaleString()}, Property cash flow: ${finalProjectedCashFlow.toLocaleString()}, Annual budget: ${params.annualBudget.toLocaleString()}, Total annual cash flow: ${finalTotalCashFlow.toLocaleString()}, End-of-year cash position: ${(
+            finalRemainingCash + finalTotalCashFlow
           ).toLocaleString()}`;
         }
 
-        return {
-          unitsToPurchase: optimalUnits,
-          remainingCash: finalRemainingCash,
-          projectedAnnualCashFlow: finalProjectedCashFlow,
-          upfrontCostPerUnit: upfrontCostPerUnit,
-          netCashFlowPerUnit: netCashFlowPerUnit,
-          reasoning: reasoning,
+                  return {
+            unitsToPurchase: optimalUnits,
+            remainingCash: finalRemainingCash,
+            projectedAnnualCashFlow: finalProjectedCashFlow,
+            totalAnnualCashFlow: finalTotalCashFlow,
+            upfrontCostPerUnit: upfrontCostPerUnit,
+            netCashFlowPerUnit: netCashFlowPerUnit,
+            reasoning: reasoning,
 
           // Additional debugging info
           debug: {
@@ -2446,7 +2451,7 @@
             egiPerUnit: egiPerUnit,
             totalOperatingExpensesPerUnit: totalOperatingExpensesPerUnit,
             annualEMIPerUnit: annualEMIPerUnit,
-            endOfYearCashPosition: finalRemainingCash + finalProjectedCashFlow,
+            endOfYearCashPosition: finalRemainingCash + finalTotalCashFlow,
             minimumCashBuffer: minimumCashBuffer,
           },
         };
@@ -2684,6 +2689,12 @@
               );
               console.log(
                 `    Net Cash Flow: $${purchaseResult.netCashFlowPerUnit?.toLocaleString()}`
+              );
+              console.log(
+                `    Annual Budget: $${params.annualBudget?.toLocaleString()}`
+              );
+              console.log(
+                `    Total Annual Cash Flow: $${purchaseResult.totalAnnualCashFlow?.toLocaleString()}`
               );
               console.log(
                 `    End-of-year Cash Position: $${purchaseResult.debug?.endOfYearCashPosition?.toLocaleString()}`
