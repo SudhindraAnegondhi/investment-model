@@ -1484,9 +1484,17 @@
             financedMetrics.capex -
             financedMetrics.taxes;
 
-          // Track CapEx reserves
-          selfCumulativeCapEx += selfMetrics.capex;
-          financedCumulativeCapEx += financedMetrics.capex;
+                  // Track CapEx reserves (invested in S&P 500)
+        selfCumulativeCapEx += selfMetrics.capex;
+        financedCumulativeCapEx += financedMetrics.capex;
+        
+        // Calculate S&P 500 returns on CapEx reserves (assuming 10% annual return)
+        const sp500Return = 0.10; // 10% annual return
+        if (year > 1) {
+          // Apply S&P 500 returns to existing CapEx reserves
+          selfCumulativeCapEx = selfCumulativeCapEx * (1 + sp500Return);
+          financedCumulativeCapEx = financedCumulativeCapEx * (1 + sp500Return);
+        }
 
           if (selfCashFlow > 0) {
             selfAvailableCash += selfCashFlow;
@@ -1550,7 +1558,7 @@
             financedAssetValue,
             loanBalance,
             selfCumulativeCapEx: selfCumulativeCapEx,
-            financedCumulativeCapEx: financedCumulativeCapEx
+            financedCumulativeCapEx: financedCumulativeCapEx,
           });
         }
 
@@ -1992,13 +2000,9 @@
                 <tr><td>Cash and Cash Equivalents</td><td>${formatCurrency(
                   calculationResults.selfFinanced[index].cumulative
                 )}</td></tr>
-                <tr><td>CapEx Reserves</td><td>${formatCurrency(
-                  yearData.selfCumulativeCapEx
-                )}</td></tr>
                 <tr><td><strong>TOTAL ASSETS</strong></td><td><strong>${formatCurrency(
                   yearData.selfAssetValue +
-                    calculationResults.selfFinanced[index].cumulative +
-                    yearData.selfCumulativeCapEx
+                    calculationResults.selfFinanced[index].cumulative
                 )}</strong></td></tr>
                 <tr><td></td><td></td></tr>
                 <tr><td><strong>LIABILITIES</strong></td><td></td></tr>
@@ -2009,8 +2013,11 @@
                 <tr><td>Owner's Equity</td><td>${formatCurrency(
                   calculationResults.selfFinanced[index].netWorth
                 )}</td></tr>
+                <tr><td>CapEx Reserves (S&P 500 Investment)</td><td>${formatCurrency(
+                  yearData.selfCumulativeCapEx
+                )}</td></tr>
                 <tr><td><strong>TOTAL EQUITY</strong></td><td><strong>${formatCurrency(
-                  calculationResults.selfFinanced[index].netWorth
+                  calculationResults.selfFinanced[index].netWorth + yearData.selfCumulativeCapEx
                 )}</strong></td></tr>
             `;
 
@@ -2025,13 +2032,9 @@
                 <tr><td>Cash and Cash Equivalents</td><td>${formatCurrency(
                   calculationResults.financed[index].cumulative
                 )}</td></tr>
-                <tr><td>CapEx Reserves</td><td>${formatCurrency(
-                  yearData.financedCumulativeCapEx
-                )}</td></tr>
                 <tr><td><strong>TOTAL ASSETS</strong></td><td><strong>${formatCurrency(
                   yearData.financedAssetValue +
-                    calculationResults.financed[index].cumulative +
-                    yearData.financedCumulativeCapEx
+                    calculationResults.financed[index].cumulative
                 )}</strong></td></tr>
                 <tr><td></td><td></td></tr>
                 <tr><td><strong>LIABILITIES</strong></td><td></td></tr>
@@ -2046,8 +2049,11 @@
                 <tr><td>Owner's Equity</td><td>${formatCurrency(
                   calculationResults.financed[index].netWorth
                 )}</td></tr>
+                <tr><td>CapEx Reserves (S&P 500 Investment)</td><td>${formatCurrency(
+                  yearData.financedCumulativeCapEx
+                )}</td></tr>
                 <tr><td><strong>TOTAL EQUITY</strong></td><td><strong>${formatCurrency(
-                  calculationResults.financed[index].netWorth
+                  calculationResults.financed[index].netWorth + yearData.financedCumulativeCapEx
                 )}</strong></td></tr>
             `;
       }
