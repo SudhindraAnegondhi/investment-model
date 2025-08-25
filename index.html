@@ -2300,8 +2300,10 @@
         const loanAmountPerUnit = propertyCost * params.ltvRatio;
         const downPaymentPerUnit = propertyCost - loanAmountPerUnit;
         const closingCostPerUnit = propertyCost * params.closingCostPercent;
-        const originationFeePerUnit = loanAmountPerUnit * params.loanOriginationPercent;
-        const upfrontCostPerUnit = downPaymentPerUnit + closingCostPerUnit + originationFeePerUnit;
+        const originationFeePerUnit =
+          loanAmountPerUnit * params.loanOriginationPercent;
+        const upfrontCostPerUnit =
+          downPaymentPerUnit + closingCostPerUnit + originationFeePerUnit;
 
         // 2. Calculate annual EMI per unit
         const monthlyRate = params.interestRate / 12;
@@ -2311,8 +2313,9 @@
         if (params.interestRate === 0) {
           monthlyEMIPerUnit = loanAmountPerUnit / totalPayments;
         } else {
-          monthlyEMIPerUnit = (loanAmountPerUnit * 
-            (monthlyRate * Math.pow(1 + monthlyRate, totalPayments))) /
+          monthlyEMIPerUnit =
+            (loanAmountPerUnit *
+              (monthlyRate * Math.pow(1 + monthlyRate, totalPayments))) /
             (Math.pow(1 + monthlyRate, totalPayments) - 1);
         }
         const annualEMIPerUnit = monthlyEMIPerUnit * 12;
@@ -2322,25 +2325,31 @@
         const egiPerUnit = annualRentPerUnit * (1 - params.vacancyRate);
         const managementPerUnit = egiPerUnit * params.managementRate;
         const maintenancePerUnit = egiPerUnit * params.maintenanceRate;
-        
+
         // Property tax calculation
         const assessedBasePerUnit = propertyCost * params.assessedValuePercent;
-        const assessedCurrentPerUnit = assessedBasePerUnit * 
+        const assessedCurrentPerUnit =
+          assessedBasePerUnit *
           Math.pow(1 + params.assessedGrowthRate, year - 1);
         const propertyTaxPerUnit = assessedCurrentPerUnit * params.taxRate;
-        
-        // Insurance calculation  
-        const insurancePerUnit = params.insurance * 
-          Math.pow(1 + params.insuranceInflation, year - 1);
-        
-        const totalOperatingExpensesPerUnit = managementPerUnit + maintenancePerUnit + 
-          propertyTaxPerUnit + insurancePerUnit;
-        
+
+        // Insurance calculation
+        const insurancePerUnit =
+          params.insurance * Math.pow(1 + params.insuranceInflation, year - 1);
+
+        const totalOperatingExpensesPerUnit =
+          managementPerUnit +
+          maintenancePerUnit +
+          propertyTaxPerUnit +
+          insurancePerUnit;
+
         const noiPerUnit = egiPerUnit - totalOperatingExpensesPerUnit;
 
         // 4. Find optimal number of units using your manual calculation approach
-        let maxUnits = Math.floor(financedTotalCashForPurchases / upfrontCostPerUnit);
-        
+        let maxUnits = Math.floor(
+          financedTotalCashForPurchases / upfrontCostPerUnit
+        );
+
         // Apply early-year unit limits
         if (year <= params.maxUnitsFinancedLimitYears) {
           maxUnits = Math.min(maxUnits, params.maxUnitsFinanced);
@@ -2354,15 +2363,15 @@
           // Calculate total available cash (budget + NOI from all units)
           const totalNOI = testUnits * noiPerUnit;
           const totalAvailableCash = financedTotalCashForPurchases + totalNOI;
-          
+
           // Calculate total outflows (down payments + annual EMI)
           const totalUpfrontCosts = testUnits * upfrontCostPerUnit;
           const totalAnnualEMI = testUnits * annualEMIPerUnit;
           const totalOutflows = totalUpfrontCosts + totalAnnualEMI;
-          
+
           // Net cash flow
           const netCashFlow = totalAvailableCash - totalOutflows;
-          
+
           // Choose the highest unit count that maintains positive cash flow
           if (netCashFlow >= 0 && testUnits > optimalUnits) {
             optimalUnits = testUnits;
@@ -2372,8 +2381,10 @@
 
         // Calculate final results
         const finalUpfrontCash = optimalUnits * upfrontCostPerUnit;
-        const finalRemainingCash = financedTotalCashForPurchases - finalUpfrontCash;
-        const finalProjectedCashFlow = optimalUnits * (noiPerUnit - annualEMIPerUnit);
+        const finalRemainingCash =
+          financedTotalCashForPurchases - finalUpfrontCash;
+        const finalProjectedCashFlow =
+          optimalUnits * (noiPerUnit - annualEMIPerUnit);
 
         // Create reasoning
         let reasoning = "";
@@ -2382,15 +2393,24 @@
         } else {
           const totalNOI = optimalUnits * noiPerUnit;
           const totalEMI = optimalUnits * annualEMIPerUnit;
-          const netCashFlow = (financedTotalCashForPurchases + totalNOI) - (finalUpfrontCash + totalEMI);
-          
+          const netCashFlow =
+            financedTotalCashForPurchases +
+            totalNOI -
+            (finalUpfrontCash + totalEMI);
+
           let limitReason = "";
-          if (year <= params.maxUnitsFinancedLimitYears && optimalUnits === params.maxUnitsFinanced) {
+          if (
+            year <= params.maxUnitsFinancedLimitYears &&
+            optimalUnits === params.maxUnitsFinanced
+          ) {
             limitReason = ` (Limited to ${params.maxUnitsFinanced} units for years ≤ ${params.maxUnitsFinancedLimitYears})`;
           }
-          
-          reasoning = `Purchased ${optimalUnits} units${limitReason}. ` +
-            `Available: ${(financedTotalCashForPurchases + totalNOI).toLocaleString()} ` +
+
+          reasoning =
+            `Purchased ${optimalUnits} units${limitReason}. ` +
+            `Available: ${(
+              financedTotalCashForPurchases + totalNOI
+            ).toLocaleString()} ` +
             `(Budget: ${financedTotalCashForPurchases.toLocaleString()} + NOI: ${totalNOI.toLocaleString()}), ` +
             `Outflows: ${(finalUpfrontCash + totalEMI).toLocaleString()} ` +
             `(Upfront: ${finalUpfrontCash.toLocaleString()} + EMI: ${totalEMI.toLocaleString()}), ` +
@@ -2407,8 +2427,11 @@
 
           // Debug info matching your calculations
           debug: {
-            maxUnitsByUpfrontCash: Math.floor(financedTotalCashForPurchases / upfrontCostPerUnit),
-            totalAvailableCash: financedTotalCashForPurchases + (optimalUnits * noiPerUnit),
+            maxUnitsByUpfrontCash: Math.floor(
+              financedTotalCashForPurchases / upfrontCostPerUnit
+            ),
+            totalAvailableCash:
+              financedTotalCashForPurchases + optimalUnits * noiPerUnit,
             annualRentPerUnit: annualRentPerUnit,
             egiPerUnit: egiPerUnit,
             totalOperatingExpensesPerUnit: totalOperatingExpensesPerUnit,
@@ -2416,14 +2439,17 @@
             annualEMIPerUnit: annualEMIPerUnit,
             upfrontCostPerUnit: upfrontCostPerUnit,
             netCashFlow: bestCashFlow,
-            
+
             // Your manual calculation breakdown
             manualCalculation: {
-              availableCash: financedTotalCashForPurchases + (optimalUnits * noiPerUnit),
-              totalOutflows: (optimalUnits * upfrontCostPerUnit) + (optimalUnits * annualEMIPerUnit),
-              netResult: bestCashFlow
-            }
-          }
+              availableCash:
+                financedTotalCashForPurchases + optimalUnits * noiPerUnit,
+              totalOutflows:
+                optimalUnits * upfrontCostPerUnit +
+                optimalUnits * annualEMIPerUnit,
+              netResult: bestCashFlow,
+            },
+          },
         };
       }
 
@@ -2618,6 +2644,7 @@
 
           let financedNewUnits = 0;
           let financedTotalCashForPurchases = 0;
+          let financedCashFlowFromPurchase = 0; // Initialize outside the if block
 
           if (year <= params.financedPurchaseYears) {
             financedTotalCashForPurchases += params.annualBudget;
@@ -2636,6 +2663,9 @@
 
             financedNewUnits = purchaseResult.unitsToPurchase;
             financedAvailableCash = purchaseResult.remainingCash;
+            
+            // Store the correct cash flow from the purchase function
+            financedCashFlowFromPurchase = purchaseResult.projectedAnnualCashFlow;
 
             // Log the decision for debugging
             if (year <= 5) {
@@ -2776,6 +2806,9 @@
               financedCashFlowBeforeCapEx -
               (financedCashFlowBeforeCapEx - finCapEx > 0 ? finCapEx : 0);
           }
+
+          // Use the correct cash flow from the purchase function
+          financedCashFlow = financedCashFlowFromPurchase;
 
           if (selfCashFlow > 0) {
             selfAvailableCash += selfCashFlow;
