@@ -2386,14 +2386,12 @@
           const remainingCashAfterPurchase =
             financedTotalCashForPurchases - upfrontCashRequired;
 
-          // Calculate projected annual cash flow from these units PLUS available cash
+          // Calculate projected annual cash flow from these units (NOI - EMI only)
           const projectedAnnualCashFlow = testUnits * netCashFlowPerUnit;
-          const annualAvailableCash = params.annualBudget; // Add annual budget as ongoing cash flow
-          const totalAnnualCashFlow = projectedAnnualCashFlow + annualAvailableCash;
 
-          // Calculate end-of-year cash position
+          // Calculate end-of-year cash position (remaining cash + property cash flow)
           const endOfYearCashPosition =
-            remainingCashAfterPurchase + totalAnnualCashFlow;
+            remainingCashAfterPurchase + projectedAnnualCashFlow;
 
           // We want to maximize units while maintaining a reasonable cash position
           if (endOfYearCashPosition >= minimumCashBuffer) {
@@ -2409,7 +2407,6 @@
         const finalRemainingCash =
           financedTotalCashForPurchases - finalUpfrontCash;
         const finalProjectedCashFlow = optimalUnits * netCashFlowPerUnit;
-        const finalTotalCashFlow = finalProjectedCashFlow + params.annualBudget;
 
         // 9. Create detailed reasoning
         let reasoning = "";
@@ -2417,8 +2414,7 @@
           const singleUnitEndPosition =
             financedTotalCashForPurchases -
             upfrontCostPerUnit +
-            netCashFlowPerUnit +
-            params.annualBudget;
+            netCashFlowPerUnit;
           reasoning = `No units purchased. Even 1 unit would result in end-of-year cash position of ${singleUnitEndPosition.toLocaleString()} which is below minimum buffer of ${minimumCashBuffer.toLocaleString()}.`;
         } else {
           let limitReason = "";
@@ -2428,8 +2424,8 @@
           ) {
             limitReason = ` (Limited to ${params.maxUnitsFinanced} units for years ≤ ${params.maxUnitsFinancedLimitYears})`;
           }
-          reasoning = `Purchased ${optimalUnits} units${limitReason}. Upfront cost: ${finalUpfrontCash.toLocaleString()}, Property cash flow: ${finalProjectedCashFlow.toLocaleString()}, Annual budget: ${params.annualBudget.toLocaleString()}, Total annual cash flow: ${finalTotalCashFlow.toLocaleString()}, End-of-year cash position: ${(
-            finalRemainingCash + finalTotalCashFlow
+          reasoning = `Purchased ${optimalUnits} units${limitReason}. Upfront cost: ${finalUpfrontCash.toLocaleString()}, Property cash flow: ${finalProjectedCashFlow.toLocaleString()}, End-of-year cash position: ${(
+            finalRemainingCash + finalProjectedCashFlow
           ).toLocaleString()}`;
         }
 
@@ -2437,7 +2433,6 @@
             unitsToPurchase: optimalUnits,
             remainingCash: finalRemainingCash,
             projectedAnnualCashFlow: finalProjectedCashFlow,
-            totalAnnualCashFlow: finalTotalCashFlow,
             upfrontCostPerUnit: upfrontCostPerUnit,
             netCashFlowPerUnit: netCashFlowPerUnit,
             reasoning: reasoning,
@@ -2451,7 +2446,7 @@
             egiPerUnit: egiPerUnit,
             totalOperatingExpensesPerUnit: totalOperatingExpensesPerUnit,
             annualEMIPerUnit: annualEMIPerUnit,
-            endOfYearCashPosition: finalRemainingCash + finalTotalCashFlow,
+            endOfYearCashPosition: finalRemainingCash + finalProjectedCashFlow,
             minimumCashBuffer: minimumCashBuffer,
           },
         };
@@ -2690,12 +2685,7 @@
               console.log(
                 `    Net Cash Flow: $${purchaseResult.netCashFlowPerUnit?.toLocaleString()}`
               );
-              console.log(
-                `    Annual Budget: $${params.annualBudget?.toLocaleString()}`
-              );
-              console.log(
-                `    Total Annual Cash Flow: $${purchaseResult.totalAnnualCashFlow?.toLocaleString()}`
-              );
+
               console.log(
                 `    End-of-year Cash Position: $${purchaseResult.debug?.endOfYearCashPosition?.toLocaleString()}`
               );
