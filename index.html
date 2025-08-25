@@ -2251,6 +2251,152 @@
     <script>
       let calculationResults = {};
 
+      function calculateBankFinancedPurchases(
+        year,
+        params,
+        propertyCost,
+        financedTotalCashForPurchases,
+        financedAvailableCash
+      ) {
+        // 1. Calculate upfront costs per unit
+        const loanAmountPerUnit = propertyCost * params.ltvRatio;
+        const downPaymentPerUnit = propertyCost - loanAmountPerUnit;
+        const closingCostPerUnit = propertyCost * params.closingCostPercent;
+        const originationFeePerUnit =
+          loanAmountPerUnit * params.loanOriginationPercent;
+        const upfrontCostPerUnit =
+          downPaymentPerUnit + closingCostPerUnit + originationFeePerUnit;
+
+        // 2. Calculate annual cash flows per unit
+        const monthlyRate = params.interestRate / 12;
+        const totalPayments = params.loanTerm * 12;
+
+        let monthlyEMIPerUnit;
+        if (params.interestRate === 0) {
+          monthlyEMIPerUnit = loanAmountPerUnit / totalPayments;
+        } else {
+          const denominator = Math.pow(1 + monthlyRate, totalPayments) - 1;
+          monthlyEMIPerUnit =
+            (loanAmountPerUnit *
+              (monthlyRate * Math.pow(1 + monthlyRate, totalPayments))) /
+            denominator;
+        }
+        const annualEMIPerUnit = monthlyEMIPerUnit * 12;
+
+        // 3. Calculate projected annual income per unit
+        const annualRentPerUnit = propertyCost * params.rentalRate;
+        const egiPerUnit = annualRentPerUnit * (1 - params.vacancyRate);
+
+        // 4. Calculate operating expenses per unit
+        const managementPerUnit = egiPerUnit * params.managementRate;
+        const maintenancePerUnit = egiPerUnit * params.maintenanceRate;
+
+        // Property tax calculation
+        const assessedBasePerUnit = propertyCost * params.assessedValuePercent;
+        const assessedCurrentPerUnit =
+          assessedBasePerUnit *
+          Math.pow(1 + params.assessedGrowthRate, year - 1);
+        const propertyTaxPerUnit = assessedCurrentPerUnit * params.taxRate;
+
+        // Insurance calculation
+        const insurancePerUnit =
+          params.insurance * Math.pow(1 + params.insuranceInflation, year - 1);
+
+        const totalOperatingExpensesPerUnit =
+          managementPerUnit +
+          maintenancePerUnit +
+          propertyTaxPerUnit +
+          insurancePerUnit;
+
+        // 5. Calculate net cash flow per unit
+        const netCashFlowPerUnit =
+          egiPerUnit - totalOperatingExpensesPerUnit - annualEMIPerUnit;
+
+        // 6. Determine maximum units based on upfront cash
+        const maxUnitsByUpfrontCash = Math.floor(
+          financedTotalCashForPurchases / upfrontCostPerUnit
+        );
+
+        if (maxUnitsByUpfrontCash === 0) {
+          return {
+            unitsToPurchase: 0,
+            remainingCash: financedTotalCashForPurchases,
+            projectedAnnualCashFlow: 0,
+            reasoning: "Insufficient upfront cash",
+          };
+        }
+
+        // 7. NEW LOGIC: Test different unit quantities to find optimal purchase
+        let optimalUnits = 0;
+        let bestCashPosition = -Infinity;
+
+        // Configurable minimum cash buffer (can be negative for leveraged investing)
+        const minimumCashBuffer = -100000; // Allow up to $100k negative cash position
+
+        for (let testUnits = 1; testUnits <= maxUnitsByUpfrontCash; testUnits++) {
+          // Calculate cash position after purchase
+          const upfrontCashRequired = testUnits * upfrontCostPerUnit;
+          const remainingCashAfterPurchase =
+            financedTotalCashForPurchases - upfrontCashRequired;
+
+          // Calculate projected annual cash flow from these units
+          const projectedAnnualCashFlow = testUnits * netCashFlowPerUnit;
+
+          // Calculate end-of-year cash position
+          const endOfYearCashPosition =
+            remainingCashAfterPurchase + projectedAnnualCashFlow;
+
+          // We want to maximize units while maintaining a reasonable cash position
+          if (endOfYearCashPosition >= minimumCashBuffer) {
+            if (testUnits > optimalUnits) {
+              optimalUnits = testUnits;
+              bestCashPosition = endOfYearCashPosition;
+            }
+          }
+        }
+
+        // 8. Calculate final results
+        const finalUpfrontCash = optimalUnits * upfrontCostPerUnit;
+        const finalRemainingCash =
+          financedTotalCashForPurchases - finalUpfrontCash;
+        const finalProjectedCashFlow = optimalUnits * netCashFlowPerUnit;
+
+        // 9. Create detailed reasoning
+        let reasoning = "";
+        if (optimalUnits === 0) {
+          const singleUnitEndPosition =
+            financedTotalCashForPurchases -
+            upfrontCostPerUnit +
+            netCashFlowPerUnit;
+          reasoning = `No units purchased. Even 1 unit would result in end-of-year cash position of ${singleUnitEndPosition.toLocaleString()} which is below minimum buffer of ${minimumCashBuffer.toLocaleString()}.`;
+        } else {
+          reasoning = `Purchased ${optimalUnits} units. Upfront cost: ${finalUpfrontCash.toLocaleString()}, Projected annual cash flow: ${finalProjectedCashFlow.toLocaleString()}, End-of-year cash position: ${(
+            finalRemainingCash + finalProjectedCashFlow
+          ).toLocaleString()}`;
+        }
+
+        return {
+          unitsToPurchase: optimalUnits,
+          remainingCash: finalRemainingCash,
+          projectedAnnualCashFlow: finalProjectedCashFlow,
+          upfrontCostPerUnit: upfrontCostPerUnit,
+          netCashFlowPerUnit: netCashFlowPerUnit,
+          reasoning: reasoning,
+
+          // Additional debugging info
+          debug: {
+            maxUnitsByUpfrontCash: maxUnitsByUpfrontCash,
+            totalAvailableCash: financedTotalCashForPurchases,
+            annualRentPerUnit: annualRentPerUnit,
+            egiPerUnit: egiPerUnit,
+            totalOperatingExpensesPerUnit: totalOperatingExpensesPerUnit,
+            annualEMIPerUnit: annualEMIPerUnit,
+            endOfYearCashPosition: finalRemainingCash + finalProjectedCashFlow,
+            minimumCashBuffer: minimumCashBuffer,
+          },
+        };
+      }
+
       function activateTab(btn, tabName) {
         document.querySelectorAll(".tab").forEach((tab) => {
           tab.classList.remove("active");
@@ -2444,220 +2590,66 @@
           financedTotalCashForPurchases += financedAvailableCash;
 
           if (financedTotalCashForPurchases > 0) {
-            const loanAmountPerUnit = propertyCost * params.ltvRatio;
-            const downPaymentPerUnit = propertyCost - loanAmountPerUnit;
-            const closingCostPerUnit = propertyCost * params.closingCostPercent;
-            const originationFeePerUnit =
-              loanAmountPerUnit * params.loanOriginationPercent;
-            const upfrontPerUnit =
-              downPaymentPerUnit + closingCostPerUnit + originationFeePerUnit;
-
-            // Calculate debt service requirements
-            const monthlyRate = params.interestRate / 12;
-            const totalPayments = params.loanTerm * 12;
-            let monthlyEMIPerUnit;
-
-            if (params.interestRate === 0) {
-              monthlyEMIPerUnit = loanAmountPerUnit / totalPayments;
-            } else {
-              const denominator = Math.pow(1 + monthlyRate, totalPayments) - 1;
-              if (denominator === 0 || isNaN(denominator)) {
-                monthlyEMIPerUnit = loanAmountPerUnit / totalPayments;
-              } else {
-                monthlyEMIPerUnit =
-                  (loanAmountPerUnit *
-                    (monthlyRate * Math.pow(1 + monthlyRate, totalPayments))) /
-                  denominator;
-              }
-            }
-
-            const annualEMIPerUnit = (monthlyEMIPerUnit || 0) * 12;
-
-            // Calculate rental income and operating expenses per unit (using same logic as cash flow calculation)
-            const annualRentPerUnit = propertyCost * (params.rentalRate || 0);
-
-            // Calculate EGI (Effective Gross Income after vacancy) - same as cash flow calculation
-            const egi = annualRentPerUnit * (1 - params.vacancyRate);
-            const propertyManagementPerUnit =
-              egi * (params.propertyManagementRate || 0);
-            const maintenancePerUnit = egi * (params.maintenanceRate || 0);
-
-            // Use assessed value for property tax (same as cash flow calculation)
-            const assessedBasePerUnit =
-              propertyCost * params.assessedValuePercent;
-            const assessedNowPerUnit =
-              assessedBasePerUnit *
-              Math.pow(1 + params.assessedGrowthRate, year - 1);
-            const propertyTaxPerUnit = assessedNowPerUnit * params.taxRate;
-
-            // Use inflated insurance (same as cash flow calculation)
-            const insurancePerUnitThisYear =
-              params.insurance *
-              Math.pow(1 + params.insuranceInflation, year - 1);
-            const insurancePerUnit = insurancePerUnitThisYear;
-
-            // Calculate net operating income per unit
-            const noiPerUnit =
-              (annualRentPerUnit || 0) -
-              (propertyManagementPerUnit || 0) -
-              (propertyTaxPerUnit || 0) -
-              (insurancePerUnit || 0) -
-              (maintenancePerUnit || 0);
-
-            // Calculate cash flow per unit (NOI - debt service)
-            const cashFlowPerUnit = (noiPerUnit || 0) - (annualEMIPerUnit || 0);
-
-            // Calculate affordability using the new approach:
-            // Cash Required per Unit = Down Payment + Operating Expenses + Closing Costs + 1 Year EMI
-            // Available Cash = Total Cash Balance + Rental Income - Vacancy Loss
-            // Units Affordable = Available Cash ÷ Cash Required per Unit
-
-            // Calculate operating expenses per unit
-            const operatingExpensesPerUnit =
-              propertyManagementPerUnit +
-              propertyTaxPerUnit +
-              insurancePerUnit +
-              maintenancePerUnit;
-
-            // Calculate vacancy loss per unit
-            const vacancyLossPerUnit = annualRentPerUnit * params.vacancyRate;
-
-            // Calculate cash required per unit (down payment + closing costs + origination fee)
-            // For bank financing, we only need the margin money upfront
-            const cashRequiredPerUnit =
-              downPaymentPerUnit + closingCostPerUnit + originationFeePerUnit;
-
-            // Calculate available cash (just the actual cash balance)
-            // For bank financing, we don't need to include projected rental income in upfront calculation
-            const availableCash = financedTotalCashForPurchases;
-
-            // Calculate units affordable based on cash availability
-            const maxUnitsAffordable = Math.floor(
-              availableCash / cashRequiredPerUnit
+            const purchaseResult = calculateBankFinancedPurchases(
+              year,
+              params,
+              propertyCost,
+              financedTotalCashForPurchases,
+              financedAvailableCash
             );
 
-            // Calculate cash flow per unit
-            const noiPerUnitAffordability = egi - operatingExpensesPerUnit;
-            const cashFlowPerUnitAffordability =
-              noiPerUnitAffordability - annualEMIPerUnit;
+            financedNewUnits = purchaseResult.unitsToPurchase;
+            financedAvailableCash = purchaseResult.remainingCash;
 
-            // If cash flow is negative, reduce units by 1
-            if (cashFlowPerUnitAffordability < 0) {
-              financedNewUnits = Math.max(0, maxUnitsAffordable - 1);
-            } else {
-              // Cash flow is positive, purchase all affordable units
-              financedNewUnits = maxUnitsAffordable;
-            }
-
-            // Debug: Log the purchase attempt
+            // Log the decision for debugging
             if (year <= 5) {
-              console.log(`Year ${year}: New Affordability Calculation`);
-              console.log(`Property Cost: $${propertyCost.toLocaleString()}`);
+              console.log(`Year ${year} Bank Financing Decision:`);
+              console.log(`  ${purchaseResult.reasoning}`);
+              console.log(`  Per Unit Breakdown:`);
               console.log(
-                `Down Payment: $${downPaymentPerUnit.toLocaleString()} (${(
-                  (1 - params.ltvRatio) *
-                  100
-                ).toFixed(0)}% of $${propertyCost.toLocaleString()})`
+                `    Upfront Cost: $${purchaseResult.upfrontCostPerUnit?.toLocaleString()}`
               );
               console.log(
-                `Operating Expenses: $${operatingExpensesPerUnit.toLocaleString()}`
+                `    Annual Rent: $${purchaseResult.debug?.annualRentPerUnit?.toLocaleString()}`
               );
               console.log(
-                `Closing Costs: $${closingCostPerUnit.toLocaleString()}`
-              );
-              console.log(`Annual EMI: $${annualEMIPerUnit.toLocaleString()}`);
-              console.log(
-                `Cash Required per Unit: $${cashRequiredPerUnit.toLocaleString()}`
+                `    EGI: $${purchaseResult.debug?.egiPerUnit?.toLocaleString()}`
               );
               console.log(
-                `Available Cash: $${financedTotalCashForPurchases.toLocaleString()}`
+                `    Operating Expenses: $${purchaseResult.debug?.totalOperatingExpensesPerUnit?.toLocaleString()}`
               );
               console.log(
-                `Projected Annual Rent: $${annualRentPerUnit.toLocaleString()}`
+                `    Annual EMI: $${purchaseResult.debug?.annualEMIPerUnit?.toLocaleString()}`
               );
               console.log(
-                `Projected Vacancy Loss: $${vacancyLossPerUnit.toLocaleString()}`
+                `    Net Cash Flow: $${purchaseResult.netCashFlowPerUnit?.toLocaleString()}`
               );
               console.log(
-                `Total Available Cash: $${availableCash.toLocaleString()}`
-              );
-              console.log(
-                `Units Affordable: ${availableCash.toLocaleString()} ÷ ${cashRequiredPerUnit.toLocaleString()} = ${maxUnitsAffordable} units`
-              );
-              console.log(
-                `Cash Flow per Unit: $${cashFlowPerUnitAffordability.toLocaleString()}`
-              );
-              console.log(
-                `Cash Flow per Unit: $${cashFlowPerUnitAffordability.toLocaleString()}`
-              );
-              console.log(`Max Units Affordable: ${maxUnitsAffordable} units`);
-              console.log(`Units to Purchase: ${financedNewUnits} units`);
-              if (cashFlowPerUnitAffordability < 0 && financedNewUnits > 0) {
-                console.log(
-                  `Strategy: Reduced from ${maxUnitsAffordable} to ${financedNewUnits} units (negative cash flow per unit)`
-                );
-              } else if (
-                cashFlowPerUnitAffordability < 0 &&
-                financedNewUnits === 0
-              ) {
-                console.log(
-                  `Strategy: No units purchased - negative cash flow per unit`
-                );
-              } else {
-                console.log(
-                  `Strategy: Purchasing all ${financedNewUnits} affordable units (positive cash flow per unit)`
-                );
-              }
-            }
-
-            if (year <= 5) {
-              console.log(
-                `Year ${year}: Purchasing ${financedNewUnits} units using new affordability method`
-              );
-              console.log(
-                `  Cash Required per Unit: $${cashRequiredPerUnit.toLocaleString()}`
-              );
-              console.log(
-                `  Total Available Cash: $${availableCash.toLocaleString()}`
-              );
-              console.log(
-                `  Cash Balance C/F: $${(
-                  availableCash -
-                  financedNewUnits * cashRequiredPerUnit
-                ).toLocaleString()}`
+                `    End-of-year Cash Position: $${purchaseResult.debug?.endOfYearCashPosition?.toLocaleString()}`
               );
             }
 
+            // Add purchased units to cohorts
             if (financedNewUnits > 0) {
-              const totalSpent = financedNewUnits * upfrontPerUnit;
-              financedAvailableCash =
-                financedTotalCashForPurchases - totalSpent;
               financedCohorts.push({
                 yearOriginated: year,
                 units: financedNewUnits,
                 costPerUnit: propertyCost,
               });
 
-              if (year <= 5) {
-                console.log(
-                  `Year ${year}: Successfully purchased ${financedNewUnits} bank-financed units`
-                );
-                console.log(`  Total spent: $${totalSpent.toLocaleString()}`);
-                console.log(
-                  `  Remaining cash: $${financedAvailableCash.toLocaleString()}`
-                );
-              }
+              // Add loan tracking
+              const loanAmountPerUnit = propertyCost * params.ltvRatio;
+              const monthlyEMIPerUnit =
+                (purchaseResult.debug?.annualEMIPerUnit || 0) / 12;
 
               financedLoans.push({
                 units: financedNewUnits,
-                loanAmountPerUnit,
-                monthlyEMIPerUnit,
-                monthlyRate,
-                totalPayments,
+                loanAmountPerUnit: loanAmountPerUnit,
+                monthlyEMIPerUnit: monthlyEMIPerUnit,
+                monthlyRate: params.interestRate / 12,
+                totalPayments: params.loanTerm * 12,
                 yearOriginated: year,
               });
-            } else {
-              financedAvailableCash = financedTotalCashForPurchases;
             }
           }
 
@@ -3864,7 +3856,7 @@
             const manualLink = document.createElement("a");
             manualLink.href = url;
             manualLink.download = "rental_investment_model.xlsx";
-            manualLink.textContent = "📥 Click here to download Excel file";
+            manualLink.textContent = "🔥 Click here to download Excel file";
             manualLink.style.cssText =
               "position: fixed; top: 20px; right: 20px; background: #28a745; color: white; padding: 15px; border-radius: 8px; text-decoration: none; z-index: 10000; box-shadow: 0 4px 8px rgba(0,0,0,0.3);";
             document.body.appendChild(manualLink);
@@ -3883,7 +3875,6 @@
 
           // Clean up
           setTimeout(() => {
-            document.body.removeChild(a);
             window.URL.revokeObjectURL(url);
             console.log("Cleanup completed");
           }, 100);
@@ -3900,7 +3891,7 @@
 
             // Show user notification
             alert(
-              "✅ Excel file downloaded successfully!\n\n📁 File: rental_investment_model.xlsx\n📍 Location: Your Downloads folder\n\n📊 The file contains 8 tabs with all your analysis data."
+              "✅ Excel file downloaded successfully!\n\n📁 File: rental_investment_model.xlsx\n📂 Location: Your Downloads folder\n\n📊 The file contains 8 tabs with all your analysis data."
             );
           }, 1000);
         } catch (error) {
