@@ -1320,6 +1320,44 @@
                   max="30"
                 />
               </div>
+              <div
+                class="control-group"
+                style="
+                  border: 2px solid #667eea;
+                  border-radius: 4px;
+                  padding: 8px;
+                "
+              >
+                <label style="color: #667eea; font-weight: bold"
+                  >🏦 Max Units Financed</label
+                >
+                <input
+                  type="number"
+                  id="maxUnitsFinanced"
+                  value="2"
+                  min="1"
+                  max="10"
+                />
+              </div>
+              <div
+                class="control-group"
+                style="
+                  border: 2px solid #667eea;
+                  border-radius: 4px;
+                  padding: 8px;
+                "
+              >
+                <label style="color: #667eea; font-weight: bold"
+                  >📅 Max Units Financed Limit (Years)</label
+                >
+                <input
+                  type="number"
+                  id="maxUnitsFinancedLimitYears"
+                  value="3"
+                  min="1"
+                  max="10"
+                />
+              </div>
               <div class="control-group">
                 <label>Annual Rent Growth (%)</label>
                 <input
@@ -2326,14 +2364,23 @@
           };
         }
 
-        // 7. NEW LOGIC: Test different unit quantities to find optimal purchase
+        // 7. Apply unit limit for early years
+        let maxUnitsAllowed = maxUnitsByUpfrontCash;
+        if (year <= params.maxUnitsFinancedLimitYears) {
+          maxUnitsAllowed = Math.min(
+            maxUnitsByUpfrontCash,
+            params.maxUnitsFinanced
+          );
+        }
+
+        // 8. NEW LOGIC: Test different unit quantities to find optimal purchase
         let optimalUnits = 0;
         let bestCashPosition = -Infinity;
 
         // Configurable minimum cash buffer (can be negative for leveraged investing)
         const minimumCashBuffer = -100000; // Allow up to $100k negative cash position
 
-        for (let testUnits = 1; testUnits <= maxUnitsByUpfrontCash; testUnits++) {
+        for (let testUnits = 1; testUnits <= maxUnitsAllowed; testUnits++) {
           // Calculate cash position after purchase
           const upfrontCashRequired = testUnits * upfrontCostPerUnit;
           const remainingCashAfterPurchase =
@@ -2370,7 +2417,14 @@
             netCashFlowPerUnit;
           reasoning = `No units purchased. Even 1 unit would result in end-of-year cash position of ${singleUnitEndPosition.toLocaleString()} which is below minimum buffer of ${minimumCashBuffer.toLocaleString()}.`;
         } else {
-          reasoning = `Purchased ${optimalUnits} units. Upfront cost: ${finalUpfrontCash.toLocaleString()}, Projected annual cash flow: ${finalProjectedCashFlow.toLocaleString()}, End-of-year cash position: ${(
+          let limitReason = "";
+          if (
+            year <= params.maxUnitsFinancedLimitYears &&
+            optimalUnits < maxUnitsByUpfrontCash
+          ) {
+            limitReason = ` (Limited to ${params.maxUnitsFinanced} units for years ≤ ${params.maxUnitsFinancedLimitYears})`;
+          }
+          reasoning = `Purchased ${optimalUnits} units${limitReason}. Upfront cost: ${finalUpfrontCash.toLocaleString()}, Projected annual cash flow: ${finalProjectedCashFlow.toLocaleString()}, End-of-year cash position: ${(
             finalRemainingCash + finalProjectedCashFlow
           ).toLocaleString()}`;
         }
@@ -2386,6 +2440,7 @@
           // Additional debugging info
           debug: {
             maxUnitsByUpfrontCash: maxUnitsByUpfrontCash,
+            maxUnitsAllowed: maxUnitsAllowed,
             totalAvailableCash: financedTotalCashForPurchases,
             annualRentPerUnit: annualRentPerUnit,
             egiPerUnit: egiPerUnit,
@@ -2478,6 +2533,12 @@
             ),
             financedPurchaseYears: parseInt(
               document.getElementById("financedPurchaseYears").value
+            ),
+            maxUnitsFinanced: parseInt(
+              document.getElementById("maxUnitsFinanced").value
+            ),
+            maxUnitsFinancedLimitYears: parseInt(
+              document.getElementById("maxUnitsFinancedLimitYears").value
             ),
             passthroughLLC: document.getElementById("passthroughLLC").value,
           };
@@ -3267,6 +3328,16 @@
               "Finance Purchase Years",
               calculationResults.inputParams?.financedPurchaseYears || 0,
               "How many years you'll add new budget for financed purchases",
+            ],
+            [
+              "Max Units Financed",
+              calculationResults.inputParams?.maxUnitsFinanced || 0,
+              "Maximum units that can be purchased with bank financing",
+            ],
+            [
+              "Max Units Financed Limit (Years)",
+              calculationResults.inputParams?.maxUnitsFinancedLimitYears || 0,
+              "Years during which the max units limit applies",
             ],
             [
               "Initial Property Cost",
