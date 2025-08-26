@@ -2301,15 +2301,23 @@
           calculationResults.financed[calculationResults.financed.length - 1];
 
         // Calculate actual cash invested for each strategy
-        const selfTotalInvested = calculateTotalCashInvested('self');
-        const financedTotalInvested = calculateTotalCashInvested('financed');
+        const selfTotalInvested = calculateTotalCashInvested("self");
+        const financedTotalInvested = calculateTotalCashInvested("financed");
 
         // Calculate ROI for real estate investments (including CapEx reserves)
-        const selfTotalValue = lastSelf.netWorth + calculationResults.detailedData[14].selfCumulativeCapEx;
-        const financedTotalValue = lastFin.netWorth + calculationResults.detailedData[14].financedCumulativeCapEx;
-        
+        const selfTotalValue =
+          lastSelf.netWorth +
+          calculationResults.detailedData[14].selfCumulativeCapEx;
+        const financedTotalValue =
+          lastFin.netWorth +
+          calculationResults.detailedData[14].financedCumulativeCapEx;
+
         const selfROI = calculateROI(selfTotalValue, selfTotalInvested, 15);
-        const financedROI = calculateROI(financedTotalValue, financedTotalInvested, 15);
+        const financedROI = calculateROI(
+          financedTotalValue,
+          financedTotalInvested,
+          15
+        );
 
         // Update ROI cards
         document.getElementById("realEstateROISelf").textContent =
@@ -2318,7 +2326,14 @@
           formatPercentage(financedROI);
 
         // Update comparison table
-        updateROIComparisonTable(lastSelf, lastFin, selfTotalInvested, financedTotalInvested, selfTotalValue, financedTotalValue);
+        updateROIComparisonTable(
+          lastSelf,
+          lastFin,
+          selfTotalInvested,
+          financedTotalInvested,
+          selfTotalValue,
+          financedTotalValue
+        );
 
         // Update yearly comparison
         updateROIYearlyComparison();
@@ -2327,16 +2342,24 @@
       function calculateTotalCashInvested(strategy) {
         let totalInvested = 0;
         const params = calculationResults.inputParams;
-        
+
         // Calculate total cash invested over the investment period
-        for (let year = 1; year <= Math.max(params.selfPurchaseYears, params.financedPurchaseYears); year++) {
-          if (strategy === 'self' && year <= params.selfPurchaseYears) {
+        for (
+          let year = 1;
+          year <=
+          Math.max(params.selfPurchaseYears, params.financedPurchaseYears);
+          year++
+        ) {
+          if (strategy === "self" && year <= params.selfPurchaseYears) {
             totalInvested += params.annualBudget;
-          } else if (strategy === 'financed' && year <= params.financedPurchaseYears) {
+          } else if (
+            strategy === "financed" &&
+            year <= params.financedPurchaseYears
+          ) {
             totalInvested += params.annualBudget;
           }
         }
-        
+
         return totalInvested;
       }
 
@@ -2345,7 +2368,14 @@
         return (Math.pow(finalValue / totalInvestment, 1 / years) - 1) * 100;
       }
 
-      function updateROIComparisonTable(selfData, finData, selfTotalInvested, financedTotalInvested, selfTotalValue, financedTotalValue) {
+      function updateROIComparisonTable(
+        selfData,
+        finData,
+        selfTotalInvested,
+        financedTotalInvested,
+        selfTotalValue,
+        financedTotalValue
+      ) {
         const tbody = document.getElementById("roiComparisonBody");
         if (!tbody) return;
 
@@ -2354,64 +2384,103 @@
                     <td><strong>Real Estate (Self-Financed)</strong></td>
                     <td>${formatCurrency(selfTotalInvested)}</td>
                     <td>${formatCurrency(selfTotalValue)}</td>
-                    <td>${formatCurrency(selfTotalValue - selfTotalInvested)}</td>
-                    <td>${formatPercentage(calculateROI(selfTotalValue, selfTotalInvested, 15))}</td>
+                    <td>${formatCurrency(
+                      selfTotalValue - selfTotalInvested
+                    )}</td>
+                    <td>${formatPercentage(
+                      calculateROI(selfTotalValue, selfTotalInvested, 15)
+                    )}</td>
                     <td>Medium</td>
                 </tr>
                 <tr>
                     <td><strong>Real Estate (Financed)</strong></td>
                     <td>${formatCurrency(financedTotalInvested)}</td>
                     <td>${formatCurrency(financedTotalValue)}</td>
-                    <td>${formatCurrency(financedTotalValue - financedTotalInvested)}</td>
-                    <td>${formatPercentage(calculateROI(financedTotalValue, financedTotalInvested, 15))}</td>
+                    <td>${formatCurrency(
+                      financedTotalValue - financedTotalInvested
+                    )}</td>
+                    <td>${formatPercentage(
+                      calculateROI(
+                        financedTotalValue,
+                        financedTotalInvested,
+                        15
+                      )
+                    )}</td>
                     <td>Medium</td>
                 </tr>
                 <tr>
                     <td><strong>S&P 500 Index</strong></td>
                     <td>${formatCurrency(selfTotalInvested)}</td>
-                    <td>${formatCurrency(selfTotalInvested * Math.pow(1.10, 15))}</td>
-                    <td>${formatCurrency(selfTotalInvested * Math.pow(1.10, 15) - selfTotalInvested)}</td>
+                    <td>${formatCurrency(
+                      selfTotalInvested * Math.pow(1.1, 15)
+                    )}</td>
+                    <td>${formatCurrency(
+                      selfTotalInvested * Math.pow(1.1, 15) - selfTotalInvested
+                    )}</td>
                     <td>10.0%</td>
                     <td>High</td>
                 </tr>
                 <tr>
                     <td><strong>Investment Grade Bonds</strong></td>
                     <td>${formatCurrency(selfTotalInvested)}</td>
-                    <td>${formatCurrency(selfTotalInvested * Math.pow(1.045, 15))}</td>
-                    <td>${formatCurrency(selfTotalInvested * Math.pow(1.045, 15) - selfTotalInvested)}</td>
+                    <td>${formatCurrency(
+                      selfTotalInvested * Math.pow(1.045, 15)
+                    )}</td>
+                    <td>${formatCurrency(
+                      selfTotalInvested * Math.pow(1.045, 15) -
+                        selfTotalInvested
+                    )}</td>
                     <td>4.5%</td>
                     <td>Low</td>
                 </tr>
                 <tr>
                     <td><strong>Savings Account</strong></td>
                     <td>${formatCurrency(selfTotalInvested)}</td>
-                    <td>${formatCurrency(selfTotalInvested * Math.pow(1.02, 15))}</td>
-                    <td>${formatCurrency(selfTotalInvested * Math.pow(1.02, 15) - selfTotalInvested)}</td>
+                    <td>${formatCurrency(
+                      selfTotalInvested * Math.pow(1.02, 15)
+                    )}</td>
+                    <td>${formatCurrency(
+                      selfTotalInvested * Math.pow(1.02, 15) - selfTotalInvested
+                    )}</td>
                     <td>2.0%</td>
                     <td>Very Low</td>
                 </tr>
             `;
       }
 
-            function updateROIYearlyComparison() {
+      function updateROIYearlyComparison() {
         const tbody = document.getElementById("roiYearlyBody");
         if (!tbody || !calculationResults.comparison) return;
 
-        const selfTotalInvested = calculateTotalCashInvested('self');
-        const financedTotalInvested = calculateTotalCashInvested('financed');
+        const selfTotalInvested = calculateTotalCashInvested("self");
+        const financedTotalInvested = calculateTotalCashInvested("financed");
 
         tbody.innerHTML = "";
         for (let year = 1; year <= 15; year++) {
           // Real estate values including CapEx reserves
-          const selfValue = calculationResults.selfFinanced[year - 1].netWorth + 
-                           calculationResults.detailedData[year - 1].selfCumulativeCapEx;
-          const finValue = calculationResults.financed[year - 1].netWorth + 
-                          calculationResults.detailedData[year - 1].financedCumulativeCapEx;
-          
+          const selfValue =
+            calculationResults.selfFinanced[year - 1].netWorth +
+            calculationResults.detailedData[year - 1].selfCumulativeCapEx;
+          const finValue =
+            calculationResults.financed[year - 1].netWorth +
+            calculationResults.detailedData[year - 1].financedCumulativeCapEx;
+
           // Alternative investments (invested over the same timeline)
-          const spValue = calculateAlternativeInvestmentValue(selfTotalInvested, 0.10, year);
-          const bondsValue = calculateAlternativeInvestmentValue(selfTotalInvested, 0.045, year);
-          const savingsValue = calculateAlternativeInvestmentValue(selfTotalInvested, 0.02, year);
+          const spValue = calculateAlternativeInvestmentValue(
+            selfTotalInvested,
+            0.1,
+            year
+          );
+          const bondsValue = calculateAlternativeInvestmentValue(
+            selfTotalInvested,
+            0.045,
+            year
+          );
+          const savingsValue = calculateAlternativeInvestmentValue(
+            selfTotalInvested,
+            0.02,
+            year
+          );
 
           const tr = document.createElement("tr");
           tr.innerHTML = `
@@ -2426,18 +2495,30 @@
         }
       }
 
-      function calculateAlternativeInvestmentValue(totalInvestment, annualReturn, years) {
+      function calculateAlternativeInvestmentValue(
+        totalInvestment,
+        annualReturn,
+        years
+      ) {
         // Calculate the value of alternative investments considering the investment timeline
         const params = calculationResults.inputParams;
         let value = 0;
-        
+
         // For each year of investment, calculate the compound growth
-        for (let investYear = 1; investYear <= Math.min(years, Math.max(params.selfPurchaseYears, params.financedPurchaseYears)); investYear++) {
+        for (
+          let investYear = 1;
+          investYear <=
+          Math.min(
+            years,
+            Math.max(params.selfPurchaseYears, params.financedPurchaseYears)
+          );
+          investYear++
+        ) {
           const investmentAmount = calculationResults.inputParams.annualBudget;
           const yearsOfGrowth = years - investYear + 1;
           value += investmentAmount * Math.pow(1 + annualReturn, yearsOfGrowth);
         }
-        
+
         return value;
       }
 

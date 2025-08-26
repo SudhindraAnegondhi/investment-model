@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Calculation Comparison Test</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+      }
+      .comparison {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+      }
+      .result {
+        background: #f5f5f5;
+        padding: 10px;
+        margin: 5px 0;
+        border-radius: 5px;
+      }
+      .match {
+        background: #d4edda;
+      }
+      .mismatch {
+        background: #f8d7da;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 10px 0;
+      }
+      th,
+      td {
+        border: 1px solid #ddd;
+        padding: 5px;
+        text-align: right;
+      }
+      th {
+        background: #f2f2f2;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Calculation Comparison Test</h1>
+    <p>
+      Comparing calculations between original index.html and modular
+      index-modular.html
+    </p>
+
+    <button onclick="runComparison()">Run Comparison Test</button>
+
+    <div id="results"></div>
+
+    <script>
+      // Test parameters (using default values)
+      const testParams = {
+        annualBudget: 170000,
+        selfPurchaseYears: 5,
+        initialCost: 160000,
+        rentalRate: 1.0,
+        interestRate: 7.0,
+        ltvRatio: 70,
+        loanTerm: 30,
+        insurance: 1300,
+        landPercent: 20,
+        maintenanceRate: 1,
+        costIncrease: 1,
+        taxRate: 1.5,
+        incomeTaxRate: 25,
+        passthroughLLC: "yes",
+        assessedValuePercent: 20,
+        appreciationRate: 3,
+        financedPurchaseYears: 5,
+        maxUnitsFinanced: 2,
+        maxUnitsFinancedLimitYears: 3,
+        rentGrowthRate: 3,
+        vacancyRate: 5,
+        managementRate: 8,
+        capexRate: 5,
+        expenseInflation: 2.5,
+        insuranceInflation: 4,
+        closingCostPercent: 2,
+        loanOriginationPercent: 1,
+        assessedGrowthRate: 2.5,
+      };
+
+      // Original calculation function (copied from index.html)
+      function performCalculationsOriginal(params) {
+        const results = {
+          comparison: [],
+          selfFinanced: [],
+          financed: [],
+          detailedData: [],
+        };
+
+        const years = 15;
+        let selfTotalUnits = 0;
+        let financedTotalUnits = 0;
+        let selfCumulativeCash = 0;
+        let financedCumulativeCash = 0;
+        let selfCumulativeCapEx = 0;
+        let financedCumulativeCapEx = 0;
+        let selfAvailableCash = 0;
+        let financedAvailableCash = 0;
+
+        const selfCohorts = [];
+        const financedCohorts = [];
+        const financedLoans = [];
+
+        for (let year = 1; year <= years; year++) {
+          const propertyCost = params.initialCost * Math.pow(1.01, year - 1);
+
+          // Self-financed strategy
+          let selfNewUnits = 0;
+          if (year <= params.selfPurchaseYears) {
+            selfAvailableCash += params.annualBudget;
+          }
+
+          if (selfAvailableCash >= propertyCost * 1.02) {
+            selfNewUnits = Math.floor(
+              selfAvailableCash / (propertyCost * 1.02)
+            );
+            const totalCost = selfNewUnits * propertyCost * 1.02;
+            selfAvailableCash -= totalCost;
+
+            if (selfNewUnits > 0) {
+              selfCohorts.push({
+                yearOriginated: year,
+                units: selfNewUnits,
+                costPerUnit: propertyCost,
+              });
+            }
+          }
+
+          selfTotalUnits += selfNewUnits;
+
+          // Financed strategy
+          let financedNewUnits = 0;
+          if (year <= params.selfPurchaseYears) {
+            financedAvailableCash += params.annualBudget;
+          }
+
+          const downPayment = propertyCost * (1 - params.ltvRatio / 100) * 1.03;
+          if (financedAvailableCash >= downPayment) {
+            financedNewUnits = Math.floor(financedAvailableCash / downPayment);
+            const totalDownPayment = financedNewUnits * downPayment;
+            financedAvailableCash -= totalDownPayment;
+
+            if (financedNewUnits > 0) {
+              financedCohorts.push({
+                yearOriginated: year,
+                units: financedNewUnits,
+                costPerUnit: propertyCost,
+              });
+
+              financedLoans.push({
+                units: financedNewUnits,
+                loanAmountPerUnit: propertyCost * (params.ltvRatio / 100),
+                yearOriginated: year,
+                interestRate: params.interestRate / 100,
+                term: params.loanTerm,
+              });
+            }
+          }
+
+          financedTotalUnits += financedNewUnits;
+
+          // Calculate metrics (simplified for comparison)
+          const selfMetrics = calculateMetricsOriginal(
+            year,
+            selfCohorts,
+            params,
+            selfTotalUnits,
+            []
+          );
+          const financedMetrics = calculateMetricsOriginal(
+            year,
+            financedCohorts,
+            params,
+            financedTotalUnits,
+            financedLoans
+          );
+
+          const selfCashFlow =
+            selfMetrics.noi - selfMetrics.capex - selfMetrics.taxes;
+          const financedCashFlow =
+            financedMetrics.noi -
+            financedMetrics.debtService -
+            financedMetrics.capex -
+            financedMetrics.taxes;
+
+          selfCumulativeCapEx += selfMetrics.capex;
+          financedCumulativeCapEx += financedMetrics.capex;
+
+          const sp500Return = 0.1;
+          if (year > 1) {
+            selfCumulativeCapEx = selfCumulativeCapEx * (1 + sp500Return);
+            financedCumulativeCapEx =
+              financedCumulativeCapEx * (1 + sp500Return);
+          }
+
+          if (selfCashFlow > 0) {
+            selfAvailableCash += selfCashFlow;
+          }
+          if (financedCashFlow > 0) {
+            financedAvailableCash += financedCashFlow;
+          }
+
+          selfCumulativeCash += selfCashFlow;
+          financedCumulativeCash += financedCashFlow;
+
+          const selfAssetValue = calculateAssetValueOriginal(
+            year,
+            selfCohorts,
+            params
+          );
+          const financedAssetValue = calculateAssetValueOriginal(
+            year,
+            financedCohorts,
+            params
+          );
+          const loanBalance = calculateLoanBalanceOriginal(year, financedLoans);
+
+          results.comparison.push({
+            year,
+            propertyCost,
+            selfNewUnits,
+            selfTotalUnits,
+            selfCashFlow,
+            selfAssetValue,
+            financedNewUnits,
+            financedTotalUnits,
+            financedCashFlow,
+            financedAssetValue,
+            loanBalance,
+            netEquity: financedAssetValue - loanBalance,
+          });
+
+          results.selfFinanced.push({
+            year,
+            cashFlow: selfCashFlow,
+            cumulative: selfCumulativeCash,
+            assetValue: selfAssetValue,
+            netWorth: selfAssetValue + selfCumulativeCash,
+          });
+
+          results.financed.push({
+            year,
+            cashFlow: financedCashFlow,
+            cumulative: financedCumulativeCash,
+            assetValue: financedAssetValue,
+            loanBalance,
+            netWorth: financedAssetValue - loanBalance + financedCumulativeCash,
+          });
+
+          results.detailedData.push({
+            year,
+            selfMetrics,
+            financedMetrics,
+            selfAssetValue,
+            financedAssetValue,
+            loanBalance,
+            selfCumulativeCapEx: selfCumulativeCapEx,
+            financedCumulativeCapEx: financedCumulativeCapEx,
+          });
+        }
+
+        return results;
+      }
+
+      // Simplified metrics calculation for comparison
+      function calculateMetricsOriginal(
+        year,
+        cohorts,
+        params,
+        totalUnits,
+        loans
+      ) {
+        let gpr = 0;
+        let propertyTax = 0;
+        let depreciation = 0;
+
+        cohorts.forEach((cohort) => {
+          const yearsOwned = year - cohort.yearOriginated;
+          const currentRent =
+            cohort.costPerUnit * (params.rentalRate / 100) * 12;
+          const adjustedRent =
+            currentRent *
+            Math.pow(1 + params.rentGrowthRate / 100, Math.max(0, yearsOwned));
+          gpr += adjustedRent * cohort.units;
+
+          const assessedValue =
+            cohort.costPerUnit *
+            (params.assessedValuePercent / 100) *
+            Math.pow(1 + params.assessedGrowthRate / 100, yearsOwned);
+          propertyTax += assessedValue * (params.taxRate / 100) * cohort.units;
+
+          const buildingValue =
+            cohort.costPerUnit * (1 - params.landPercent / 100);
+          depreciation += (buildingValue / 27.5) * cohort.units;
+        });
+
+        const vacancyLoss = gpr * (params.vacancyRate / 100);
+        const egi = gpr - vacancyLoss;
+        const managementFee = egi * (params.managementRate / 100);
+        const maintenance = egi * (params.maintenanceRate / 100);
+        const insurance = params.insurance * totalUnits;
+        const capex = egi * (params.capexRate / 100);
+        const noi =
+          egi - managementFee - maintenance - propertyTax - insurance - capex;
+
+        let debtService = 0;
+        loans.forEach((loan) => {
+          const monthlyRate = loan.interestRate / 12;
+          const totalPayments = loan.term * 12;
+          const monthsElapsed = (year - loan.yearOriginated) * 12;
+          const remainingPayments = Math.max(0, totalPayments - monthsElapsed);
+
+          if (remainingPayments > 0) {
+            const monthlyEMI =
+              (loan.loanAmountPerUnit *
+                monthlyRate *
+                Math.pow(1 + monthlyRate, totalPayments)) /
+              (Math.pow(1 + monthlyRate, totalPayments) - 1);
+            debtService += monthlyEMI * 12 * loan.units;
+          }
+        });
+
+        const taxableIncome = noi - depreciation - debtService;
+        const taxes =
+          params.passthroughLLC === "yes"
+            ? taxableIncome * (params.incomeTaxRate / 100)
+            : taxableIncome * 0.21;
+
+        return {
+          gpr,
+          egi,
+          noi,
+          depreciation,
+          debtService,
+          taxes,
+          capex,
+          taxableIncome: taxableIncome,
+          netIncome: taxableIncome - taxes,
+        };
+      }
+
+      function calculateAssetValueOriginal(year, cohorts, params) {
+        let totalValue = 0;
+        cohorts.forEach((cohort) => {
+          const yearsOwned = year - cohort.yearOriginated;
+          const appreciation = Math.pow(
+            1 + params.appreciationRate / 100,
+            yearsOwned
+          );
+          totalValue += cohort.costPerUnit * appreciation * cohort.units;
+        });
+        return totalValue;
+      }
+
+      function calculateLoanBalanceOriginal(year, loans) {
+        let totalBalance = 0;
+        loans.forEach((loan) => {
+          const monthlyRate = loan.interestRate / 12;
+          const totalPayments = loan.term * 12;
+          const monthsElapsed = (year - loan.yearOriginated) * 12;
+          const remainingPayments = Math.max(0, totalPayments - monthsElapsed);
+
+          if (remainingPayments > 0) {
+            const monthlyEMI =
+              (loan.loanAmountPerUnit *
+                monthlyRate *
+                Math.pow(1 + monthlyRate, totalPayments)) /
+              (Math.pow(1 + monthlyRate, totalPayments) - 1);
+            const remainingBalance =
+              (monthlyEMI *
+                (Math.pow(1 + monthlyRate, remainingPayments) - 1)) /
+              (monthlyRate * Math.pow(1 + monthlyRate, remainingPayments));
+            totalBalance += remainingBalance * loan.units;
+          }
+        });
+        return totalBalance;
+      }
+
+      // Modular calculation function (simplified version)
+      function performCalculationsModular(params) {
+        const results = {
+          comparison: [],
+          selfFinanced: [],
+          financed: [],
+          detailedData: [],
+        };
+
+        const years = 15;
+        let selfTotalUnits = 0;
+        let financedTotalUnits = 0;
+        let selfCumulativeCash = 0;
+        let financedCumulativeCash = 0;
+        let selfCumulativeCapEx = 0;
+        let financedCumulativeCapEx = 0;
+        let selfAvailableCash = 0;
+        let financedAvailableCash = 0;
+
+        const selfCohorts = [];
+        const financedCohorts = [];
+        const financedLoans = [];
+
+        for (let year = 1; year <= years; year++) {
+          const propertyCost =
+            params.initialCost *
+            Math.pow(1 + params.costIncrease / 100, year - 1);
+
+          // Self-financed strategy
+          let selfNewUnits = 0;
+          if (year <= params.selfPurchaseYears) {
+            selfAvailableCash += params.annualBudget;
+          }
+
+          if (
+            selfAvailableCash >=
+            propertyCost * (1 + params.closingCostPercent / 100)
+          ) {
+            selfNewUnits = Math.floor(
+              selfAvailableCash /
+                (propertyCost * (1 + params.closingCostPercent / 100))
+            );
+            const totalCost =
+              selfNewUnits *
+              propertyCost *
+              (1 + params.closingCostPercent / 100);
+            selfAvailableCash -= totalCost;
+
+            if (selfNewUnits > 0) {
+              selfCohorts.push({
+                yearOriginated: year,
+                units: selfNewUnits,
+                costPerUnit: propertyCost,
+              });
+            }
+          }
+
+          selfTotalUnits += selfNewUnits;
+
+          // Financed strategy
+          let financedNewUnits = 0;
+          if (year <= params.financedPurchaseYears) {
+            financedAvailableCash += params.annualBudget;
+          }
+
+          const downPayment =
+            propertyCost *
+            (1 - params.ltvRatio / 100) *
+            (1 + params.closingCostPercent / 100);
+          if (financedAvailableCash >= downPayment) {
+            financedNewUnits = Math.floor(financedAvailableCash / downPayment);
+            const totalDownPayment = financedNewUnits * downPayment;
+            financedAvailableCash -= totalDownPayment;
+
+            if (financedNewUnits > 0) {
+              financedCohorts.push({
+                yearOriginated: year,
+                units: financedNewUnits,
+                costPerUnit: propertyCost,
+              });
+
+              financedLoans.push({
+                units: financedNewUnits,
+                loanAmountPerUnit: propertyCost * (params.ltvRatio / 100),
+                yearOriginated: year,
+                interestRate: params.interestRate / 100,
+                term: params.loanTerm,
+              });
+            }
+          }
+
+          financedTotalUnits += financedNewUnits;
+
+          // Calculate metrics
+          const selfMetrics = calculateMetricsOriginal(
+            year,
+            selfCohorts,
+            params,
+            selfTotalUnits,
+            []
+          );
+          const financedMetrics = calculateMetricsOriginal(
+            year,
+            financedCohorts,
+            params,
+            financedTotalUnits,
+            financedLoans
+          );
+
+          const selfCashFlow =
+            selfMetrics.noi - selfMetrics.capex - selfMetrics.taxes;
+          const financedCashFlow =
+            financedMetrics.noi -
+            financedMetrics.debtService -
+            financedMetrics.capex -
+            financedMetrics.taxes;
+
+          selfCumulativeCapEx += selfMetrics.capex;
+          financedCumulativeCapEx += financedMetrics.capex;
+
+          const sp500Return = 0.1;
+          if (year > 1) {
+            selfCumulativeCapEx = selfCumulativeCapEx * (1 + sp500Return);
+            financedCumulativeCapEx =
+              financedCumulativeCapEx * (1 + sp500Return);
+          }
+
+          if (selfCashFlow > 0) {
+            selfAvailableCash += selfCashFlow;
+          }
+          if (financedCashFlow > 0) {
+            financedAvailableCash += financedCashFlow;
+          }
+
+          selfCumulativeCash += selfCashFlow;
+          financedCumulativeCash += financedCashFlow;
+
+          const selfAssetValue = calculateAssetValueOriginal(
+            year,
+            selfCohorts,
+            params
+          );
+          const financedAssetValue = calculateAssetValueOriginal(
+            year,
+            financedCohorts,
+            params
+          );
+          const loanBalance = calculateLoanBalanceOriginal(year, financedLoans);
+
+          results.comparison.push({
+            year,
+            propertyCost,
+            selfNewUnits,
+            selfTotalUnits,
+            selfCashFlow,
+            selfAssetValue,
+            financedNewUnits,
+            financedTotalUnits,
+            financedCashFlow,
+            financedAssetValue,
+            loanBalance,
+            netEquity: financedAssetValue - loanBalance,
+          });
+
+          results.selfFinanced.push({
+            year,
+            cashFlow: selfCashFlow,
+            cumulative: selfCumulativeCash,
+            assetValue: selfAssetValue,
+            netWorth: selfAssetValue + selfCumulativeCash,
+          });
+
+          results.financed.push({
+            year,
+            cashFlow: financedCashFlow,
+            cumulative: financedCumulativeCash,
+            assetValue: financedAssetValue,
+            loanBalance,
+            netWorth: financedAssetValue - loanBalance + financedCumulativeCash,
+          });
+
+          results.detailedData.push({
+            year,
+            selfMetrics,
+            financedMetrics,
+            selfAssetValue,
+            financedAssetValue,
+            loanBalance,
+            selfCumulativeCapEx: selfCumulativeCapEx,
+            financedCumulativeCapEx: financedCumulativeCapEx,
+          });
+        }
+
+        return results;
+      }
+
+      function runComparison() {
+        console.log("Running calculation comparison...");
+
+        const originalResults = performCalculationsOriginal(testParams);
+        const modularResults = performCalculationsModular(testParams);
+
+        const resultsDiv = document.getElementById("results");
+        resultsDiv.innerHTML = "<h2>Comparison Results</h2>";
+
+        // Compare key metrics
+        const comparisons = [
+          {
+            name: "Self-Financed Final Net Worth",
+            original: originalResults.selfFinanced[14].netWorth,
+            modular: modularResults.selfFinanced[14].netWorth,
+          },
+          {
+            name: "Financed Final Net Worth",
+            original: originalResults.financed[14].netWorth,
+            modular: modularResults.financed[14].netWorth,
+          },
+          {
+            name: "Self-Financed Total Units",
+            original: originalResults.comparison[14].selfTotalUnits,
+            modular: modularResults.comparison[14].selfTotalUnits,
+          },
+          {
+            name: "Financed Total Units",
+            original: originalResults.comparison[14].financedTotalUnits,
+            modular: modularResults.comparison[14].financedTotalUnits,
+          },
+          {
+            name: "Self-Financed Cumulative Cash Flow",
+            original: originalResults.selfFinanced[14].cumulative,
+            modular: modularResults.selfFinanced[14].cumulative,
+          },
+          {
+            name: "Financed Cumulative Cash Flow",
+            original: originalResults.financed[14].cumulative,
+            modular: modularResults.financed[14].cumulative,
+          },
+        ];
+
+        let html = '<div class="comparison">';
+        html += "<div><h3>Original Calculations</h3>";
+        html += "<div><h4>Year 15 Results</h4>";
+        html += "<table><tr><th>Metric</th><th>Value</th></tr>";
+
+        comparisons.forEach((comp) => {
+          const isMatch = Math.abs(comp.original - comp.modular) < 1;
+          const className = isMatch ? "match" : "mismatch";
+          html += `<tr class="${className}"><td>${
+            comp.name
+          }</td><td>${comp.original.toLocaleString()}</td></tr>`;
+        });
+
+        html += "</table></div>";
+        html +=
+          "<div><h4>Self-Financed Units by Year</h4><table><tr><th>Year</th><th>New Units</th><th>Total Units</th></tr>";
+        for (let i = 0; i < 15; i++) {
+          html += `<tr><td>${i + 1}</td><td>${
+            originalResults.comparison[i].selfNewUnits
+          }</td><td>${originalResults.comparison[i].selfTotalUnits}</td></tr>`;
+        }
+        html += "</table></div></div>";
+
+        html += "<div><h3>Modular Calculations</h3>";
+        html += "<div><h4>Year 15 Results</h4>";
+        html += "<table><tr><th>Metric</th><th>Value</th></tr>";
+
+        comparisons.forEach((comp) => {
+          const isMatch = Math.abs(comp.original - comp.modular) < 1;
+          const className = isMatch ? "match" : "mismatch";
+          html += `<tr class="${className}"><td>${
+            comp.name
+          }</td><td>${comp.modular.toLocaleString()}</td></tr>`;
+        });
+
+        html += "</table></div>";
+        html +=
+          "<div><h4>Self-Financed Units by Year</h4><table><tr><th>Year</th><th>New Units</th><th>Total Units</th></tr>";
+        for (let i = 0; i < 15; i++) {
+          html += `<tr><td>${i + 1}</td><td>${
+            modularResults.comparison[i].selfNewUnits
+          }</td><td>${modularResults.comparison[i].selfTotalUnits}</td></tr>`;
+        }
+        html += "</table></div></div>";
+
+        html += "</div>";
+
+        // Show differences
+        html += "<h3>Key Differences Found:</h3><ul>";
+        comparisons.forEach((comp) => {
+          const diff = comp.modular - comp.original;
+          const percentDiff = ((diff / comp.original) * 100).toFixed(2);
+          if (Math.abs(diff) > 1) {
+            html += `<li><strong>${comp.name}:</strong> ${
+              diff > 0 ? "+" : ""
+            }${diff.toLocaleString()} (${percentDiff}%)</li>`;
+          }
+        });
+        html += "</ul>";
+
+        resultsDiv.innerHTML += html;
+
+        console.log("Original Results:", originalResults);
+        console.log("Modular Results:", modularResults);
+      }
+    </script>
+  </body>
+</html>
