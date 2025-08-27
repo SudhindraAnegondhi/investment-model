@@ -116,8 +116,19 @@ function showYearModal(year, index) {
 
   document.getElementById("modalYear").textContent = year;
   const modal = document.getElementById("yearModal");
-  modal.style.display = "block";
+
+  // Debug logging
+  console.log("Opening modal for year:", year);
+  console.log("Modal element:", modal);
+
   modal.classList.add("show");
+
+  // Debug: Check computed styles
+  const computedStyle = window.getComputedStyle(modal);
+  console.log("Modal display:", computedStyle.display);
+  console.log("Modal position:", computedStyle.position);
+  console.log("Modal width:", computedStyle.width);
+  console.log("Modal height:", computedStyle.height);
 
   // Set initial dropdown values and subtitle
   document.getElementById("strategySelect").value = "self";
@@ -126,6 +137,27 @@ function showYearModal(year, index) {
   document.getElementById("selectedStatement").textContent = "P&L Statement";
 
   populateYearDetails(year, index);
+
+  // Debug: Check table after population
+  setTimeout(() => {
+    const plTable = document.getElementById("plTable");
+    const balanceTable = document.getElementById("balanceTable");
+    console.log("P&L Table:", plTable);
+    console.log("Balance Table:", balanceTable);
+
+    if (plTable) {
+      const tableStyle = window.getComputedStyle(plTable);
+      console.log("P&L Table width:", tableStyle.width);
+      console.log("P&L Table display:", tableStyle.display);
+      console.log("P&L Table visibility:", tableStyle.visibility);
+    }
+
+    if (balanceTable) {
+      const tableStyle = window.getComputedStyle(balanceTable);
+      console.log("Balance Table width:", tableStyle.width);
+      console.log("Balance Table display:", tableStyle.display);
+    }
+  }, 100);
 
   // Set initial navigation button states
   const prevBtn = document.getElementById("prevYearBtn");
@@ -282,7 +314,6 @@ function navigateToYear(newIndex) {
 // Close modal
 function closeModal() {
   const modal = document.getElementById("yearModal");
-  modal.style.display = "none";
   modal.classList.remove("show");
 }
 
@@ -399,7 +430,7 @@ function populateYearDetails(year, index) {
     <tr><td>Real Estate Properties</td><td>${utils.formatCurrency(
       data.assetValue
     )}</td></tr>
-    <tr><td>CapEx Reserves (S&P 500 Investment)</td><td>${utils.formatCurrency(
+    <tr><td>CapEx Reserves</td><td>${utils.formatCurrency(
       cumulativeCapEx
     )}</td></tr>
     <tr><td><strong>TOTAL ASSETS</strong></td><td><strong>${utils.formatCurrency(
@@ -416,9 +447,7 @@ function populateYearDetails(year, index) {
     <tr><td>Property Equity</td><td>${utils.formatCurrency(
       data.assetValue - (data.loanBalance || 0)
     )}</td></tr>
-    <tr><td>CapEx Reserves (S&P 500 Investment)</td><td>${utils.formatCurrency(
-      cumulativeCapEx
-    )}</td></tr>
+    <tr><td>Reserves</td><td>${utils.formatCurrency(cumulativeCapEx)}</td></tr>
     <tr><td><strong>TOTAL EQUITY</strong></td><td><strong>${utils.formatCurrency(
       data.assetValue - (data.loanBalance || 0) + cumulativeCapEx
     )}</strong></td></tr>

@@ -304,16 +304,9 @@
 
 /* Responsive adjustments for modal tables */
 @media (max-width: 768px) {
-  .modal-content {
-    width: 85%; /* Slightly wider on tablet */
-    max-width: 85%;
-  }
-
   .pl-table,
   .balance-table {
     font-size: 10px;
-    width: 95%; /* Wider on tablet for better readability */
-    margin: 8px auto; /* Maintain centering */
   }
 
   .pl-table th,
@@ -330,16 +323,9 @@
 }
 
 @media (max-width: 480px) {
-  .modal-content {
-    width: 95%; /* Even wider on mobile */
-    max-width: 95%;
-  }
-
   .pl-table,
   .balance-table {
     font-size: 9px;
-    width: 98%; /* Almost full width on mobile */
-    margin: 6px auto; /* Maintain centering */
   }
 
   .pl-table th,
@@ -397,8 +383,8 @@
   .pl-table,
   .balance-table {
     font-size: 10px;
-    width: 450px;
-    margin: 15px auto;
+    width: 100%;
+    margin: 0;
   }
 
   .nav-btn {
@@ -439,8 +425,8 @@
   .pl-table,
   .balance-table {
     font-size: 9px;
-    width: 450px;
-    margin: 12px auto;
+    width: 100%;
+    margin: 0;
   }
 }
 
