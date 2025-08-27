@@ -395,19 +395,17 @@ function populateYearDetails(year, index) {
     <tr><td>Insurance</td><td>${utils.formatCurrency(
       data.egi -
         data.noi -
-        data.capex -
         data.egi * (results.inputParams.managementRate / 100) -
         data.egi * (results.inputParams.maintenanceRate / 100)
     )}</td></tr>
-    <tr><td>CapEx Reserves</td><td>${utils.formatCurrency(data.capex)}</td></tr>
     <tr><td><strong>Net Operating Income</strong></td><td><strong>${utils.formatCurrency(
       data.noi
     )}</strong></td></tr>
     <tr><td>Depreciation</td><td>${utils.formatCurrency(
       data.depreciation
     )}</td></tr>
-    <tr><td>Debt Service</td><td>${utils.formatCurrency(
-      data.debtService
+    <tr><td>Interest Expense</td><td>${utils.formatCurrency(
+      data.interestExpense || 0
     )}</td></tr>
     <tr><td><strong>Taxable Income</strong></td><td><strong>${utils.formatCurrency(
       data.taxableIncome
@@ -415,6 +413,14 @@ function populateYearDetails(year, index) {
     <tr><td>Taxes</td><td>${utils.formatCurrency(data.taxes)}</td></tr>
     <tr><td><strong>Net Income</strong></td><td><strong>${utils.formatCurrency(
       data.netIncome
+    )}</strong></td></tr>
+    <tr><td colspan="2" style="background: #f8f9fa; font-weight: bold;">CASH FLOW ITEMS</td></tr>
+    <tr><td>Principal Payments</td><td>${utils.formatCurrency(
+      (data.debtService || 0) - (data.interestExpense || 0)
+    )}</td></tr>
+    <tr><td>CapEx Reserves</td><td>${utils.formatCurrency(data.capex)}</td></tr>
+    <tr><td><strong>Net Cash Flow</strong></td><td><strong>${utils.formatCurrency(
+      data.cashFlow
     )}</strong></td></tr>
   `;
 

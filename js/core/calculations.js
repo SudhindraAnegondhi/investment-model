@@ -215,6 +215,7 @@ function performCalculations(params) {
       noi: selfDetailed.noi,
       depreciation: selfDetailed.depreciation,
       debtService: selfDetailed.debtService,
+      interestExpense: selfDetailed.interestExpense,
       taxableIncome: selfDetailed.taxableIncome,
       taxes: selfDetailed.taxes,
       netIncome: selfDetailed.netIncome,
@@ -233,6 +234,7 @@ function performCalculations(params) {
       noi: financedDetailed.noi,
       depreciation: financedDetailed.depreciation,
       debtService: financedDetailed.debtService,
+      interestExpense: financedDetailed.interestExpense,
       taxableIncome: financedDetailed.taxableIncome,
       taxes: financedDetailed.taxes,
       netIncome: financedDetailed.netIncome,
@@ -301,8 +303,43 @@ function calculateDetailedMetricsOriginal(
   const maintenance = egi * (params.maintenanceRate / 100);
   const insurance = params.insurance * totalUnits;
   const capex = egi * (params.capexRate / 100);
-  const noi =
-    egi - managementFee - maintenance - propertyTax - insurance - capex;
+
+  // Calculate interest expense - extract interest component from EMI
+  let interestExpense = 0;
+  loans.forEach((loan) => {
+    const monthlyRate = loan.interestRate / 12;
+    const totalPayments = loan.term * 12;
+    const monthsElapsed = (year - loan.yearOriginated) * 12;
+    const remainingPayments = Math.max(0, totalPayments - monthsElapsed);
+
+    if (remainingPayments > 0) {
+      const monthlyEMI =
+        (loan.loanAmountPerUnit *
+          monthlyRate *
+          Math.pow(1 + monthlyRate, totalPayments)) /
+        (Math.pow(1 + monthlyRate, totalPayments) - 1);
+
+      // Calculate interest component for each month of the year
+      for (let month = 0; month < 12; month++) {
+        const currentMonth = monthsElapsed + month;
+        if (currentMonth < totalPayments) {
+          // Calculate remaining balance at start of month
+          const balanceAtMonth =
+            (monthlyEMI *
+              (Math.pow(1 + monthlyRate, totalPayments - currentMonth) - 1)) /
+            (monthlyRate *
+              Math.pow(1 + monthlyRate, totalPayments - currentMonth));
+
+          // Interest component = remaining balance * monthly rate
+          const monthlyInterest = balanceAtMonth * monthlyRate;
+          interestExpense += monthlyInterest * loan.units;
+        }
+      }
+    }
+  });
+
+  // NOI should NOT include CapEx (CapEx is a cash flow item, not an operating expense)
+  const noi = egi - managementFee - maintenance - propertyTax - insurance;
 
   let debtService = 0;
   loans.forEach((loan) => {
@@ -321,10 +358,11 @@ function calculateDetailedMetricsOriginal(
     }
   });
 
-  const taxableIncome = noi - depreciation - debtService;
+  // Taxable income should include interest expense
+  const taxableIncome = noi - depreciation - interestExpense;
   const taxes =
     params.passthroughLLC === "yes"
-      ? taxableIncome * (params.incomeTaxRate / 100)
+      ? 0 // Pass-through LLC pays no entity-level taxes
       : taxableIncome * 0.21;
 
   return {
@@ -333,6 +371,7 @@ function calculateDetailedMetricsOriginal(
     noi,
     depreciation,
     debtService,
+    interestExpense,
     taxes,
     capex,
     taxableIncome: taxableIncome,
