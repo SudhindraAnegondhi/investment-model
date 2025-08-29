@@ -41,12 +41,116 @@ h2 {
   color: #333;
 }
 
-/* Tab Styles */
-.tabs {
+/* Tab Navigation Styles */
+.tab-navigation {
+  margin-bottom: 20px;
+  position: relative;
+}
+
+/* Desktop Tab Styles */
+.desktop-tabs {
   display: flex;
-  margin-bottom: 15px;
+  flex-wrap: wrap;
+  gap: 3px;
   border-bottom: 2px solid #eee;
-  overflow-x: auto;
+  padding-bottom: 10px;
+}
+
+/* Mobile Tab Menu */
+.tab-menu-container {
+  display: none;
+  position: relative;
+  margin-bottom: 15px;
+}
+
+.tab-menu-toggle {
+  width: 100%;
+  padding: 12px 16px;
+  background: linear-gradient(45deg, #667eea, #764ba2);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.tab-menu-toggle:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.menu-icon {
+  font-size: 16px;
+  margin-right: 8px;
+}
+
+.current-tab-name {
+  flex: 1;
+  text-align: center;
+}
+
+.menu-arrow {
+  font-size: 12px;
+  transition: transform 0.3s ease;
+}
+
+.tab-menu-toggle.active .menu-arrow {
+  transform: rotate(180deg);
+}
+
+.tab-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  border: 2px solid #667eea;
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease;
+}
+
+.tab-dropdown.show {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.tab-option {
+  width: 100%;
+  padding: 12px 16px;
+  background: none;
+  border: none;
+  text-align: left;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  color: #333;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tab-option:hover {
+  background: rgba(102, 126, 234, 0.1);
+  color: #667eea;
+}
+
+.tab-option.active {
+  background: linear-gradient(45deg, #667eea, #764ba2);
+  color: white;
+}
+
+.tab-option.active:hover {
+  background: linear-gradient(45deg, #5a6fd8, #6b4397);
 }
 
 .tab {

@@ -20,6 +20,13 @@
     width: 98%;
     margin: 1% auto;
   }
+
+  /* Show mobile menu on tablets too if tabs don't fit */
+  .desktop-tabs .tab {
+    padding: 8px 14px;
+    font-size: 12px;
+    min-width: 100px;
+  }
 }
 
 /* Mobile Styles */
@@ -43,9 +50,13 @@
     font-size: 1.1em;
   }
 
-  .tabs {
-    flex-wrap: wrap;
-    gap: 5px;
+  /* Show mobile menu, hide desktop tabs */
+  .tab-menu-container {
+    display: block;
+  }
+
+  .desktop-tabs {
+    display: none;
   }
 
   .tab {
@@ -269,10 +280,7 @@
     max-height: calc(95vh - 60px);
   }
 
-  .tabs {
-    flex-wrap: nowrap;
-    overflow-x: auto;
-  }
+  /* Tab scrolling handled by main.css - keep scrolling enabled in landscape */
 
   .tab {
     flex-shrink: 0;

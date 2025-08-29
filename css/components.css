@@ -752,46 +752,7 @@ th[colspan="6"] {
   transform: none;
 }
 
-/* Tab Navigation */
-.tab-container {
-  overflow-x: auto;
-  white-space: nowrap;
-  scrollbar-width: thin;
-  scrollbar-color: #667eea #f0f0f0;
-  margin-bottom: 20px;
-  border-bottom: 1px solid #e0e0e0;
-}
-
-.tab-container::-webkit-scrollbar {
-  height: 8px;
-}
-
-.tab-container::-webkit-scrollbar-track {
-  background: #f0f0f0;
-  border-radius: 4px;
-}
-
-.tab-container::-webkit-scrollbar-thumb {
-  background: #667eea;
-  border-radius: 4px;
-}
-
-.tab-container::-webkit-scrollbar-thumb:hover {
-  background: #5a6fd8;
-}
-
-.tabs {
-  display: inline-flex;
-  min-width: max-content;
-  gap: 2px;
-  padding: 0 10px;
-  white-space: nowrap;
-}
-
-.tab {
-  white-space: nowrap;
-  flex-shrink: 0;
-}
+/* Tab Navigation - styles defined in main.css */
 
 /* ROI Analysis Cards - Compact Design */
 .roi-card {

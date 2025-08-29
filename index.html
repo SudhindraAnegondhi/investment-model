@@ -19,10 +19,55 @@
     <div class="container">
       <h1>Advanced Rental Property Investment Model</h1>
 
-      <div class="tab-container">
-        <div class="tabs">
+      <div class="tab-navigation">
+        <!-- Mobile/Responsive Tab Menu -->
+        <div class="tab-menu-container">
+          <button class="tab-menu-toggle" onclick="toggleTabMenu()">
+            <span class="menu-icon">☰</span>
+            <span class="current-tab-name">Input Parameters</span>
+            <span class="menu-arrow">▼</span>
+          </button>
+          <div class="tab-dropdown" id="tabDropdown">
+            <button class="tab-option active" data-tab="inputs" onclick="selectTab('inputs', 'Input Parameters')">
+              📝 Input Parameters
+            </button>
+            <button class="tab-option" data-tab="dashboard" onclick="selectTab('dashboard', '📊 Dashboard')">
+              📊 Dashboard
+            </button>
+            <button class="tab-option" data-tab="charts" onclick="selectTab('charts', '📈 Charts & Analysis')">
+              📈 Charts & Analysis
+            </button>
+            <button class="tab-option" data-tab="scenarios" onclick="selectTab('scenarios', '💾 Scenarios')">
+              💾 Scenarios
+            </button>
+            <button class="tab-option" data-tab="comparison" onclick="selectTab('comparison', 'Strategy Comparison')">
+              📊 Strategy Comparison
+            </button>
+            <button class="tab-option" data-tab="cashflow" onclick="selectTab('cashflow', 'Cash Flow Analysis')">
+              💰 Cash Flow Analysis
+            </button>
+            <button class="tab-option" data-tab="sensitivity" onclick="selectTab('sensitivity', 'Sensitivity Analysis')">
+              🎯 Sensitivity Analysis
+            </button>
+            <button class="tab-option" data-tab="breakeven" onclick="selectTab('breakeven', 'Break-Even Analysis')">
+              ⚖️ Break-Even Analysis
+            </button>
+            <button class="tab-option" data-tab="roi" onclick="selectTab('roi', 'ROI Analysis')">
+              📈 ROI Analysis
+            </button>
+            <button class="tab-option" data-tab="summary" onclick="selectTab('summary', 'Summary & Download')">
+              📋 Summary & Download
+            </button>
+            <button class="tab-option" data-tab="help" onclick="selectTab('help', 'Help')">
+              ❓ Help
+            </button>
+          </div>
+        </div>
+
+        <!-- Desktop Tab Bar (Hidden on Mobile) -->
+        <div class="desktop-tabs">
           <button class="tab active" onclick="activateTab(this, 'inputs')">
-            Input Parameters
+            📝 Input Parameters
           </button>
           <button class="tab" onclick="activateTab(this, 'dashboard')">
             📊 Dashboard
@@ -34,24 +79,26 @@
             💾 Scenarios
           </button>
           <button class="tab" onclick="activateTab(this, 'comparison')">
-            Strategy Comparison
+            📊 Strategy Comparison
           </button>
           <button class="tab" onclick="activateTab(this, 'cashflow')">
-            Cash Flow Analysis
+            💰 Cash Flow Analysis
           </button>
           <button class="tab" onclick="activateTab(this, 'sensitivity')">
-            Sensitivity Analysis
+            🎯 Sensitivity Analysis
           </button>
           <button class="tab" onclick="activateTab(this, 'breakeven')">
-            Break-Even Analysis
+            ⚖️ Break-Even Analysis
           </button>
           <button class="tab" onclick="activateTab(this, 'roi')">
-            ROI Analysis
+            📈 ROI Analysis
           </button>
           <button class="tab" onclick="activateTab(this, 'summary')">
-            Summary & Download
+            📋 Summary & Download
           </button>
-          <button class="tab" onclick="activateTab(this, 'help')">Help</button>
+          <button class="tab" onclick="activateTab(this, 'help')">
+            ❓ Help
+          </button>
         </div>
       </div>
 
@@ -1099,6 +1146,54 @@
             chartManager.resizeCharts();
           }
         });
+      });
+
+      // Tab Menu Functions
+      function toggleTabMenu() {
+        const dropdown = document.getElementById('tabDropdown');
+        const toggle = document.querySelector('.tab-menu-toggle');
+        
+        if (dropdown.classList.contains('show')) {
+          dropdown.classList.remove('show');
+          toggle.classList.remove('active');
+        } else {
+          dropdown.classList.add('show');
+          toggle.classList.add('active');
+        }
+      }
+
+      function selectTab(tabId, tabName) {
+        // Update current tab name
+        document.querySelector('.current-tab-name').textContent = tabName;
+        
+        // Update active state in dropdown
+        document.querySelectorAll('.tab-option').forEach(option => {
+          option.classList.remove('active');
+        });
+        document.querySelector(`[data-tab="${tabId}"]`).classList.add('active');
+        
+        // Close dropdown
+        const dropdown = document.getElementById('tabDropdown');
+        const toggle = document.querySelector('.tab-menu-toggle');
+        dropdown.classList.remove('show');
+        toggle.classList.remove('active');
+        
+        // Activate the tab (reuse existing function)
+        const fakeButton = { classList: { remove: () => {}, add: () => {} } };
+        activateTab(fakeButton, tabId);
+      }
+
+      // Close dropdown when clicking outside
+      document.addEventListener('click', function(event) {
+        const menuContainer = document.querySelector('.tab-menu-container');
+        if (menuContainer && !menuContainer.contains(event.target)) {
+          const dropdown = document.getElementById('tabDropdown');
+          const toggle = document.querySelector('.tab-menu-toggle');
+          if (dropdown && toggle) {
+            dropdown.classList.remove('show');
+            toggle.classList.remove('active');
+          }
+        }
       });
 
       // Enhanced calculateAll that updates charts after calculation
