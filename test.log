@@ -1,0 +1,49 @@
+🚀 TESTING YEAR 1 UNIT PURCHASE LOGIC
+=====================================
+Year 1 Parameters:
+  Property Cost: $160,000
+  Annual Budget: $170,000
+  Down Payment per Unit: $48,000
+  Max Affordable Units: 3
+
+🎯 Testing units from 1 to 3:
+
+🔍 Testing 1 units in Year 1:
+   Breakdown:
+     Starting Cash: $0
+     Annual Budget: $170,000
+     NOI from new units: $16,239.96
+     NOI from existing units: $0
+   Cash Available: $186,239.96
+   Total Outflows: $74,612.811
+   Cash Flow Balance: $111,627.149
+   Sustainable: YES
+✅ Year 1: 1 units - SUSTAINABLE (Balance: $111,627.149)
+
+🔍 Testing 2 units in Year 1:
+   Breakdown:
+     Starting Cash: $0
+     Annual Budget: $170,000
+     NOI from new units: $32,479.92
+     NOI from existing units: $0
+   Cash Available: $202,479.92
+   Total Outflows: $149,225.622
+   Cash Flow Balance: $53,254.298
+   Sustainable: YES
+✅ Year 1: 2 units - SUSTAINABLE (Balance: $53,254.298)
+
+🔍 Testing 3 units in Year 1:
+   Breakdown:
+     Starting Cash: $0
+     Annual Budget: $170,000
+     NOI from new units: $48,719.88
+     NOI from existing units: $0
+   Cash Available: $218,719.88
+   Total Outflows: $223,838.433
+   Cash Flow Balance: $-5,118.553
+   Sustainable: NO
+❌ Year 1: 3 units - REJECTED (Balance: $-5,118.553)
+
+🎯 Final decision: 2 units
+
+📊 RESULT: Purchasing 2 units in Year 1

@@ -94,7 +94,7 @@ function getDefaultParameters() {
     rentalRate: 1.0,
     interestRate: 7.0,
     ltvRatio: 70,
-    loanTerm: 30,
+    loanTerm: 5,
     insurance: 1300,
     landPercent: 20,
     maintenanceRate: 1,
@@ -167,12 +167,26 @@ const marketCycles = {
 };
 
 // Export data model for use in other modules
-window.dataModel = {
-  InvestmentCohort,
-  YearlyMetrics,
-  CalculationResults,
-  validateInvestmentParameters,
-  getDefaultParameters,
-  parameterPresets,
-  marketCycles,
-};
+if (typeof module !== 'undefined' && module.exports) {
+  // Node.js environment
+  module.exports = {
+    InvestmentCohort,
+    YearlyMetrics,
+    CalculationResults,
+    validateInvestmentParameters,
+    getDefaultParameters,
+    parameterPresets,
+    marketCycles,
+  };
+} else {
+  // Browser environment - create global dataModel object
+  window.dataModel = {
+    InvestmentCohort,
+    YearlyMetrics,
+    CalculationResults,
+    validateInvestmentParameters,
+    getDefaultParameters,
+    parameterPresets,
+    marketCycles,
+  };
+}

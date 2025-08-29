@@ -572,7 +572,8 @@ th[colspan="6"] {
 
 /* Modal Table Styles */
 .pl-table,
-.balance-table {
+.balance-table,
+.cashflow-table {
   width: 100% !important;
   border-collapse: collapse;
   font-size: 11px;
@@ -586,7 +587,9 @@ th[colspan="6"] {
 .pl-table th,
 .pl-table td,
 .balance-table th,
-.balance-table td {
+.balance-table td,
+.cashflow-table th,
+.cashflow-table td {
   padding: 8px 12px;
   text-align: left;
   border-bottom: 1px solid #eee;
@@ -598,7 +601,9 @@ th[colspan="6"] {
 .pl-table th:first-child,
 .pl-table td:first-child,
 .balance-table th:first-child,
-.balance-table td:first-child {
+.balance-table td:first-child,
+.cashflow-table th:first-child,
+.cashflow-table td:first-child {
   width: 60% !important;
   text-align: left;
   min-width: 60% !important;
@@ -608,7 +613,9 @@ th[colspan="6"] {
 .pl-table th:last-child,
 .pl-table td:last-child,
 .balance-table th:last-child,
-.balance-table td:last-child {
+.balance-table td:last-child,
+.cashflow-table th:last-child,
+.cashflow-table td:last-child {
   width: 40% !important;
   text-align: right;
   font-weight: 600;
@@ -618,7 +625,8 @@ th[colspan="6"] {
 }
 
 .pl-table th,
-.balance-table th {
+.balance-table th,
+.cashflow-table th {
   background: #667eea;
   color: white;
   font-weight: 600;
@@ -643,7 +651,8 @@ th[colspan="6"] {
   }
 
   .pl-table,
-  .balance-table {
+  .balance-table,
+  .cashflow-table {
     font-size: 10px;
     width: 100%;
   }
@@ -651,12 +660,15 @@ th[colspan="6"] {
   .pl-table th,
   .pl-table td,
   .balance-table th,
-  .balance-table td {
+  .balance-table td,
+  .cashflow-table th,
+  .cashflow-table td {
     padding: 4px 6px;
   }
 
   .pl-table th,
-  .balance-table th {
+  .balance-table th,
+  .cashflow-table th {
     font-size: 9px;
   }
 }
@@ -669,7 +681,8 @@ th[colspan="6"] {
   }
 
   .pl-table,
-  .balance-table {
+  .balance-table,
+  .cashflow-table {
     font-size: 9px;
     width: 100%;
   }
@@ -677,12 +690,15 @@ th[colspan="6"] {
   .pl-table th,
   .pl-table td,
   .balance-table th,
-  .balance-table td {
+  .balance-table td,
+  .cashflow-table th,
+  .cashflow-table td {
     padding: 3px 4px;
   }
 
   .pl-table th,
-  .balance-table th {
+  .balance-table th,
+  .cashflow-table th {
     font-size: 8px;
   }
 }

@@ -334,8 +334,12 @@ function switchStrategy(strategy) {
 
 // Show different modal tabs (P&L or Balance Sheet)
 function showModalTab(tabName) {
+  console.log("🔄 showModalTab called with:", tabName);
+  
   // Hide all tab contents
   const tabContents = document.querySelectorAll(".modal-tab-content");
+  console.log("📋 Found tab contents:", tabContents.length);
+  
   tabContents.forEach((content) => {
     content.classList.remove("active");
   });
@@ -344,9 +348,26 @@ function showModalTab(tabName) {
   if (tabName === "pl") {
     document.getElementById("plContent").classList.add("active");
     document.getElementById("selectedStatement").textContent = "P&L Statement";
+    console.log("✅ P&L tab activated");
   } else if (tabName === "balance") {
     document.getElementById("balanceContent").classList.add("active");
     document.getElementById("selectedStatement").textContent = "Balance Sheet";
+    console.log("✅ Balance tab activated");
+  } else if (tabName === "cashflow") {
+    console.log("💰 Attempting to show cash flow tab...");
+    const cashflowElement = document.getElementById("cashflowContent");
+    console.log("💰 Cash flow element found:", cashflowElement);
+    if (cashflowElement) {
+      cashflowElement.classList.add("active");
+      document.getElementById("selectedStatement").textContent = "Cash Flow";
+      console.log("✅ Cash Flow tab activated");
+      
+      // Force population immediately
+      console.log("💰 Forcing cash flow population...");
+      populateCashFlowData(utils.currentModalYear, utils.currentModalIndex);
+    } else {
+      console.error("❌ Cash flow element not found!");
+    }
   }
 
   // Update dropdown selection
@@ -458,6 +479,193 @@ function populateYearDetails(year, index) {
       data.assetValue - (data.loanBalance || 0) + cumulativeCapEx
     )}</strong></td></tr>
   `;
+
+}
+
+// Calculate cash flow using single source of truth
+window.calculateTrueCashFlow = function calculateTrueCashFlow(year, index, data, results, strategy) {
+  const isFinanced = strategy === "financed";
+  const currentYearBudget = year <= (isFinanced ? results.inputParams.financedPurchaseYears : results.inputParams.selfPurchaseYears) ? results.inputParams.annualBudget : 0;
+  
+  // Cash flow components with fallbacks
+  const annualBudget = currentYearBudget || 0;
+  const rentalIncome = data.egi || 0;
+  const operatingExpenses = (data.egi || 0) - (data.noi || 0);
+  const interestPaid = data.interestExpense || 0;
+  const principalPayments = Math.max(0, (data.debtService || 0) - (data.interestExpense || 0));
+  const capexOutflows = data.capex || 0;
+  const taxes = data.taxes || 0;
+  
+  // Property acquisition calculation
+  const costPerUnit = (results.inputParams?.initialCost || 160000) * Math.pow(1 + ((results.inputParams?.costIncrease || 1) / 100), year - 1);
+  const downPaymentPercent = isFinanced ? (1 - (results.inputParams?.ltvRatio || 70) / 100) : 1.0;
+  const acquisitionCostPerUnit = costPerUnit * downPaymentPercent;
+  const downPaymentOutflows = (data.newUnits || 0) * acquisitionCostPerUnit;
+  
+  // Calculate totals
+  const totalInflows = annualBudget + rentalIncome;
+  const totalOutflows = operatingExpenses + interestPaid + principalPayments + capexOutflows + taxes + downPaymentOutflows;
+  const netCashFlow = totalInflows - totalOutflows;
+  
+  return {
+    netCashFlow,
+    totalInflows,
+    totalOutflows,
+    annualBudget,
+    rentalIncome,
+    operatingExpenses,
+    interestPaid,
+    principalPayments,
+    capexOutflows,
+    taxes,
+    downPaymentOutflows
+  };
+}
+
+// Separate function to populate cash flow data
+function populateCashFlowData(year, index) {
+  console.log("🔄 populateCashFlowData called with:", year, index);
+  
+  if (!utils.calculationResults) {
+    console.error("❌ No calculation results available");
+    return;
+  }
+
+  const results = utils.calculationResults;
+  const data = currentModalStrategy === "self" ? results.selfFinanced[index] : results.financed[index];
+  const detailedData = results.detailedData[index];
+  const isFinanced = currentModalStrategy === "financed";
+  const costPerUnit = (results.inputParams?.initialCost || 160000) * Math.pow(1 + ((results.inputParams?.costIncrease || 1) / 100), year - 1);
+
+  // Populate Cash Flow Statement
+  const cashflowBody = document.getElementById("modalCashflowBody");
+  
+  // First, let's check if we can even write to the cash flow body
+  if (!cashflowBody) {
+    console.error("❌ Cash flow body element not found!");
+    return;
+  }
+  
+  console.log("✅ Cash flow body element found, populating...");
+  
+  // Clear any previous content
+  cashflowBody.innerHTML = "";
+  
+  // Debug: Log available data
+  console.log("🔍 Cash Flow Debug - Year:", year, "Index:", index);
+  console.log("🔍 Data object:", data);
+  console.log("🔍 Detailed data:", detailedData);
+  console.log("🔍 Input params:", results.inputParams);
+  console.log("🔍 Current strategy:", currentModalStrategy);
+  
+  // If we see the test content, then continue with the real calculation
+  if (!data) {
+    console.error("❌ No data available for cash flow calculation");
+    cashflowBody.innerHTML += `<tr><td colspan="2" style="color: red;">ERROR: No data available</td></tr>`;
+    return;
+  }
+  
+  // Use the unified cash flow calculation function
+  let cashFlowData;
+  try {
+    console.log("💰 About to call calculateTrueCashFlow with:", {year, index, currentModalStrategy});
+    cashFlowData = calculateTrueCashFlow(year, index, data, results, currentModalStrategy);
+    console.log("💰 calculateTrueCashFlow returned:", cashFlowData);
+  } catch (error) {
+    console.error("❌ Error in calculateTrueCashFlow:", error);
+    cashflowBody.innerHTML += `<tr><td colspan="2" style="color: red;">ERROR in calculation: ${error.message}</td></tr>`;
+    return;
+  }
+  
+  if (!cashFlowData) {
+    console.error("❌ calculateTrueCashFlow returned null/undefined");
+    cashflowBody.innerHTML += `<tr><td colspan="2" style="color: red;">ERROR: Calculation returned no data</td></tr>`;
+    return;
+  }
+  
+  const {
+    netCashFlow,
+    totalInflows,
+    totalOutflows,
+    annualBudget,
+    rentalIncome,
+    operatingExpenses,
+    interestPaid,
+    principalPayments,
+    capexOutflows,
+    taxes,
+    downPaymentOutflows
+  } = cashFlowData;
+  
+  // Calculate opening cash (simplified)
+  const openingCash = index === 0 ? 0 : Math.max(0, data.cumulativeCashFlow || 0) - (data.cashFlow || 0);
+  const closingCash = Math.max(0, openingCash + netCashFlow);
+  
+  console.log("🔍 Using unified calculation - values:", {
+    annualBudget, rentalIncome, operatingExpenses, interestPaid, 
+    principalPayments, capexOutflows, taxes, downPaymentOutflows,
+    totalInflows, totalOutflows, netCashFlow, openingCash, closingCash
+  });
+  
+  // Helper function for currency formatting
+  const formatCurrency = (value) => {
+    try {
+      if (utils && utils.formatCurrency) {
+        return utils.formatCurrency(value);
+      }
+      // Fallback formatting
+      return '$' + (value || 0).toLocaleString('en-US', { 
+        minimumFractionDigits: 0, 
+        maximumFractionDigits: 0 
+      });
+    } catch (error) {
+      console.error("❌ Error in formatCurrency:", error);
+      return `$${value || 0}`;
+    }
+  };
+  
+  console.log("💰 About to populate cash flow table...");
+  
+  try {
+    const htmlContent = `
+    <tr><td colspan="2" style="background: #e8f5e8; font-weight: bold; color: #2e7d32;">OPENING BALANCE</td></tr>
+    <tr><td>Opening Cash Balance</td><td>${formatCurrency(openingCash)}</td></tr>
+    
+    <tr><td colspan="2" style="background: #e3f2fd; font-weight: bold; color: #1976d2;">CASH INFLOWS</td></tr>
+    <tr><td>Annual Investment Budget</td><td>${formatCurrency(annualBudget)}</td></tr>
+    <tr><td>Rental Income (EGI)</td><td>${formatCurrency(rentalIncome)}</td></tr>
+    <tr><td><strong>Total Cash Inflows</strong></td><td><strong>${formatCurrency(totalInflows)}</strong></td></tr>
+    
+    <tr><td colspan="2" style="background: #ffebee; font-weight: bold; color: #d32f2f;">CASH OUTFLOWS</td></tr>
+    <tr><td>Operating Expenses</td><td>${formatCurrency(operatingExpenses)}</td></tr>
+    ${isFinanced ? `<tr><td>Interest Payments</td><td>${formatCurrency(interestPaid)}</td></tr>` : ''}
+    ${isFinanced ? `<tr><td>Principal Payments</td><td>${formatCurrency(principalPayments)}</td></tr>` : ''}
+    <tr><td>CapEx Reserves</td><td>${formatCurrency(capexOutflows)}</td></tr>
+    <tr><td>Income Taxes</td><td>${formatCurrency(taxes)}</td></tr>
+    ${downPaymentOutflows > 0 ? `<tr><td>Property Acquisitions${isFinanced ? ' (Down Payments)' : ''}</td><td>${formatCurrency(downPaymentOutflows)}</td></tr>` : ''}
+    <tr><td><strong>Total Cash Outflows</strong></td><td><strong>${formatCurrency(totalOutflows)}</strong></td></tr>
+    
+    <tr><td colspan="2" style="background: #f3e5f5; font-weight: bold; color: #7b1fa2;">NET CASH FLOW</td></tr>
+    <tr><td><strong>Net Cash Flow (Inflows - Outflows)</strong></td><td><strong>${formatCurrency(netCashFlow)}</strong></td></tr>
+    
+    <tr><td colspan="2" style="background: #e8f5e8; font-weight: bold; color: #2e7d32;">CLOSING BALANCE</td></tr>
+    <tr><td><strong>Closing Cash Balance</strong></td><td><strong>${formatCurrency(closingCash)}</strong></td></tr>
+    
+    <tr><td colspan="2" style="background: #fff3e0; font-weight: bold; color: #f57c00;">VALIDATION</td></tr>
+    <tr><td>Manual Check: Opening + Net Flow</td><td>${formatCurrency(openingCash + netCashFlow)}</td></tr>
+    <tr><td>Units Purchased This Year</td><td>${data.newUnits || 0}</td></tr>
+    <tr><td>Cost Per Unit</td><td>${formatCurrency(costPerUnit)}</td></tr>
+  `;
+    
+    console.log("💰 Generated HTML content length:", htmlContent.length);
+    console.log("💰 Setting innerHTML...");
+    cashflowBody.innerHTML = htmlContent;
+    console.log("💰 HTML set successfully, current innerHTML length:", cashflowBody.innerHTML.length);
+    
+  } catch (error) {
+    console.error("❌ Error generating or setting HTML:", error);
+    cashflowBody.innerHTML = `<tr><td colspan="2" style="color: red;">ERROR: ${error.message}</td></tr>`;
+  }
 }
 
 // Close modal when clicking outside

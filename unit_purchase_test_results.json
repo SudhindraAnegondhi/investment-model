@@ -1,0 +1,87 @@
+{
+  "year1": {
+    "availableCash": 170000,
+    "propertyCost": 160000,
+    "downPaymentPerUnit": 49440.00000000001,
+    "maxAffordableUnits": 3,
+    "selectedUnits": 2
+  },
+  "year2": {
+    "availableCash": 386571.1783235406,
+    "propertyCost": 161600,
+    "downPaymentPerUnit": 49934.40000000001,
+    "maxAffordableUnits": 7,
+    "selectedUnits": 5,
+    "existingUnits": 2
+  },
+  "year3": [],
+  "inconsistencies": [
+    {
+      "test": "Force 3 units in Year 1",
+      "units": 3,
+      "isSustainable": false,
+      "cashFlowBalance": -15143.232514689036,
+      "expected": "Should be negative cash flow",
+      "actual": "Correctly rejected"
+    },
+    {
+      "test": "Year 1 - 1 units",
+      "units": 1,
+      "isSustainable": true,
+      "cashFlowBalance": 108285.5891617703,
+      "totalCashAvailable": 182898.4,
+      "totalOutflows": 74612.81083822969,
+      "noi": 12898.4,
+      "emi": 26612.810838229685
+    },
+    {
+      "test": "Year 1 - 2 units",
+      "units": 2,
+      "isSustainable": true,
+      "cashFlowBalance": 46571.178323540604,
+      "totalCashAvailable": 195796.8,
+      "totalOutflows": 149225.62167645938,
+      "noi": 25796.8,
+      "emi": 53225.62167645937
+    },
+    {
+      "test": "Year 1 - 3 units",
+      "units": 3,
+      "isSustainable": false,
+      "cashFlowBalance": -15143.232514689036,
+      "totalCashAvailable": 208695.2,
+      "totalOutflows": 223838.43251468905,
+      "noi": 38695.2,
+      "emi": 79838.43251468905
+    },
+    {
+      "test": "Year 1 - 4 units",
+      "units": 4,
+      "isSustainable": false,
+      "cashFlowBalance": -76857.64335291876,
+      "totalCashAvailable": 221593.6,
+      "totalOutflows": 298451.24335291877,
+      "noi": 51593.6,
+      "emi": 106451.24335291874
+    },
+    {
+      "test": "Year 1 - 5 units",
+      "units": 5,
+      "isSustainable": false,
+      "cashFlowBalance": -138572.05419114843,
+      "totalCashAvailable": 234492,
+      "totalOutflows": 373064.05419114843,
+      "noi": 64492,
+      "emi": 133064.05419114843
+    }
+  ],
+  "summary": {
+    "year1Selected": 2,
+    "year2Selected": 5,
+    "year1MaxAffordable": 3,
+    "year2MaxAffordable": 7,
+    "totalUnitsAfter2Years": 7,
+    "logicConsistency": "Consistent",
+    "cashFlowLogic": "Prohibits negative cash flow purchases"
+  }
+}

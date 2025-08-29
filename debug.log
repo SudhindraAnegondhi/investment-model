@@ -1,0 +1,1387 @@
+
+============================
+15-YEAR UNIT PURCHASE SUMMARY
+============================
+
+
+🎯 Testing units from 1 to 3:
+
+🔍 Testing 1 units in Year 1:
+   Breakdown:
+     Starting Cash: $0
+     Annual Budget: $170,000
+     NOI from new units: $28,476.96
+     NOI from existing units: $0
+   Cash Available: $198,476.96
+   Total Outflows: $74,612.811
+   Cash Flow Balance: $123,864.149
+   Sustainable: YES
+✅ Year 1: 1 units - SUSTAINABLE (Balance: $123,864.149)
+
+🔍 Testing 2 units in Year 1:
+   Breakdown:
+     Starting Cash: $0
+     Annual Budget: $170,000
+     NOI from new units: $56,953.92
+     NOI from existing units: $0
+   Cash Available: $226,953.92
+   Total Outflows: $149,225.622
+   Cash Flow Balance: $77,728.298
+   Sustainable: YES
+✅ Year 1: 2 units - SUSTAINABLE (Balance: $77,728.298)
+
+🔍 Testing 3 units in Year 1:
+   Breakdown:
+     Starting Cash: $0
+     Annual Budget: $170,000
+     NOI from new units: $85,430.88
+     NOI from existing units: $0
+   Cash Available: $255,430.88
+   Total Outflows: $223,838.433
+   Cash Flow Balance: $31,592.447
+   Sustainable: YES
+✅ Year 1: 3 units - SUSTAINABLE (Balance: $31,592.447)
+
+🎯 Final decision: 3 units
+
+🔍 Testing 3 units in Year 1:
+   Breakdown:
+     Starting Cash: $0
+     Annual Budget: $170,000
+     NOI from new units: $85,430.88
+     NOI from existing units: $86,486.88
+   Cash Available: $341,917.76
+   Total Outflows: $303,676.865
+   Cash Flow Balance: $38,240.895
+   Sustainable: YES
+
+🎯 Testing units from 1 to 4:
+
+🔍 Testing 1 units in Year 2:
+   Breakdown:
+     Starting Cash: $38,240.895
+     Annual Budget: $170,000
+     NOI from new units: $29,370.269
+     NOI from existing units: $88,294.618
+   Cash Available: $325,905.781
+   Total Outflows: $156,689.628
+   Cash Flow Balance: $169,216.154
+   Sustainable: YES
+✅ Year 2: 1 units - SUSTAINABLE (Balance: $169,216.154)
+
+🔍 Testing 2 units in Year 2:
+   Breakdown:
+     Starting Cash: $38,240.895
+     Annual Budget: $170,000
+     NOI from new units: $58,740.538
+     NOI from existing units: $88,294.618
+   Cash Available: $355,276.05
+   Total Outflows: $233,540.823
+   Cash Flow Balance: $121,735.227
+   Sustainable: YES
+✅ Year 2: 2 units - SUSTAINABLE (Balance: $121,735.227)
+
+🔍 Testing 3 units in Year 2:
+   Breakdown:
+     Starting Cash: $38,240.895
+     Annual Budget: $170,000
+     NOI from new units: $88,110.806
+     NOI from existing units: $88,294.618
+   Cash Available: $384,646.319
+   Total Outflows: $310,392.018
+   Cash Flow Balance: $74,254.301
+   Sustainable: YES
+✅ Year 2: 3 units - SUSTAINABLE (Balance: $74,254.301)
+
+🔍 Testing 4 units in Year 2:
+   Breakdown:
+     Starting Cash: $38,240.895
+     Annual Budget: $170,000
+     NOI from new units: $117,481.075
+     NOI from existing units: $88,294.618
+   Cash Available: $414,016.588
+   Total Outflows: $387,243.213
+   Cash Flow Balance: $26,773.375
+   Sustainable: YES
+✅ Year 2: 4 units - SUSTAINABLE (Balance: $26,773.375)
+
+🎯 Final decision: 4 units
+
+🔍 Testing 4 units in Year 2:
+   Breakdown:
+     Starting Cash: $38,240.895
+     Annual Budget: $170,000
+     NOI from new units: $117,481.075
+     NOI from existing units: $207,225.933
+   Cash Available: $532,947.903
+   Total Outflows: $496,887.994
+   Cash Flow Balance: $36,059.909
+   Sustainable: YES
+
+🎯 Testing units from 1 to 4:
+
+🔍 Testing 1 units in Year 3:
+   Breakdown:
+     Starting Cash: $36,059.909
+     Annual Budget: $170,000
+     NOI from new units: $30,290.377
+     NOI from existing units: $211,552.451
+   Cash Available: $447,902.737
+   Total Outflows: $268,639.944
+   Cash Flow Balance: $179,262.793
+   Sustainable: YES
+✅ Year 3: 1 units - SUSTAINABLE (Balance: $179,262.793)
+
+🔍 Testing 2 units in Year 3:
+   Breakdown:
+     Starting Cash: $36,059.909
+     Annual Budget: $170,000
+     NOI from new units: $60,580.754
+     NOI from existing units: $211,552.451
+   Cash Available: $478,193.114
+   Total Outflows: $347,796.675
+   Cash Flow Balance: $130,396.439
+   Sustainable: YES
+✅ Year 3: 2 units - SUSTAINABLE (Balance: $130,396.439)
+
+🔍 Testing 3 units in Year 3:
+   Breakdown:
+     Starting Cash: $36,059.909
+     Annual Budget: $170,000
+     NOI from new units: $90,871.131
+     NOI from existing units: $211,552.451
+   Cash Available: $508,483.491
+   Total Outflows: $426,953.406
+   Cash Flow Balance: $81,530.085
+   Sustainable: YES
+✅ Year 3: 3 units - SUSTAINABLE (Balance: $81,530.085)
+
+🔍 Testing 4 units in Year 3:
+   Breakdown:
+     Starting Cash: $36,059.909
+     Annual Budget: $170,000
+     NOI from new units: $121,161.507
+     NOI from existing units: $211,552.451
+   Cash Available: $538,773.868
+   Total Outflows: $506,110.137
+   Cash Flow Balance: $32,663.731
+   Sustainable: YES
+✅ Year 3: 4 units - SUSTAINABLE (Balance: $32,663.731)
+
+🎯 Final decision: 4 units
+
+🔍 Testing 4 units in Year 3:
+   Breakdown:
+     Starting Cash: $36,059.909
+     Annual Budget: $170,000
+     NOI from new units: $121,161.507
+     NOI from existing units: $334,207.706
+   Cash Available: $661,429.123
+   Total Outflows: $619,044.261
+   Cash Flow Balance: $42,384.861
+   Sustainable: YES
+
+🎯 Testing units from 1 to 0:
+
+🎯 Final decision: 0 units
+
+🔍 Testing 0 units in Year 4:
+   Breakdown:
+     Starting Cash: $42,384.861
+     Annual Budget: $0
+     NOI from new units: $0
+     NOI from existing units: $341,177.86
+   Cash Available: $383,562.722
+   Total Outflows: $302,417.337
+   Cash Flow Balance: $81,145.384
+   Sustainable: YES
+
+🎯 Testing units from 1 to 1:
+
+🔍 Testing 1 units in Year 5:
+   Breakdown:
+     Starting Cash: $81,145.384
+     Annual Budget: $0
+     NOI from new units: $32,214.231
+     NOI from existing units: $348,287.417
+   Cash Available: $461,647.033
+   Total Outflows: $386,394.713
+   Cash Flow Balance: $75,252.319
+   Sustainable: YES
+✅ Year 5: 1 units - SUSTAINABLE (Balance: $75,252.319)
+
+🎯 Final decision: 1 units
+
+🔍 Testing 1 units in Year 5:
+   Breakdown:
+     Starting Cash: $81,145.384
+     Annual Budget: $0
+     NOI from new units: $32,214.231
+     NOI from existing units: $380,897.827
+   Cash Available: $494,257.443
+   Total Outflows: $416,347.666
+   Cash Flow Balance: $77,909.776
+   Sustainable: YES
+
+🎯 Testing units from 1 to 1:
+
+🔍 Testing 1 units in Year 6:
+   Breakdown:
+     Starting Cash: $77,909.776
+     Annual Budget: $0
+     NOI from new units: $33,219.658
+     NOI from existing units: $388,827.784
+   Cash Available: $499,957.218
+   Total Outflows: $339,028.555
+   Cash Flow Balance: $160,928.663
+   Sustainable: YES
+✅ Year 6: 1 units - SUSTAINABLE (Balance: $160,928.663)
+
+🎯 Final decision: 1 units
+
+🔍 Testing 1 units in Year 6:
+   Breakdown:
+     Starting Cash: $77,909.776
+     Annual Budget: $0
+     NOI from new units: $33,219.658
+     NOI from existing units: $422,455.506
+   Cash Available: $533,584.94
+   Total Outflows: $369,880.097
+   Cash Flow Balance: $163,704.844
+   Sustainable: YES
+
+🎯 Testing units from 1 to 2:
+
+🔍 Testing 1 units in Year 7:
+   Breakdown:
+     Starting Cash: $163,704.844
+     Annual Budget: $0
+     NOI from new units: $34,255.247
+     NOI from existing units: $431,242.616
+   Cash Available: $629,202.707
+   Total Outflows: $262,830.217
+   Cash Flow Balance: $366,372.49
+   Sustainable: YES
+✅ Year 7: 1 units - SUSTAINABLE (Balance: $366,372.49)
+
+🔍 Testing 2 units in Year 7:
+   Breakdown:
+     Starting Cash: $163,704.844
+     Annual Budget: $0
+     NOI from new units: $68,510.495
+     NOI from existing units: $431,242.616
+   Cash Available: $663,457.955
+   Total Outflows: $351,921.815
+   Cash Flow Balance: $311,536.14
+   Sustainable: YES
+✅ Year 7: 2 units - SUSTAINABLE (Balance: $311,536.14)
+
+🎯 Final decision: 2 units
+
+🔍 Testing 2 units in Year 7:
+   Breakdown:
+     Starting Cash: $163,704.844
+     Annual Budget: $0
+     NOI from new units: $68,510.495
+     NOI from existing units: $500,593.724
+   Cash Available: $732,809.062
+   Total Outflows: $415,475.991
+   Cash Flow Balance: $317,333.072
+   Sustainable: YES
+
+🎯 Testing units from 1 to 5:
+
+🔍 Testing 1 units in Year 8:
+   Breakdown:
+     Starting Cash: $317,333.072
+     Annual Budget: $0
+     NOI from new units: $35,321.905
+     NOI from existing units: $510,995.598
+   Cash Available: $863,650.575
+   Total Outflows: $216,123.017
+   Cash Flow Balance: $647,527.558
+   Sustainable: YES
+✅ Year 8: 1 units - SUSTAINABLE (Balance: $647,527.558)
+
+🔍 Testing 2 units in Year 8:
+   Breakdown:
+     Starting Cash: $317,333.072
+     Annual Budget: $0
+     NOI from new units: $70,643.81
+     NOI from existing units: $510,995.598
+   Cash Available: $898,972.48
+   Total Outflows: $307,887.363
+   Cash Flow Balance: $591,085.117
+   Sustainable: YES
+✅ Year 8: 2 units - SUSTAINABLE (Balance: $591,085.117)
+
+🔍 Testing 3 units in Year 8:
+   Breakdown:
+     Starting Cash: $317,333.072
+     Annual Budget: $0
+     NOI from new units: $105,965.715
+     NOI from existing units: $510,995.598
+   Cash Available: $934,294.385
+   Total Outflows: $399,651.709
+   Cash Flow Balance: $534,642.676
+   Sustainable: YES
+✅ Year 8: 3 units - SUSTAINABLE (Balance: $534,642.676)
+
+🔍 Testing 4 units in Year 8:
+   Breakdown:
+     Starting Cash: $317,333.072
+     Annual Budget: $0
+     NOI from new units: $141,287.62
+     NOI from existing units: $510,995.598
+   Cash Available: $969,616.29
+   Total Outflows: $491,416.055
+   Cash Flow Balance: $478,200.235
+   Sustainable: YES
+✅ Year 8: 4 units - SUSTAINABLE (Balance: $478,200.235)
+
+🔍 Testing 5 units in Year 8:
+   Breakdown:
+     Starting Cash: $317,333.072
+     Annual Budget: $0
+     NOI from new units: $176,609.524
+     NOI from existing units: $510,995.598
+   Cash Available: $1,004,938.195
+   Total Outflows: $583,180.401
+   Cash Flow Balance: $421,757.794
+   Sustainable: YES
+✅ Year 8: 5 units - SUSTAINABLE (Balance: $421,757.794)
+
+🎯 Final decision: 5 units
+
+🔍 Testing 5 units in Year 8:
+   Breakdown:
+     Starting Cash: $317,333.072
+     Annual Budget: $0
+     NOI from new units: $176,609.524
+     NOI from existing units: $689,769.701
+   Cash Available: $1,183,712.297
+   Total Outflows: $746,832.404
+   Cash Flow Balance: $436,879.894
+   Sustainable: YES
+
+🎯 Testing units from 1 to 7:
+
+🔍 Testing 1 units in Year 9:
+   Breakdown:
+     Starting Cash: $436,879.894
+     Annual Budget: $0
+     NOI from new units: $36,420.562
+     NOI from existing units: $704,085.095
+   Cash Available: $1,177,385.551
+   Total Outflows: $382,527.95
+   Cash Flow Balance: $794,857.601
+   Sustainable: YES
+✅ Year 9: 1 units - SUSTAINABLE (Balance: $794,857.601)
+
+🔍 Testing 2 units in Year 9:
+   Breakdown:
+     Starting Cash: $436,879.894
+     Annual Budget: $0
+     NOI from new units: $72,841.124
+     NOI from existing units: $704,085.095
+   Cash Available: $1,213,806.113
+   Total Outflows: $477,045.226
+   Cash Flow Balance: $736,760.886
+   Sustainable: YES
+✅ Year 9: 2 units - SUSTAINABLE (Balance: $736,760.886)
+
+🔍 Testing 3 units in Year 9:
+   Breakdown:
+     Starting Cash: $436,879.894
+     Annual Budget: $0
+     NOI from new units: $109,261.686
+     NOI from existing units: $704,085.095
+   Cash Available: $1,250,226.675
+   Total Outflows: $571,562.503
+   Cash Flow Balance: $678,664.172
+   Sustainable: YES
+✅ Year 9: 3 units - SUSTAINABLE (Balance: $678,664.172)
+
+🔍 Testing 4 units in Year 9:
+   Breakdown:
+     Starting Cash: $436,879.894
+     Annual Budget: $0
+     NOI from new units: $145,682.248
+     NOI from existing units: $704,085.095
+   Cash Available: $1,286,647.237
+   Total Outflows: $666,079.779
+   Cash Flow Balance: $620,567.458
+   Sustainable: YES
+✅ Year 9: 4 units - SUSTAINABLE (Balance: $620,567.458)
+
+🔍 Testing 5 units in Year 9:
+   Breakdown:
+     Starting Cash: $436,879.894
+     Annual Budget: $0
+     NOI from new units: $182,102.81
+     NOI from existing units: $704,085.095
+   Cash Available: $1,323,067.799
+   Total Outflows: $760,597.055
+   Cash Flow Balance: $562,470.743
+   Sustainable: YES
+✅ Year 9: 5 units - SUSTAINABLE (Balance: $562,470.743)
+
+🔍 Testing 6 units in Year 9:
+   Breakdown:
+     Starting Cash: $436,879.894
+     Annual Budget: $0
+     NOI from new units: $218,523.372
+     NOI from existing units: $704,085.095
+   Cash Available: $1,359,488.361
+   Total Outflows: $855,114.332
+   Cash Flow Balance: $504,374.029
+   Sustainable: YES
+✅ Year 9: 6 units - SUSTAINABLE (Balance: $504,374.029)
+
+🔍 Testing 7 units in Year 9:
+   Breakdown:
+     Starting Cash: $436,879.894
+     Annual Budget: $0
+     NOI from new units: $254,943.934
+     NOI from existing units: $704,085.095
+   Cash Available: $1,395,908.923
+   Total Outflows: $949,631.608
+   Cash Flow Balance: $446,277.314
+   Sustainable: YES
+✅ Year 9: 7 units - SUSTAINABLE (Balance: $446,277.314)
+
+🎯 Final decision: 7 units
+
+🔍 Testing 7 units in Year 9:
+   Breakdown:
+     Starting Cash: $436,879.894
+     Annual Budget: $0
+     NOI from new units: $254,943.934
+     NOI from existing units: $962,150.351
+   Cash Available: $1,653,974.179
+   Total Outflows: $1,185,617.796
+   Cash Flow Balance: $468,356.382
+   Sustainable: YES
+
+🎯 Testing units from 1 to 7:
+
+🔍 Testing 1 units in Year 10:
+   Breakdown:
+     Starting Cash: $468,356.382
+     Annual Budget: $0
+     NOI from new units: $37,552.179
+     NOI from existing units: $982,095.358
+   Cash Available: $1,488,003.919
+   Total Outflows: $591,396.703
+   Cash Flow Balance: $896,607.216
+   Sustainable: YES
+✅ Year 10: 1 units - SUSTAINABLE (Balance: $896,607.216)
+
+🔍 Testing 2 units in Year 10:
+   Breakdown:
+     Starting Cash: $468,356.382
+     Annual Budget: $0
+     NOI from new units: $75,104.358
+     NOI from existing units: $982,095.358
+   Cash Available: $1,525,556.098
+   Total Outflows: $688,749.497
+   Cash Flow Balance: $836,806.6
+   Sustainable: YES
+✅ Year 10: 2 units - SUSTAINABLE (Balance: $836,806.6)
+
+🔍 Testing 3 units in Year 10:
+   Breakdown:
+     Starting Cash: $468,356.382
+     Annual Budget: $0
+     NOI from new units: $112,656.537
+     NOI from existing units: $982,095.358
+   Cash Available: $1,563,108.277
+   Total Outflows: $786,102.292
+   Cash Flow Balance: $777,005.985
+   Sustainable: YES
+✅ Year 10: 3 units - SUSTAINABLE (Balance: $777,005.985)
+
+🔍 Testing 4 units in Year 10:
+   Breakdown:
+     Starting Cash: $468,356.382
+     Annual Budget: $0
+     NOI from new units: $150,208.716
+     NOI from existing units: $982,095.358
+   Cash Available: $1,600,660.456
+   Total Outflows: $883,455.087
+   Cash Flow Balance: $717,205.369
+   Sustainable: YES
+✅ Year 10: 4 units - SUSTAINABLE (Balance: $717,205.369)
+
+🔍 Testing 5 units in Year 10:
+   Breakdown:
+     Starting Cash: $468,356.382
+     Annual Budget: $0
+     NOI from new units: $187,760.895
+     NOI from existing units: $982,095.358
+   Cash Available: $1,638,212.635
+   Total Outflows: $980,807.882
+   Cash Flow Balance: $657,404.753
+   Sustainable: YES
+✅ Year 10: 5 units - SUSTAINABLE (Balance: $657,404.753)
+
+🔍 Testing 6 units in Year 10:
+   Breakdown:
+     Starting Cash: $468,356.382
+     Annual Budget: $0
+     NOI from new units: $225,313.073
+     NOI from existing units: $982,095.358
+   Cash Available: $1,675,764.814
+   Total Outflows: $1,078,160.676
+   Cash Flow Balance: $597,604.137
+   Sustainable: YES
+✅ Year 10: 6 units - SUSTAINABLE (Balance: $597,604.137)
+
+🔍 Testing 7 units in Year 10:
+   Breakdown:
+     Starting Cash: $468,356.382
+     Annual Budget: $0
+     NOI from new units: $262,865.252
+     NOI from existing units: $982,095.358
+   Cash Available: $1,713,316.992
+   Total Outflows: $1,175,513.471
+   Cash Flow Balance: $537,803.521
+   Sustainable: YES
+✅ Year 10: 7 units - SUSTAINABLE (Balance: $537,803.521)
+
+🎯 Final decision: 7 units
+
+🔍 Testing 7 units in Year 10:
+   Breakdown:
+     Starting Cash: $468,356.382
+     Annual Budget: $0
+     NOI from new units: $262,865.252
+     NOI from existing units: $1,248,175.571
+   Cash Available: $1,979,397.206
+   Total Outflows: $1,418,579.245
+   Cash Flow Balance: $560,817.961
+   Sustainable: YES
+
+🎯 Testing units from 1 to 8:
+
+🔍 Testing 1 units in Year 11:
+   Breakdown:
+     Starting Cash: $560,817.961
+     Annual Budget: $0
+     NOI from new units: $38,717.744
+     NOI from existing units: $1,274,023.083
+   Cash Available: $1,873,558.788
+   Total Outflows: $806,531.518
+   Cash Flow Balance: $1,067,027.27
+   Sustainable: YES
+✅ Year 11: 1 units - SUSTAINABLE (Balance: $1,067,027.27)
+
+🔍 Testing 2 units in Year 11:
+   Breakdown:
+     Starting Cash: $560,817.961
+     Annual Budget: $0
+     NOI from new units: $77,435.489
+     NOI from existing units: $1,274,023.083
+   Cash Available: $1,912,276.532
+   Total Outflows: $906,804.897
+   Cash Flow Balance: $1,005,471.635
+   Sustainable: YES
+✅ Year 11: 2 units - SUSTAINABLE (Balance: $1,005,471.635)
+
+🔍 Testing 3 units in Year 11:
+   Breakdown:
+     Starting Cash: $560,817.961
+     Annual Budget: $0
+     NOI from new units: $116,153.233
+     NOI from existing units: $1,274,023.083
+   Cash Available: $1,950,994.277
+   Total Outflows: $1,007,078.276
+   Cash Flow Balance: $943,916.001
+   Sustainable: YES
+✅ Year 11: 3 units - SUSTAINABLE (Balance: $943,916.001)
+
+🔍 Testing 4 units in Year 11:
+   Breakdown:
+     Starting Cash: $560,817.961
+     Annual Budget: $0
+     NOI from new units: $154,870.977
+     NOI from existing units: $1,274,023.083
+   Cash Available: $1,989,712.021
+   Total Outflows: $1,107,351.654
+   Cash Flow Balance: $882,360.367
+   Sustainable: YES
+✅ Year 11: 4 units - SUSTAINABLE (Balance: $882,360.367)
+
+🔍 Testing 5 units in Year 11:
+   Breakdown:
+     Starting Cash: $560,817.961
+     Annual Budget: $0
+     NOI from new units: $193,588.721
+     NOI from existing units: $1,274,023.083
+   Cash Available: $2,028,429.765
+   Total Outflows: $1,207,625.033
+   Cash Flow Balance: $820,804.732
+   Sustainable: YES
+✅ Year 11: 5 units - SUSTAINABLE (Balance: $820,804.732)
+
+🔍 Testing 6 units in Year 11:
+   Breakdown:
+     Starting Cash: $560,817.961
+     Annual Budget: $0
+     NOI from new units: $232,306.466
+     NOI from existing units: $1,274,023.083
+   Cash Available: $2,067,147.509
+   Total Outflows: $1,307,898.411
+   Cash Flow Balance: $759,249.098
+   Sustainable: YES
+✅ Year 11: 6 units - SUSTAINABLE (Balance: $759,249.098)
+
+🔍 Testing 7 units in Year 11:
+   Breakdown:
+     Starting Cash: $560,817.961
+     Annual Budget: $0
+     NOI from new units: $271,024.21
+     NOI from existing units: $1,274,023.083
+   Cash Available: $2,105,865.254
+   Total Outflows: $1,408,171.79
+   Cash Flow Balance: $697,693.464
+   Sustainable: YES
+✅ Year 11: 7 units - SUSTAINABLE (Balance: $697,693.464)
+
+🔍 Testing 8 units in Year 11:
+   Breakdown:
+     Starting Cash: $560,817.961
+     Annual Budget: $0
+     NOI from new units: $309,741.954
+     NOI from existing units: $1,274,023.083
+   Cash Available: $2,144,582.998
+   Total Outflows: $1,508,445.169
+   Cash Flow Balance: $636,137.829
+   Sustainable: YES
+✅ Year 11: 8 units - SUSTAINABLE (Balance: $636,137.829)
+
+🎯 Final decision: 8 units
+
+🔍 Testing 8 units in Year 11:
+   Breakdown:
+     Starting Cash: $560,817.961
+     Annual Budget: $0
+     NOI from new units: $309,741.954
+     NOI from existing units: $1,587,549.505
+   Cash Available: $2,458,109.421
+   Total Outflows: $1,794,568.308
+   Cash Flow Balance: $663,541.113
+   Sustainable: YES
+
+🎯 Testing units from 1 to 9:
+
+🔍 Testing 1 units in Year 12:
+   Breakdown:
+     Starting Cash: $663,541.113
+     Annual Budget: $0
+     NOI from new units: $39,918.277
+     NOI from existing units: $1,620,392.495
+   Cash Available: $2,323,851.885
+   Total Outflows: $1,032,108.683
+   Cash Flow Balance: $1,291,743.202
+   Sustainable: YES
+✅ Year 12: 1 units - SUSTAINABLE (Balance: $1,291,743.202)
+
+🔍 Testing 2 units in Year 12:
+   Breakdown:
+     Starting Cash: $663,541.113
+     Annual Budget: $0
+     NOI from new units: $79,836.553
+     NOI from existing units: $1,620,392.495
+   Cash Available: $2,363,770.162
+   Total Outflows: $1,135,390.263
+   Cash Flow Balance: $1,228,379.899
+   Sustainable: YES
+✅ Year 12: 2 units - SUSTAINABLE (Balance: $1,228,379.899)
+
+🔍 Testing 3 units in Year 12:
+   Breakdown:
+     Starting Cash: $663,541.113
+     Annual Budget: $0
+     NOI from new units: $119,754.83
+     NOI from existing units: $1,620,392.495
+   Cash Available: $2,403,688.438
+   Total Outflows: $1,238,671.843
+   Cash Flow Balance: $1,165,016.595
+   Sustainable: YES
+✅ Year 12: 3 units - SUSTAINABLE (Balance: $1,165,016.595)
+
+🔍 Testing 4 units in Year 12:
+   Breakdown:
+     Starting Cash: $663,541.113
+     Annual Budget: $0
+     NOI from new units: $159,673.106
+     NOI from existing units: $1,620,392.495
+   Cash Available: $2,443,606.715
+   Total Outflows: $1,341,953.423
+   Cash Flow Balance: $1,101,653.292
+   Sustainable: YES
+✅ Year 12: 4 units - SUSTAINABLE (Balance: $1,101,653.292)
+
+🔍 Testing 5 units in Year 12:
+   Breakdown:
+     Starting Cash: $663,541.113
+     Annual Budget: $0
+     NOI from new units: $199,591.383
+     NOI from existing units: $1,620,392.495
+   Cash Available: $2,483,524.991
+   Total Outflows: $1,445,235.003
+   Cash Flow Balance: $1,038,289.989
+   Sustainable: YES
+✅ Year 12: 5 units - SUSTAINABLE (Balance: $1,038,289.989)
+
+🔍 Testing 6 units in Year 12:
+   Breakdown:
+     Starting Cash: $663,541.113
+     Annual Budget: $0
+     NOI from new units: $239,509.66
+     NOI from existing units: $1,620,392.495
+   Cash Available: $2,523,443.268
+   Total Outflows: $1,548,516.583
+   Cash Flow Balance: $974,926.685
+   Sustainable: YES
+✅ Year 12: 6 units - SUSTAINABLE (Balance: $974,926.685)
+
+🔍 Testing 7 units in Year 12:
+   Breakdown:
+     Starting Cash: $663,541.113
+     Annual Budget: $0
+     NOI from new units: $279,427.936
+     NOI from existing units: $1,620,392.495
+   Cash Available: $2,563,361.545
+   Total Outflows: $1,651,798.163
+   Cash Flow Balance: $911,563.382
+   Sustainable: YES
+✅ Year 12: 7 units - SUSTAINABLE (Balance: $911,563.382)
+
+🔍 Testing 8 units in Year 12:
+   Breakdown:
+     Starting Cash: $663,541.113
+     Annual Budget: $0
+     NOI from new units: $319,346.213
+     NOI from existing units: $1,620,392.495
+   Cash Available: $2,603,279.821
+   Total Outflows: $1,755,079.743
+   Cash Flow Balance: $848,200.078
+   Sustainable: YES
+✅ Year 12: 8 units - SUSTAINABLE (Balance: $848,200.078)
+
+🔍 Testing 9 units in Year 12:
+   Breakdown:
+     Starting Cash: $663,541.113
+     Annual Budget: $0
+     NOI from new units: $359,264.489
+     NOI from existing units: $1,620,392.495
+   Cash Available: $2,643,198.098
+   Total Outflows: $1,858,361.323
+   Cash Flow Balance: $784,836.775
+   Sustainable: YES
+✅ Year 12: 9 units - SUSTAINABLE (Balance: $784,836.775)
+
+🎯 Final decision: 9 units
+
+🔍 Testing 9 units in Year 12:
+   Breakdown:
+     Starting Cash: $663,541.113
+     Annual Budget: $0
+     NOI from new units: $359,264.489
+     NOI from existing units: $1,984,042.238
+   Cash Available: $3,006,847.84
+   Total Outflows: $2,189,906.51
+   Cash Flow Balance: $816,941.33
+   Sustainable: YES
+
+🎯 Testing units from 1 to 11:
+
+🔍 Testing 1 units in Year 13:
+   Breakdown:
+     Starting Cash: $816,941.33
+     Annual Budget: $0
+     NOI from new units: $41,154.825
+     NOI from existing units: $2,025,049.083
+   Cash Available: $2,883,145.237
+   Total Outflows: $1,203,100.315
+   Cash Flow Balance: $1,680,044.922
+   Sustainable: YES
+✅ Year 13: 1 units - SUSTAINABLE (Balance: $1,680,044.922)
+
+🔍 Testing 2 units in Year 13:
+   Breakdown:
+     Starting Cash: $816,941.33
+     Annual Budget: $0
+     NOI from new units: $82,309.65
+     NOI from existing units: $2,025,049.083
+   Cash Available: $2,924,300.062
+   Total Outflows: $1,309,480.343
+   Cash Flow Balance: $1,614,819.72
+   Sustainable: YES
+✅ Year 13: 2 units - SUSTAINABLE (Balance: $1,614,819.72)
+
+🔍 Testing 3 units in Year 13:
+   Breakdown:
+     Starting Cash: $816,941.33
+     Annual Budget: $0
+     NOI from new units: $123,464.475
+     NOI from existing units: $2,025,049.083
+   Cash Available: $2,965,454.887
+   Total Outflows: $1,415,860.37
+   Cash Flow Balance: $1,549,594.517
+   Sustainable: YES
+✅ Year 13: 3 units - SUSTAINABLE (Balance: $1,549,594.517)
+
+🔍 Testing 4 units in Year 13:
+   Breakdown:
+     Starting Cash: $816,941.33
+     Annual Budget: $0
+     NOI from new units: $164,619.3
+     NOI from existing units: $2,025,049.083
+   Cash Available: $3,006,609.712
+   Total Outflows: $1,522,240.397
+   Cash Flow Balance: $1,484,369.315
+   Sustainable: YES
+✅ Year 13: 4 units - SUSTAINABLE (Balance: $1,484,369.315)
+
+🔍 Testing 5 units in Year 13:
+   Breakdown:
+     Starting Cash: $816,941.33
+     Annual Budget: $0
+     NOI from new units: $205,774.124
+     NOI from existing units: $2,025,049.083
+   Cash Available: $3,047,764.537
+   Total Outflows: $1,628,620.425
+   Cash Flow Balance: $1,419,144.112
+   Sustainable: YES
+✅ Year 13: 5 units - SUSTAINABLE (Balance: $1,419,144.112)
+
+🔍 Testing 6 units in Year 13:
+   Breakdown:
+     Starting Cash: $816,941.33
+     Annual Budget: $0
+     NOI from new units: $246,928.949
+     NOI from existing units: $2,025,049.083
+   Cash Available: $3,088,919.362
+   Total Outflows: $1,735,000.452
+   Cash Flow Balance: $1,353,918.91
+   Sustainable: YES
+✅ Year 13: 6 units - SUSTAINABLE (Balance: $1,353,918.91)
+
+🔍 Testing 7 units in Year 13:
+   Breakdown:
+     Starting Cash: $816,941.33
+     Annual Budget: $0
+     NOI from new units: $288,083.774
+     NOI from existing units: $2,025,049.083
+   Cash Available: $3,130,074.187
+   Total Outflows: $1,841,380.479
+   Cash Flow Balance: $1,288,693.707
+   Sustainable: YES
+✅ Year 13: 7 units - SUSTAINABLE (Balance: $1,288,693.707)
+
+🔍 Testing 8 units in Year 13:
+   Breakdown:
+     Starting Cash: $816,941.33
+     Annual Budget: $0
+     NOI from new units: $329,238.599
+     NOI from existing units: $2,025,049.083
+   Cash Available: $3,171,229.012
+   Total Outflows: $1,947,760.507
+   Cash Flow Balance: $1,223,468.505
+   Sustainable: YES
+✅ Year 13: 8 units - SUSTAINABLE (Balance: $1,223,468.505)
+
+🔍 Testing 9 units in Year 13:
+   Breakdown:
+     Starting Cash: $816,941.33
+     Annual Budget: $0
+     NOI from new units: $370,393.424
+     NOI from existing units: $2,025,049.083
+   Cash Available: $3,212,383.837
+   Total Outflows: $2,054,140.534
+   Cash Flow Balance: $1,158,243.303
+   Sustainable: YES
+✅ Year 13: 9 units - SUSTAINABLE (Balance: $1,158,243.303)
+
+🔍 Testing 10 units in Year 13:
+   Breakdown:
+     Starting Cash: $816,941.33
+     Annual Budget: $0
+     NOI from new units: $411,548.249
+     NOI from existing units: $2,025,049.083
+   Cash Available: $3,253,538.661
+   Total Outflows: $2,160,520.561
+   Cash Flow Balance: $1,093,018.1
+   Sustainable: YES
+✅ Year 13: 10 units - SUSTAINABLE (Balance: $1,093,018.1)
+
+🔍 Testing 11 units in Year 13:
+   Breakdown:
+     Starting Cash: $816,941.33
+     Annual Budget: $0
+     NOI from new units: $452,703.074
+     NOI from existing units: $2,025,049.083
+   Cash Available: $3,294,693.486
+   Total Outflows: $2,266,900.589
+   Cash Flow Balance: $1,027,792.898
+   Sustainable: YES
+✅ Year 13: 11 units - SUSTAINABLE (Balance: $1,027,792.898)
+
+🎯 Final decision: 11 units
+
+🔍 Testing 11 units in Year 13:
+   Breakdown:
+     Starting Cash: $816,941.33
+     Annual Budget: $0
+     NOI from new units: $452,703.074
+     NOI from existing units: $2,483,272.703
+   Cash Available: $3,752,917.106
+   Total Outflows: $2,684,279.141
+   Cash Flow Balance: $1,068,637.965
+   Sustainable: YES
+
+🎯 Testing units from 1 to 15:
+
+🔍 Testing 1 units in Year 14:
+   Breakdown:
+     Starting Cash: $1,068,637.965
+     Annual Budget: $0
+     NOI from new units: $42,428.47
+     NOI from existing units: $2,534,550.157
+   Cash Available: $3,645,616.591
+   Total Outflows: $1,387,684.081
+   Cash Flow Balance: $2,257,932.511
+   Sustainable: YES
+✅ Year 14: 1 units - SUSTAINABLE (Balance: $2,257,932.511)
+
+🔍 Testing 2 units in Year 14:
+   Breakdown:
+     Starting Cash: $1,068,637.965
+     Annual Budget: $0
+     NOI from new units: $84,856.939
+     NOI from existing units: $2,534,550.157
+   Cash Available: $3,688,045.061
+   Total Outflows: $1,497,255.509
+   Cash Flow Balance: $2,190,789.552
+   Sustainable: YES
+✅ Year 14: 2 units - SUSTAINABLE (Balance: $2,190,789.552)
+
+🔍 Testing 3 units in Year 14:
+   Breakdown:
+     Starting Cash: $1,068,637.965
+     Annual Budget: $0
+     NOI from new units: $127,285.409
+     NOI from existing units: $2,534,550.157
+   Cash Available: $3,730,473.531
+   Total Outflows: $1,606,826.937
+   Cash Flow Balance: $2,123,646.593
+   Sustainable: YES
+✅ Year 14: 3 units - SUSTAINABLE (Balance: $2,123,646.593)
+
+🔍 Testing 4 units in Year 14:
+   Breakdown:
+     Starting Cash: $1,068,637.965
+     Annual Budget: $0
+     NOI from new units: $169,713.879
+     NOI from existing units: $2,534,550.157
+   Cash Available: $3,772,902
+   Total Outflows: $1,716,398.365
+   Cash Flow Balance: $2,056,503.635
+   Sustainable: YES
+✅ Year 14: 4 units - SUSTAINABLE (Balance: $2,056,503.635)
+
+🔍 Testing 5 units in Year 14:
+   Breakdown:
+     Starting Cash: $1,068,637.965
+     Annual Budget: $0
+     NOI from new units: $212,142.348
+     NOI from existing units: $2,534,550.157
+   Cash Available: $3,815,330.47
+   Total Outflows: $1,825,969.793
+   Cash Flow Balance: $1,989,360.676
+   Sustainable: YES
+✅ Year 14: 5 units - SUSTAINABLE (Balance: $1,989,360.676)
+
+🔍 Testing 6 units in Year 14:
+   Breakdown:
+     Starting Cash: $1,068,637.965
+     Annual Budget: $0
+     NOI from new units: $254,570.818
+     NOI from existing units: $2,534,550.157
+   Cash Available: $3,857,758.94
+   Total Outflows: $1,935,541.222
+   Cash Flow Balance: $1,922,217.718
+   Sustainable: YES
+✅ Year 14: 6 units - SUSTAINABLE (Balance: $1,922,217.718)
+
+🔍 Testing 7 units in Year 14:
+   Breakdown:
+     Starting Cash: $1,068,637.965
+     Annual Budget: $0
+     NOI from new units: $296,999.288
+     NOI from existing units: $2,534,550.157
+   Cash Available: $3,900,187.409
+   Total Outflows: $2,045,112.65
+   Cash Flow Balance: $1,855,074.759
+   Sustainable: YES
+✅ Year 14: 7 units - SUSTAINABLE (Balance: $1,855,074.759)
+
+🔍 Testing 8 units in Year 14:
+   Breakdown:
+     Starting Cash: $1,068,637.965
+     Annual Budget: $0
+     NOI from new units: $339,427.757
+     NOI from existing units: $2,534,550.157
+   Cash Available: $3,942,615.879
+   Total Outflows: $2,154,684.078
+   Cash Flow Balance: $1,787,931.801
+   Sustainable: YES
+✅ Year 14: 8 units - SUSTAINABLE (Balance: $1,787,931.801)
+
+🔍 Testing 9 units in Year 14:
+   Breakdown:
+     Starting Cash: $1,068,637.965
+     Annual Budget: $0
+     NOI from new units: $381,856.227
+     NOI from existing units: $2,534,550.157
+   Cash Available: $3,985,044.348
+   Total Outflows: $2,264,255.506
+   Cash Flow Balance: $1,720,788.842
+   Sustainable: YES
+✅ Year 14: 9 units - SUSTAINABLE (Balance: $1,720,788.842)
+
+🔍 Testing 10 units in Year 14:
+   Breakdown:
+     Starting Cash: $1,068,637.965
+     Annual Budget: $0
+     NOI from new units: $424,284.696
+     NOI from existing units: $2,534,550.157
+   Cash Available: $4,027,472.818
+   Total Outflows: $2,373,826.934
+   Cash Flow Balance: $1,653,645.884
+   Sustainable: YES
+✅ Year 14: 10 units - SUSTAINABLE (Balance: $1,653,645.884)
+
+🔍 Testing 11 units in Year 14:
+   Breakdown:
+     Starting Cash: $1,068,637.965
+     Annual Budget: $0
+     NOI from new units: $466,713.166
+     NOI from existing units: $2,534,550.157
+   Cash Available: $4,069,901.288
+   Total Outflows: $2,483,398.362
+   Cash Flow Balance: $1,586,502.925
+   Sustainable: YES
+✅ Year 14: 11 units - SUSTAINABLE (Balance: $1,586,502.925)
+
+🔍 Testing 12 units in Year 14:
+   Breakdown:
+     Starting Cash: $1,068,637.965
+     Annual Budget: $0
+     NOI from new units: $509,141.636
+     NOI from existing units: $2,534,550.157
+   Cash Available: $4,112,329.757
+   Total Outflows: $2,592,969.791
+   Cash Flow Balance: $1,519,359.967
+   Sustainable: YES
+✅ Year 14: 12 units - SUSTAINABLE (Balance: $1,519,359.967)
+
+🔍 Testing 13 units in Year 14:
+   Breakdown:
+     Starting Cash: $1,068,637.965
+     Annual Budget: $0
+     NOI from new units: $551,570.105
+     NOI from existing units: $2,534,550.157
+   Cash Available: $4,154,758.227
+   Total Outflows: $2,702,541.219
+   Cash Flow Balance: $1,452,217.008
+   Sustainable: YES
+✅ Year 14: 13 units - SUSTAINABLE (Balance: $1,452,217.008)
+
+🔍 Testing 14 units in Year 14:
+   Breakdown:
+     Starting Cash: $1,068,637.965
+     Annual Budget: $0
+     NOI from new units: $593,998.575
+     NOI from existing units: $2,534,550.157
+   Cash Available: $4,197,186.697
+   Total Outflows: $2,812,112.647
+   Cash Flow Balance: $1,385,074.05
+   Sustainable: YES
+✅ Year 14: 14 units - SUSTAINABLE (Balance: $1,385,074.05)
+
+🔍 Testing 15 units in Year 14:
+   Breakdown:
+     Starting Cash: $1,068,637.965
+     Annual Budget: $0
+     NOI from new units: $636,427.045
+     NOI from existing units: $2,534,550.157
+   Cash Available: $4,239,615.166
+   Total Outflows: $2,921,684.075
+   Cash Flow Balance: $1,317,931.091
+   Sustainable: YES
+✅ Year 14: 15 units - SUSTAINABLE (Balance: $1,317,931.091)
+
+🎯 Final decision: 15 units
+
+🔍 Testing 15 units in Year 14:
+   Breakdown:
+     Starting Cash: $1,068,637.965
+     Annual Budget: $0
+     NOI from new units: $636,427.045
+     NOI from existing units: $3,178,731.059
+   Cash Available: $4,883,796.069
+   Total Outflows: $3,507,911.224
+   Cash Flow Balance: $1,375,884.845
+   Sustainable: YES
+
+🎯 Testing units from 1 to 18:
+
+🔍 Testing 1 units in Year 15:
+   Breakdown:
+     Starting Cash: $1,375,884.845
+     Annual Budget: $0
+     NOI from new units: $43,740.324
+     NOI from existing units: $3,244,307.68
+   Cash Available: $4,663,932.849
+   Total Outflows: $1,734,132.599
+   Cash Flow Balance: $2,929,800.25
+   Sustainable: YES
+✅ Year 15: 1 units - SUSTAINABLE (Balance: $2,929,800.25)
+
+🔍 Testing 2 units in Year 15:
+   Breakdown:
+     Starting Cash: $1,375,884.845
+     Annual Budget: $0
+     NOI from new units: $87,480.647
+     NOI from existing units: $3,244,307.68
+   Cash Available: $4,707,673.173
+   Total Outflows: $1,846,991.17
+   Cash Flow Balance: $2,860,682.003
+   Sustainable: YES
+✅ Year 15: 2 units - SUSTAINABLE (Balance: $2,860,682.003)
+
+🔍 Testing 3 units in Year 15:
+   Breakdown:
+     Starting Cash: $1,375,884.845
+     Annual Budget: $0
+     NOI from new units: $131,220.971
+     NOI from existing units: $3,244,307.68
+   Cash Available: $4,751,413.497
+   Total Outflows: $1,959,849.741
+   Cash Flow Balance: $2,791,563.756
+   Sustainable: YES
+✅ Year 15: 3 units - SUSTAINABLE (Balance: $2,791,563.756)
+
+🔍 Testing 4 units in Year 15:
+   Breakdown:
+     Starting Cash: $1,375,884.845
+     Annual Budget: $0
+     NOI from new units: $174,961.295
+     NOI from existing units: $3,244,307.68
+   Cash Available: $4,795,153.82
+   Total Outflows: $2,072,708.312
+   Cash Flow Balance: $2,722,445.508
+   Sustainable: YES
+✅ Year 15: 4 units - SUSTAINABLE (Balance: $2,722,445.508)
+
+🔍 Testing 5 units in Year 15:
+   Breakdown:
+     Starting Cash: $1,375,884.845
+     Annual Budget: $0
+     NOI from new units: $218,701.619
+     NOI from existing units: $3,244,307.68
+   Cash Available: $4,838,894.144
+   Total Outflows: $2,185,566.883
+   Cash Flow Balance: $2,653,327.261
+   Sustainable: YES
+✅ Year 15: 5 units - SUSTAINABLE (Balance: $2,653,327.261)
+
+🔍 Testing 6 units in Year 15:
+   Breakdown:
+     Starting Cash: $1,375,884.845
+     Annual Budget: $0
+     NOI from new units: $262,441.942
+     NOI from existing units: $3,244,307.68
+   Cash Available: $4,882,634.468
+   Total Outflows: $2,298,425.454
+   Cash Flow Balance: $2,584,209.014
+   Sustainable: YES
+✅ Year 15: 6 units - SUSTAINABLE (Balance: $2,584,209.014)
+
+🔍 Testing 7 units in Year 15:
+   Breakdown:
+     Starting Cash: $1,375,884.845
+     Annual Budget: $0
+     NOI from new units: $306,182.266
+     NOI from existing units: $3,244,307.68
+   Cash Available: $4,926,374.791
+   Total Outflows: $2,411,284.025
+   Cash Flow Balance: $2,515,090.766
+   Sustainable: YES
+✅ Year 15: 7 units - SUSTAINABLE (Balance: $2,515,090.766)
+
+🔍 Testing 8 units in Year 15:
+   Breakdown:
+     Starting Cash: $1,375,884.845
+     Annual Budget: $0
+     NOI from new units: $349,922.59
+     NOI from existing units: $3,244,307.68
+   Cash Available: $4,970,115.115
+   Total Outflows: $2,524,142.596
+   Cash Flow Balance: $2,445,972.519
+   Sustainable: YES
+✅ Year 15: 8 units - SUSTAINABLE (Balance: $2,445,972.519)
+
+🔍 Testing 9 units in Year 15:
+   Breakdown:
+     Starting Cash: $1,375,884.845
+     Annual Budget: $0
+     NOI from new units: $393,662.914
+     NOI from existing units: $3,244,307.68
+   Cash Available: $5,013,855.439
+   Total Outflows: $2,637,001.167
+   Cash Flow Balance: $2,376,854.272
+   Sustainable: YES
+✅ Year 15: 9 units - SUSTAINABLE (Balance: $2,376,854.272)
+
+🔍 Testing 10 units in Year 15:
+   Breakdown:
+     Starting Cash: $1,375,884.845
+     Annual Budget: $0
+     NOI from new units: $437,403.237
+     NOI from existing units: $3,244,307.68
+   Cash Available: $5,057,595.763
+   Total Outflows: $2,749,859.738
+   Cash Flow Balance: $2,307,736.025
+   Sustainable: YES
+✅ Year 15: 10 units - SUSTAINABLE (Balance: $2,307,736.025)
+
+🔍 Testing 11 units in Year 15:
+   Breakdown:
+     Starting Cash: $1,375,884.845
+     Annual Budget: $0
+     NOI from new units: $481,143.561
+     NOI from existing units: $3,244,307.68
+   Cash Available: $5,101,336.086
+   Total Outflows: $2,862,718.309
+   Cash Flow Balance: $2,238,617.777
+   Sustainable: YES
+✅ Year 15: 11 units - SUSTAINABLE (Balance: $2,238,617.777)
+
+🔍 Testing 12 units in Year 15:
+   Breakdown:
+     Starting Cash: $1,375,884.845
+     Annual Budget: $0
+     NOI from new units: $524,883.885
+     NOI from existing units: $3,244,307.68
+   Cash Available: $5,145,076.41
+   Total Outflows: $2,975,576.88
+   Cash Flow Balance: $2,169,499.53
+   Sustainable: YES
+✅ Year 15: 12 units - SUSTAINABLE (Balance: $2,169,499.53)
+
+🔍 Testing 13 units in Year 15:
+   Breakdown:
+     Starting Cash: $1,375,884.845
+     Annual Budget: $0
+     NOI from new units: $568,624.209
+     NOI from existing units: $3,244,307.68
+   Cash Available: $5,188,816.734
+   Total Outflows: $3,088,435.451
+   Cash Flow Balance: $2,100,381.283
+   Sustainable: YES
+✅ Year 15: 13 units - SUSTAINABLE (Balance: $2,100,381.283)
+
+🔍 Testing 14 units in Year 15:
+   Breakdown:
+     Starting Cash: $1,375,884.845
+     Annual Budget: $0
+     NOI from new units: $612,364.532
+     NOI from existing units: $3,244,307.68
+   Cash Available: $5,232,557.058
+   Total Outflows: $3,201,294.022
+   Cash Flow Balance: $2,031,263.035
+   Sustainable: YES
+✅ Year 15: 14 units - SUSTAINABLE (Balance: $2,031,263.035)
+
+🔍 Testing 15 units in Year 15:
+   Breakdown:
+     Starting Cash: $1,375,884.845
+     Annual Budget: $0
+     NOI from new units: $656,104.856
+     NOI from existing units: $3,244,307.68
+   Cash Available: $5,276,297.381
+   Total Outflows: $3,314,152.593
+   Cash Flow Balance: $1,962,144.788
+   Sustainable: YES
+✅ Year 15: 15 units - SUSTAINABLE (Balance: $1,962,144.788)
+
+🔍 Testing 16 units in Year 15:
+   Breakdown:
+     Starting Cash: $1,375,884.845
+     Annual Budget: $0
+     NOI from new units: $699,845.18
+     NOI from existing units: $3,244,307.68
+   Cash Available: $5,320,037.705
+   Total Outflows: $3,427,011.164
+   Cash Flow Balance: $1,893,026.541
+   Sustainable: YES
+✅ Year 15: 16 units - SUSTAINABLE (Balance: $1,893,026.541)
+
+🔍 Testing 17 units in Year 15:
+   Breakdown:
+     Starting Cash: $1,375,884.845
+     Annual Budget: $0
+     NOI from new units: $743,585.503
+     NOI from existing units: $3,244,307.68
+   Cash Available: $5,363,778.029
+   Total Outflows: $3,539,869.735
+   Cash Flow Balance: $1,823,908.294
+   Sustainable: YES
+✅ Year 15: 17 units - SUSTAINABLE (Balance: $1,823,908.294)
+
+🔍 Testing 18 units in Year 15:
+   Breakdown:
+     Starting Cash: $1,375,884.845
+     Annual Budget: $0
+     NOI from new units: $787,325.827
+     NOI from existing units: $3,244,307.68
+   Cash Available: $5,407,518.353
+   Total Outflows: $3,652,728.306
+   Cash Flow Balance: $1,754,790.046
+   Sustainable: YES
+✅ Year 15: 18 units - SUSTAINABLE (Balance: $1,754,790.046)
+
+🎯 Final decision: 18 units
+
+🔍 Testing 18 units in Year 15:
+   Breakdown:
+     Starting Cash: $1,375,884.845
+     Annual Budget: $0
+     NOI from new units: $787,325.827
+     NOI from existing units: $4,041,217.276
+   Cash Available: $6,204,427.948
+   Total Outflows: $4,377,305.062
+   Cash Flow Balance: $1,827,122.886
+   Sustainable: YES
+Year | Property Cost | Units Purchased | Total Units | Cash Flow Balance | Decision
+-----|---------------|-----------------|------------|-------------------|---------
+   1 | $      160,000 |               3 |          3 | $           38,241 | Purchased
+   2 | $      164,800 |               4 |          7 | $           36,060 | Purchased
+   3 | $      169,744 |               4 |         11 | $           42,385 | Purchased
+   4 | $      174,836 |               0 |         11 | $           81,145 | None
+   5 | $      180,081 |               1 |         12 | $           77,910 | Purchased
+   6 | $      185,484 |               1 |         13 | $          163,705 | Purchased
+   7 | $      191,048 |               2 |         15 | $          317,333 | Purchased
+   8 | $      196,780 |               5 |         20 | $          436,880 | Purchased
+   9 | $      202,683 |               7 |         27 | $          468,356 | Purchased
+  10 | $      208,764 |               7 |         34 | $          560,818 | Purchased
+  11 | $      215,027 |               8 |         42 | $          663,541 | Purchased
+  12 | $      221,477 |               9 |         51 | $          816,941 | Purchased
+  13 | $      228,122 |              11 |         62 | $        1,068,638 | Purchased
+  14 | $      234,965 |              15 |         77 | $        1,375,885 | Purchased
+  15 | $      242,014 |              18 |         95 | $        1,827,123 | Purchased

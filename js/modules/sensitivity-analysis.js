@@ -30,8 +30,8 @@ function updateBreakEvenAnalysis() {
   // Perform break-even analysis
   const breakEvenResults = performBreakEvenAnalysis(params, results);
 
-  // Update break-even table
-  updateBreakEvenTable(breakEvenResults);
+  // Update break-even display
+  updateBreakEvenDisplay(breakEvenResults);
 }
 
 function performSensitivityAnalysis(params) {
@@ -152,104 +152,46 @@ function performSensitivityAnalysis(params) {
 
 function performBreakEvenAnalysis(params, results) {
   try {
-    const breakEvenPoints = [];
+    // Find cash flow break-even year for self-financed
+    const selfCashFlowBreakEven = results.selfFinanced.findIndex(
+      (year) => year.cashFlow >= 0
+    );
 
-    // Rental rate break-even for positive cash flow
-    let rentalRate = params.rentalRate;
-    let testParams = { ...params };
-    let foundBreakEven = false;
+    // Find cash flow break-even year for financed
+    const financedCashFlowBreakEven = results.financed.findIndex(
+      (year) => year.cashFlow >= 0
+    );
 
-    while (rentalRate >= 0.1 && rentalRate <= 5.0 && !foundBreakEven) {
-      testParams.rentalRate = rentalRate;
-      try {
-        const testResults = calculations.performCalculations(testParams);
-        if (testResults.selfFinanced[14].cashFlow >= 0) {
-          breakEvenPoints.push({
-            metric: "Rental Rate for Positive Cash Flow",
-            value: `${(rentalRate * 100).toFixed(2)}%`,
-            description: "Minimum rental rate needed for positive cash flow",
-          });
-          foundBreakEven = true;
-        }
-      } catch (error) {
-        console.error("Error in rental rate break-even:", error);
-      }
-      rentalRate -= 0.01;
-    }
+    // Find ROI break-even (when annual ROI exceeds 10%)
+    const selfROIBreakEven = results.selfFinanced.findIndex((year) => {
+      if (year.netWorth <= 0) return false;
+      const annualROI = (year.cashFlow / year.netWorth) * 100;
+      return annualROI >= 10;
+    });
 
-    // Interest rate break-even for financed strategy
-    let interestRate = params.interestRate;
-    testParams = { ...params };
-    foundBreakEven = false;
+    const financedROIBreakEven = results.financed.findIndex((year) => {
+      if (year.netWorth <= 0) return false;
+      const annualROI = (year.cashFlow / year.netWorth) * 100;
+      return annualROI >= 10;
+    });
 
-    while (interestRate <= 15 && interestRate >= 1 && !foundBreakEven) {
-      testParams.interestRate = interestRate;
-      try {
-        const testResults = calculations.performCalculations(testParams);
-        if (testResults.financed[14].cashFlow < 0) {
-          breakEvenPoints.push({
-            metric: "Maximum Interest Rate (Financed)",
-            value: `${(interestRate - 0.5).toFixed(2)}%`,
-            description: "Maximum interest rate before negative cash flow",
-          });
-          foundBreakEven = true;
-        }
-      } catch (error) {
-        console.error("Error in interest rate break-even:", error);
-      }
-      interestRate += 0.5;
-    }
-
-    // Property tax break-even
-    let taxRate = params.taxRate;
-    testParams = { ...params };
-    foundBreakEven = false;
-
-    while (taxRate <= 5 && taxRate >= 0.1 && !foundBreakEven) {
-      testParams.taxRate = taxRate;
-      try {
-        const testResults = calculations.performCalculations(testParams);
-        if (testResults.selfFinanced[14].cashFlow < 0) {
-          breakEvenPoints.push({
-            metric: "Maximum Property Tax Rate",
-            value: `${(taxRate - 0.1).toFixed(1)}%`,
-            description: "Maximum property tax rate before negative cash flow",
-          });
-          foundBreakEven = true;
-        }
-      } catch (error) {
-        console.error("Error in tax rate break-even:", error);
-      }
-      taxRate += 0.1;
-    }
-
-    // Insurance cost break-even
-    let insurance = params.insurance;
-    testParams = { ...params };
-    foundBreakEven = false;
-
-    while (insurance <= 3000 && insurance >= 500 && !foundBreakEven) {
-      testParams.insurance = insurance;
-      try {
-        const testResults = calculations.performCalculations(testParams);
-        if (testResults.selfFinanced[14].cashFlow < 0) {
-          breakEvenPoints.push({
-            metric: "Maximum Insurance Cost",
-            value: utils.formatCurrency(insurance - 100),
-            description: "Maximum insurance cost before negative cash flow",
-          });
-          foundBreakEven = true;
-        }
-      } catch (error) {
-        console.error("Error in insurance break-even:", error);
-      }
-      insurance += 100;
-    }
-
-    return breakEvenPoints;
+    return {
+      selfCashFlowBreakEven:
+        selfCashFlowBreakEven >= 0 ? selfCashFlowBreakEven + 1 : null,
+      financedCashFlowBreakEven:
+        financedCashFlowBreakEven >= 0 ? financedCashFlowBreakEven + 1 : null,
+      selfROIBreakEven: selfROIBreakEven >= 0 ? selfROIBreakEven + 1 : null,
+      financedROIBreakEven:
+        financedROIBreakEven >= 0 ? financedROIBreakEven + 1 : null,
+    };
   } catch (error) {
     console.error("Error in break-even analysis:", error);
-    return [];
+    return {
+      selfCashFlowBreakEven: null,
+      financedCashFlowBreakEven: null,
+      selfROIBreakEven: null,
+      financedROIBreakEven: null,
+    };
   }
 }
 
@@ -285,27 +227,24 @@ function updateSensitivityTable(results) {
   });
 }
 
-function updateBreakEvenTable(results) {
-  const tbody = document.getElementById("breakEvenBody");
-  if (!tbody) return;
-
-  tbody.innerHTML = "";
-
-  if (results.length === 0) {
-    const tr = document.createElement("tr");
-    tr.innerHTML =
-      '<td colspan="3" style="text-align: center; color: #666;">No break-even data available</td>';
-    tbody.appendChild(tr);
-    return;
+function updateBreakEvenDisplay(results) {
+  // Update cash flow break-even display
+  const cashFlowBreakEvenElement = document.getElementById("cashFlowBreakEven");
+  if (cashFlowBreakEvenElement) {
+    if (results.selfCashFlowBreakEven) {
+      cashFlowBreakEvenElement.textContent = `Year ${results.selfCashFlowBreakEven}`;
+    } else {
+      cashFlowBreakEvenElement.textContent = "Not within 15 years";
+    }
   }
 
-  results.forEach((result) => {
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td>${result.metric}</td>
-      <td>${result.value}</td>
-      <td>${result.description}</td>
-    `;
-    tbody.appendChild(tr);
-  });
+  // Update ROI break-even display
+  const roiBreakEvenElement = document.getElementById("roiBreakEven");
+  if (roiBreakEvenElement) {
+    if (results.selfROIBreakEven) {
+      roiBreakEvenElement.textContent = `Year ${results.selfROIBreakEven}`;
+    } else {
+      roiBreakEvenElement.textContent = "Not within 15 years";
+    }
+  }
 }

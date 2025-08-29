@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Browser Exports</title>
+</head>
+<body>
+    <h1>Test Browser Exports</h1>
+    <button onclick="testExports()">Test dataModel Export</button>
+    <div id="result"></div>
+
+    <!-- Load the data model -->
+    <script src="js/core/data-model.js"></script>
+    <script src="js/core/utils.js"></script>
+    
+    <script>
+        function testExports() {
+            const resultDiv = document.getElementById('result');
+            
+            try {
+                console.log('Testing dataModel export...');
+                
+                if (typeof window.dataModel === 'undefined') {
+                    throw new Error('dataModel is not defined on window');
+                }
+                
+                if (typeof window.utils === 'undefined') {
+                    throw new Error('utils is not defined on window');
+                }
+                
+                // Test creating instances
+                const results = new dataModel.CalculationResults();
+                const metrics = new dataModel.YearlyMetrics();
+                
+                console.log('dataModel.CalculationResults:', typeof dataModel.CalculationResults);
+                console.log('dataModel.YearlyMetrics:', typeof dataModel.YearlyMetrics);
+                console.log('dataModel.validateInvestmentParameters:', typeof dataModel.validateInvestmentParameters);
+                console.log('utils.getInputParameters:', typeof utils.getInputParameters);
+                
+                resultDiv.innerHTML = '<span style="color: green;">✅ All exports working correctly!</span>';
+                
+            } catch (error) {
+                console.error('Export test failed:', error);
+                resultDiv.innerHTML = '<span style="color: red;">❌ Export test failed: ' + error.message + '</span>';
+            }
+        }
+    </script>
+</body>
+</html>

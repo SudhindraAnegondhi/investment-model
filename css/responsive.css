@@ -161,14 +161,17 @@
   }
 
   .pl-table,
-  .balance-table {
+  .balance-table,
+  .cashflow-table {
     font-size: 10px;
   }
 
   .pl-table th,
   .pl-table td,
   .balance-table th,
-  .balance-table td {
+  .balance-table td,
+  .cashflow-table th,
+  .cashflow-table td {
     padding: 6px 4px;
   }
 }
@@ -227,7 +230,8 @@
   }
 
   .pl-table,
-  .balance-table {
+  .balance-table,
+  .cashflow-table {
     font-size: 8px; /* Reduced from 9px for better fit */
     min-width: auto; /* Remove min-width constraint */
     width: 95%; /* Slightly wider on mobile for better readability */
@@ -236,7 +240,9 @@
   .pl-table th,
   .pl-table td,
   .balance-table th,
-  .balance-table td {
+  .balance-table td,
+  .cashflow-table th,
+  .cashflow-table td {
     padding: 2px 1px; /* Reduced padding */
   }
 
@@ -305,38 +311,46 @@
 /* Responsive adjustments for modal tables */
 @media (max-width: 768px) {
   .pl-table,
-  .balance-table {
+  .balance-table,
+  .cashflow-table {
     font-size: 10px;
   }
 
   .pl-table th,
   .pl-table td,
   .balance-table th,
-  .balance-table td {
+  .balance-table td,
+  .cashflow-table th,
+  .cashflow-table td {
     padding: 4px 6px;
   }
 
   .pl-table th,
-  .balance-table th {
+  .balance-table th,
+  .cashflow-table th {
     font-size: 9px;
   }
 }
 
 @media (max-width: 480px) {
   .pl-table,
-  .balance-table {
+  .balance-table,
+  .cashflow-table {
     font-size: 9px;
   }
 
   .pl-table th,
   .pl-table td,
   .balance-table th,
-  .balance-table td {
+  .balance-table td,
+  .cashflow-table th,
+  .cashflow-table td {
     padding: 3px 4px;
   }
 
   .pl-table th,
-  .balance-table th {
+  .balance-table th,
+  .cashflow-table th {
     font-size: 8px;
   }
 }
@@ -381,7 +395,8 @@
   }
 
   .pl-table,
-  .balance-table {
+  .balance-table,
+  .cashflow-table {
     font-size: 10px;
     width: 100%;
     margin: 0;
@@ -423,7 +438,8 @@
   }
 
   .pl-table,
-  .balance-table {
+  .balance-table,
+  .cashflow-table {
     font-size: 9px;
     width: 100%;
     margin: 0;

@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Browser Parameters</title>
+</head>
+<body>
+    <h1>Test Browser Parameters</h1>
+    
+    <!-- Copy the input form structure from index.html -->
+    <div class="controls">
+        <div class="control-group">
+            <label>Annual Investment Budget ($)</label>
+            <input type="number" id="annualBudget" value="170000" min="0" />
+        </div>
+        <div class="control-group">
+            <label>Investment Budget (Years)</label>
+            <input type="number" id="selfPurchaseYears" value="3" min="0" max="30" />
+        </div>
+        <div class="control-group">
+            <label>Initial Property Cost ($)</label>
+            <input type="number" id="initialCost" value="160000" min="0" />
+        </div>
+        <div class="control-group">
+            <label>Monthly Rent as % of Purchase Price (%)</label>
+            <input type="number" id="rentalRate" value="1.9" step="0.1" min="0" />
+        </div>
+        <div class="control-group">
+            <label>Mortgage Interest Rate (%)</label>
+            <input type="number" id="interestRate" value="7.00" step="0.01" min="0" />
+        </div>
+        <div class="control-group">
+            <label>Loan Term (Years)</label>
+            <input type="number" id="loanTerm" value="5" min="1" max="30" />
+        </div>
+        <div class="control-group">
+            <label>LTV Ratio (%)</label>
+            <input type="number" id="ltvRatio" value="70" min="0" max="100" />
+        </div>
+        <div class="control-group">
+            <label>Vacancy Rate (%)</label>
+            <input type="number" id="vacancyRate" value="5" min="0" max="100" />
+        </div>
+        <div class="control-group">
+            <label>Property Management Rate (%)</label>
+            <input type="number" id="managementRate" value="8" min="0" max="100" />
+        </div>
+        <div class="control-group">
+            <label>Maintenance Rate (%)</label>
+            <input type="number" id="maintenanceRate" value="1" min="0" max="100" />
+        </div>
+        <div class="control-group">
+            <label>Insurance (Annual $)</label>
+            <input type="number" id="insurance" value="1300" min="0" />
+        </div>
+        <div class="control-group">
+            <label>Property Tax Rate (%)</label>
+            <input type="number" id="taxRate" value="1.1" step="0.1" min="0" />
+        </div>
+        <div class="control-group">
+            <label>Cost Increase Rate (%)</label>
+            <input type="number" id="costIncrease" value="3" step="0.1" min="0" />
+        </div>
+        <div class="control-group">
+            <label>Rent Growth Rate (%)</label>
+            <input type="number" id="rentGrowthRate" value="2" step="0.1" min="0" />
+        </div>
+    </div>
+    
+    <button onclick="testParameters()">Test Parameters</button>
+    <div id="result"></div>
+
+    <script src="js/core/utils.js"></script>
+    
+    <script>
+        function testParameters() {
+            const resultDiv = document.getElementById('result');
+            
+            try {
+                const params = utils.getInputParameters();
+                console.log('Parameters from utils.getInputParameters():', params);
+                
+                resultDiv.innerHTML = '<pre>' + JSON.stringify(params, null, 2) + '</pre>';
+                
+            } catch (error) {
+                console.error('Parameter test failed:', error);
+                resultDiv.innerHTML = '<span style="color: red;">❌ Parameter test failed: ' + error.message + '</span>';
+            }
+        }
+    </script>
+</body>
+</html>
