@@ -185,15 +185,82 @@ h2 {
   display: block;
 }
 
+/* Input Form Container */
+.input-form-container {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 200px); /* Adjust based on header/nav height */
+  min-height: 500px;
+  max-height: calc(100vh - 180px);
+  background: white;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+/* Scrollable Form Area */
+.form-scroll-area {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: #667eea #f0f0f0;
+  border-bottom: 2px solid #eee;
+}
+
+.form-scroll-area::-webkit-scrollbar {
+  width: 8px;
+}
+
+.form-scroll-area::-webkit-scrollbar-track {
+  background: #f0f0f0;
+}
+
+.form-scroll-area::-webkit-scrollbar-thumb {
+  background: #667eea;
+  border-radius: 4px;
+}
+
+.form-scroll-area::-webkit-scrollbar-thumb:hover {
+  background: #5a6fd8;
+}
+
+/* Fixed Calculate Button Area */
+.calculate-button-area {
+  flex-shrink: 0;
+  padding: 15px 20px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-top: 1px solid #e0e0e0;
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.calculate-button-area .calculate-btn {
+  width: 100%;
+  margin: 0;
+}
+
 /* Control Styles */
 .controls {
   background: #f8f9fa;
-  padding: 15px;
-  border-radius: 8px;
-  margin-bottom: 20px;
+  padding: 20px;
+  margin: 0;
+  border-radius: 0;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 15px;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+}
+
+/* Highlighted Control Groups */
+.highlighted-control {
+  background: rgba(255, 255, 255, 0.7);
+  margin: 5px 0;
+  transition: all 0.3s ease;
+}
+
+.highlighted-control:hover {
+  background: rgba(255, 255, 255, 0.9);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .control-group {
@@ -266,3 +333,55 @@ select:focus {
   color: #333;
   font-size: 1.1em;
 }
+
+/* Recommendation Styles */
+.recommendation {
+  padding: 25px;
+  margin: 25px 0;
+  border-radius: 12px;
+  border-left: 6px solid;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.recommendation.financed {
+  background: linear-gradient(135deg, #f8f9ff, #e8f0ff);
+  border-left-color: #2196f3;
+}
+
+.recommendation.self {
+  background: linear-gradient(135deg, #f8fff8, #e8f5e8);
+  border-left-color: #4caf50;
+}
+
+.recommendation.neutral {
+  background: linear-gradient(135deg, #fffdf8, #f5f5dc);
+  border-left-color: #ff9800;
+}
+
+.recommendation h3 {
+  margin: 0 0 15px 0;
+  color: #333;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.recommendation ul {
+  margin: 15px 0;
+  padding-left: 20px;
+}
+
+.recommendation li {
+  margin: 8px 0;
+}
+
+.recommendation em {
+  color: #666;
+  font-style: italic;
+  display: block;
+  margin-top: 15px;
+  padding-top: 15px;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+

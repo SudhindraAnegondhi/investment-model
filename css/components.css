@@ -195,6 +195,13 @@ th[colspan="6"] {
   color: #f44336;
 }
 
+.metric-description {
+  font-size: 10px;
+  color: #888;
+  margin-top: 2px;
+  line-height: 1.2;
+}
+
 /* Alert System */
 .alert-container {
   margin: 20px 0;
@@ -469,7 +476,8 @@ th[colspan="6"] {
   overflow: hidden;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
   animation: modalSlideIn 0.3s ease-out;
-  transition: transform 0.2s ease, opacity 0.2s ease;
+  /* Removed transform transition to prevent modal movement on hover */
+  transition: opacity 0.2s ease;
   position: relative;
   margin: auto;
 }
@@ -645,7 +653,8 @@ th[colspan="6"] {
     overflow: hidden;
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
     animation: modalSlideIn 0.3s ease-out;
-    transition: transform 0.2s ease, opacity 0.2s ease;
+    /* Removed transform transition to prevent modal movement on hover */
+    transition: opacity 0.2s ease;
     position: relative;
     margin: auto;
   }
@@ -733,11 +742,12 @@ th[colspan="6"] {
 .nav-btn:hover {
   background: rgba(255, 255, 255, 0.3);
   border-color: rgba(255, 255, 255, 0.5);
-  transform: scale(1.1);
+  /* Removed scale transform to prevent modal jumping */
 }
 
 .nav-btn:active {
-  transform: scale(0.95);
+  /* Removed scale transform to prevent modal jumping */
+  opacity: 0.8;
 }
 
 .nav-btn:disabled {
@@ -753,6 +763,33 @@ th[colspan="6"] {
 }
 
 /* Tab Navigation - styles defined in main.css */
+
+/* Cash Flow Analysis Table Styles */
+.cashflow-analysis-table {
+  font-size: 12px;
+}
+
+.cashflow-analysis-table th {
+  font-size: 11px;
+  text-align: center;
+  padding: 8px 4px;
+  white-space: nowrap;
+}
+
+.cashflow-analysis-table td {
+  text-align: right;
+  padding: 6px 4px;
+  font-size: 11px;
+}
+
+.cashflow-analysis-table td:first-child {
+  text-align: center;
+  font-weight: bold;
+}
+
+.cashflow-analysis-table tr:hover {
+  background-color: rgba(102, 126, 234, 0.1);
+}
 
 /* ROI Analysis Cards - Compact Design */
 .roi-card {

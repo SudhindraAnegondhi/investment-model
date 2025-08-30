@@ -72,11 +72,13 @@ function performCalculations(params) {
 
     // SELF-FINANCED STRATEGY
     let selfNewUnits = 0;
-    // Add annual budget for self-financed purchases
+    // Add annual budget for self-financed purchases (only during active investment period)
     if (year <= params.selfPurchaseYears) {
       selfAvailableCash += params.annualBudget;
     }
 
+    // Self-financed can purchase units ANYTIME they have sufficient cash
+    // This allows using accumulated rental income for additional purchases
     if (selfAvailableCash >= propertyCost * 1.02) {
       // Including 2% closing costs
       selfNewUnits = Math.floor(selfAvailableCash / (propertyCost * 1.02));
@@ -92,6 +94,7 @@ function performCalculations(params) {
         selfMetrics.newUnits = selfNewUnits;
       }
     }
+
 
     // BANK-FINANCED STRATEGY
     let financedNewUnits = 0;
@@ -221,13 +224,9 @@ function performCalculations(params) {
       financedCumulativeCapEx = financedCumulativeCapEx * (1 + sp500Return);
     }
 
-    // Add positive cash flows to available cash
-    if (selfCashFlow > 0) {
-      selfAvailableCash += selfCashFlow;
-    }
-    if (financedCashFlow > 0) {
-      financedAvailableCash += financedCashFlow;
-    }
+    // Apply cash flows to available cash (both positive and negative)
+    selfAvailableCash += selfCashFlow;
+    financedAvailableCash += financedCashFlow;
 
     // Calculate cumulative cash flows
     const selfCumulativeCash =

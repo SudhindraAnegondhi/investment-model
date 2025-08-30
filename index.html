@@ -13,6 +13,7 @@
     <!-- CSS Files -->
     <link rel="stylesheet" href="css/main.css" />
     <link rel="stylesheet" href="css/components.css" />
+    <link rel="stylesheet" href="css/summary.css" />
     <link rel="stylesheet" href="css/responsive.css" />
   </head>
   <body>
@@ -103,293 +104,301 @@
       </div>
 
       <div id="inputs" class="tab-content active">
-        <div class="controls">
-          <div class="control-group">
-            <label>Annual Investment Budget ($)</label>
-            <input type="number" id="annualBudget" value="170000" min="0" />
+        <div class="input-form-container">
+          <!-- Scrollable Form Area -->
+          <div class="form-scroll-area">
+            <div class="controls">
+              <div class="control-group">
+                <label>Annual Investment Budget ($)</label>
+                <input type="number" id="annualBudget" value="170000" min="0" />
+              </div>
+              <div
+                class="control-group highlighted-control"
+                style="border: 2px solid #667eea; border-radius: 4px; padding: 8px"
+              >
+                <label style="color: #667eea; font-weight: bold"
+                  >Investment Budget (Years)</label
+                >
+                <input
+                  type="number"
+                  id="selfPurchaseYears"
+                  value="3"
+                  min="0"
+                  max="30"
+                />
+              </div>
+              <div class="control-group">
+                <label>Initial Property Cost ($)</label>
+                <input type="number" id="initialCost" value="160000" min="0" />
+              </div>
+              <div class="control-group">
+                <label>Monthly Rent as % of Purchase Price (%)</label>
+                <input
+                  type="number"
+                  id="rentalRate"
+                  value="1.9"
+                  step="0.1"
+                  min="0"
+                />
+              </div>
+              <div class="control-group">
+                <label>Mortgage Interest Rate (%)</label>
+                <input
+                  type="number"
+                  id="interestRate"
+                  value="7.00"
+                  step="0.01"
+                  min="0"
+                />
+              </div>
+              <div class="control-group">
+                <label>Loan-to-Value Ratio (%)</label>
+                <input type="number" id="ltvRatio" value="70" min="0" max="100" />
+              </div>
+              <div class="control-group">
+                <label>Loan Term (Years)</label>
+                <input type="number" id="loanTerm" value="5" min="1" max="30" />
+              </div>
+              <div class="control-group">
+                <label>Insurance per Unit per Year ($)</label>
+                <input type="number" id="insurance" value="1300" min="0" />
+              </div>
+              <div class="control-group">
+                <label>Land Value (% of cost)</label>
+                <input
+                  type="number"
+                  id="landPercent"
+                  value="20"
+                  min="0"
+                  max="100"
+                />
+              </div>
+              <div class="control-group">
+                <label>Maintenance (% of Effective Gross Income)</label>
+                <input
+                  type="number"
+                  id="maintenanceRate"
+                  value="1"
+                  step="0.1"
+                  min="0"
+                />
+              </div>
+              <div class="control-group">
+                <label>Annual Purchase Cost Increase (%)</label>
+                <input
+                  type="number"
+                  id="costIncrease"
+                  value="1"
+                  step="0.1"
+                  min="0"
+                />
+              </div>
+              <div class="control-group">
+                <label>Property Tax Rate (% of assessed value)</label>
+                <input
+                  type="number"
+                  id="taxRate"
+                  value="1.5"
+                  step="0.1"
+                  min="0"
+                  max="10"
+                />
+              </div>
+              <div class="control-group">
+                <label>Income Tax Rate (%)</label>
+                <input
+                  type="number"
+                  id="incomeTaxRate"
+                  value="25"
+                  min="0"
+                  max="50"
+                />
+              </div>
+              <div
+                class="control-group highlighted-control"
+                style="border: 2px solid #28a745; border-radius: 4px; padding: 8px"
+              >
+                <label style="color: #28a745; font-weight: bold"
+                  >Passthrough LLC?</label
+                >
+                <select id="passthroughLLC" style="border-color: #28a745">
+                  <option value="yes">Yes - No entity taxes</option>
+                  <option value="no">No - Corporate taxation</option>
+                </select>
+              </div>
+              <div class="control-group">
+                <label>Assessed Value at Purchase (% of cost)</label>
+                <input
+                  type="number"
+                  id="assessedValuePercent"
+                  value="20"
+                  min="0"
+                  max="100"
+                />
+              </div>
+              <div class="control-group">
+                <label>Annual Property Appreciation (%)</label>
+                <input
+                  type="number"
+                  id="appreciationRate"
+                  value="3"
+                  step="0.1"
+                  min="0"
+                />
+              </div>
+              <div
+                class="control-group highlighted-control"
+                style="border: 2px solid #667eea; border-radius: 4px; padding: 8px"
+              >
+                <label style="color: #667eea; font-weight: bold"
+                  >Finance Purchases (Years)</label
+                >
+                <input
+                  type="number"
+                  id="financedPurchaseYears"
+                  value="5"
+                  min="0"
+                  max="30"
+                />
+              </div>
+              <div
+                class="control-group highlighted-control"
+                style="border: 2px solid #667eea; border-radius: 4px; padding: 8px"
+              >
+                <label style="color: #667eea; font-weight: bold"
+                  >Max Units Financed</label
+                >
+                <input
+                  type="number"
+                  id="maxUnitsFinanced"
+                  value="2"
+                  min="1"
+                  max="10"
+                />
+              </div>
+              <div
+                class="control-group highlighted-control"
+                style="border: 2px solid #667eea; border-radius: 4px; padding: 8px"
+              >
+                <label style="color: #667eea; font-weight: bold"
+                  >Max Units Financed Limit (Years)</label
+                >
+                <input
+                  type="number"
+                  id="maxUnitsFinancedLimitYears"
+                  value="3"
+                  min="1"
+                  max="10"
+                />
+              </div>
+              <div class="control-group">
+                <label>Annual Rent Growth (%)</label>
+                <input
+                  type="number"
+                  id="rentGrowthRate"
+                  value="3"
+                  step="0.1"
+                  min="0"
+                />
+              </div>
+              <div class="control-group">
+                <label>Vacancy Rate (% of GPR)</label>
+                <input
+                  type="number"
+                  id="vacancyRate"
+                  value="5"
+                  step="0.1"
+                  min="0"
+                  max="100"
+                />
+              </div>
+              <div class="control-group">
+                <label>Management Fee (% of EGI)</label>
+                <input
+                  type="number"
+                  id="managementRate"
+                  value="8"
+                  step="0.1"
+                  min="0"
+                  max="100"
+                />
+              </div>
+              <div class="control-group">
+                <label>CapEx Reserves (% of EGI)</label>
+                <input
+                  type="number"
+                  id="capexRate"
+                  value="5"
+                  step="0.1"
+                  min="0"
+                  max="100"
+                />
+              </div>
+              <div class="control-group">
+                <label>Expense Inflation (Insurance/Other) (%)</label>
+                <input
+                  type="number"
+                  id="expenseInflation"
+                  value="2.5"
+                  step="0.1"
+                  min="0"
+                  max="100"
+                />
+              </div>
+              <div class="control-group">
+                <label>Insurance Inflation (%)</label>
+                <input
+                  type="number"
+                  id="insuranceInflation"
+                  value="4"
+                  step="0.1"
+                  min="0"
+                  max="100"
+                />
+              </div>
+              <div class="control-group">
+                <label>Closing Costs (% of Purchase Price)</label>
+                <input
+                  type="number"
+                  id="closingCostPercent"
+                  value="2"
+                  step="0.1"
+                  min="0"
+                  max="100"
+                />
+              </div>
+              <div class="control-group">
+                <label>Loan Origination Fee (% of Loan)</label>
+                <input
+                  type="number"
+                  id="loanOriginationPercent"
+                  value="1"
+                  step="0.1"
+                  min="0"
+                  max="100"
+                />
+              </div>
+              <div class="control-group">
+                <label>Assessed Value Growth (%)</label>
+                <input
+                  type="number"
+                  id="assessedGrowthRate"
+                  value="2.5"
+                  step="0.1"
+                  min="0"
+                  max="100"
+                />
+              </div>
+            </div>
           </div>
-          <div
-            class="control-group"
-            style="border: 2px solid #667eea; border-radius: 4px; padding: 8px"
-          >
-            <label style="color: #667eea; font-weight: bold"
-              >Investment Budget (Years)</label
-            >
-            <input
-              type="number"
-              id="selfPurchaseYears"
-              value="3"
-              min="0"
-              max="30"
-            />
-          </div>
-          <div class="control-group">
-            <label>Initial Property Cost ($)</label>
-            <input type="number" id="initialCost" value="160000" min="0" />
-          </div>
-          <div class="control-group">
-            <label>Monthly Rent as % of Purchase Price (%)</label>
-            <input
-              type="number"
-              id="rentalRate"
-              value="1.9"
-              step="0.1"
-              min="0"
-            />
-          </div>
-          <div class="control-group">
-            <label>Mortgage Interest Rate (%)</label>
-            <input
-              type="number"
-              id="interestRate"
-              value="7.00"
-              step="0.01"
-              min="0"
-            />
-          </div>
-          <div class="control-group">
-            <label>Loan-to-Value Ratio (%)</label>
-            <input type="number" id="ltvRatio" value="70" min="0" max="100" />
-          </div>
-          <div class="control-group">
-            <label>Loan Term (Years)</label>
-            <input type="number" id="loanTerm" value="5" min="1" max="30" />
-          </div>
-          <div class="control-group">
-            <label>Insurance per Unit per Year ($)</label>
-            <input type="number" id="insurance" value="1300" min="0" />
-          </div>
-          <div class="control-group">
-            <label>Land Value (% of cost)</label>
-            <input
-              type="number"
-              id="landPercent"
-              value="20"
-              min="0"
-              max="100"
-            />
-          </div>
-          <div class="control-group">
-            <label>Maintenance (% of Effective Gross Income)</label>
-            <input
-              type="number"
-              id="maintenanceRate"
-              value="1"
-              step="0.1"
-              min="0"
-            />
-          </div>
-          <div class="control-group">
-            <label>Annual Purchase Cost Increase (%)</label>
-            <input
-              type="number"
-              id="costIncrease"
-              value="1"
-              step="0.1"
-              min="0"
-            />
-          </div>
-          <div class="control-group">
-            <label>Property Tax Rate (% of assessed value)</label>
-            <input
-              type="number"
-              id="taxRate"
-              value="1.5"
-              step="0.1"
-              min="0"
-              max="10"
-            />
-          </div>
-          <div class="control-group">
-            <label>Income Tax Rate (%)</label>
-            <input
-              type="number"
-              id="incomeTaxRate"
-              value="25"
-              min="0"
-              max="50"
-            />
-          </div>
-          <div
-            class="control-group"
-            style="border: 2px solid #28a745; border-radius: 4px; padding: 8px"
-          >
-            <label style="color: #28a745; font-weight: bold"
-              >Passthrough LLC?</label
-            >
-            <select id="passthroughLLC" style="border-color: #28a745">
-              <option value="yes">Yes - No entity taxes</option>
-              <option value="no">No - Corporate taxation</option>
-            </select>
-          </div>
-          <div class="control-group">
-            <label>Assessed Value at Purchase (% of cost)</label>
-            <input
-              type="number"
-              id="assessedValuePercent"
-              value="20"
-              min="0"
-              max="100"
-            />
-          </div>
-          <div class="control-group">
-            <label>Annual Property Appreciation (%)</label>
-            <input
-              type="number"
-              id="appreciationRate"
-              value="3"
-              step="0.1"
-              min="0"
-            />
-          </div>
-          <div
-            class="control-group"
-            style="border: 2px solid #667eea; border-radius: 4px; padding: 8px"
-          >
-            <label style="color: #667eea; font-weight: bold"
-              >Finance Purchases (Years)</label
-            >
-            <input
-              type="number"
-              id="financedPurchaseYears"
-              value="5"
-              min="0"
-              max="30"
-            />
-          </div>
-          <div
-            class="control-group"
-            style="border: 2px solid #667eea; border-radius: 4px; padding: 8px"
-          >
-            <label style="color: #667eea; font-weight: bold"
-              >Max Units Financed</label
-            >
-            <input
-              type="number"
-              id="maxUnitsFinanced"
-              value="2"
-              min="1"
-              max="10"
-            />
-          </div>
-          <div
-            class="control-group"
-            style="border: 2px solid #667eea; border-radius: 4px; padding: 8px"
-          >
-            <label style="color: #667eea; font-weight: bold"
-              >Max Units Financed Limit (Years)</label
-            >
-            <input
-              type="number"
-              id="maxUnitsFinancedLimitYears"
-              value="3"
-              min="1"
-              max="10"
-            />
-          </div>
-          <div class="control-group">
-            <label>Annual Rent Growth (%)</label>
-            <input
-              type="number"
-              id="rentGrowthRate"
-              value="3"
-              step="0.1"
-              min="0"
-            />
-          </div>
-          <div class="control-group">
-            <label>Vacancy Rate (% of GPR)</label>
-            <input
-              type="number"
-              id="vacancyRate"
-              value="5"
-              step="0.1"
-              min="0"
-              max="100"
-            />
-          </div>
-          <div class="control-group">
-            <label>Management Fee (% of EGI)</label>
-            <input
-              type="number"
-              id="managementRate"
-              value="8"
-              step="0.1"
-              min="0"
-              max="100"
-            />
-          </div>
-          <div class="control-group">
-            <label>CapEx Reserves (% of EGI)</label>
-            <input
-              type="number"
-              id="capexRate"
-              value="5"
-              step="0.1"
-              min="0"
-              max="100"
-            />
-          </div>
-          <div class="control-group">
-            <label>Expense Inflation (Insurance/Other) (%)</label>
-            <input
-              type="number"
-              id="expenseInflation"
-              value="2.5"
-              step="0.1"
-              min="0"
-              max="100"
-            />
-          </div>
-          <div class="control-group">
-            <label>Insurance Inflation (%)</label>
-            <input
-              type="number"
-              id="insuranceInflation"
-              value="4"
-              step="0.1"
-              min="0"
-              max="100"
-            />
-          </div>
-          <div class="control-group">
-            <label>Closing Costs (% of Purchase Price)</label>
-            <input
-              type="number"
-              id="closingCostPercent"
-              value="2"
-              step="0.1"
-              min="0"
-              max="100"
-            />
-          </div>
-          <div class="control-group">
-            <label>Loan Origination Fee (% of Loan)</label>
-            <input
-              type="number"
-              id="loanOriginationPercent"
-              value="1"
-              step="0.1"
-              min="0"
-              max="100"
-            />
-          </div>
-          <div class="control-group">
-            <label>Assessed Value Growth (%)</label>
-            <input
-              type="number"
-              id="assessedGrowthRate"
-              value="2.5"
-              step="0.1"
-              min="0"
-              max="100"
-            />
+
+          <!-- Fixed Calculate Button Area -->
+          <div class="calculate-button-area">
+            <button class="calculate-btn" onclick="calculateAll()">
+              Calculate Investment Scenarios
+            </button>
           </div>
         </div>
-
-        <button class="calculate-btn" onclick="calculateAll()">
-          Calculate Investment Scenarios
-        </button>
 
         <!-- Current Scenario Display -->
         <div id="current-scenario" style="display: none"></div>
@@ -463,10 +472,12 @@
               <div class="metric">
                 <div class="metric-label">Leverage Multiplier</div>
                 <div class="metric-value" id="leverage-multiplier">1.0x</div>
+                <div class="metric-description">Asset control per equity dollar</div>
               </div>
               <div class="metric">
-                <div class="metric-label">Units Per Dollar</div>
+                <div class="metric-label">Unit Efficiency</div>
                 <div class="metric-value" id="units-per-dollar">0.0</div>
+                <div class="metric-description">Units acquired per $1K invested</div>
               </div>
             </div>
           </div>
@@ -641,41 +652,44 @@
       </div>
 
       <div id="cashflow" class="tab-content">
-        <h2>15-Year Cash Flow Projection</h2>
+        <h2>15-Year Cash Flow Analysis</h2>
         <div class="table-container">
-          <table id="cashflowTable">
+          <table id="cashflowTable" class="cashflow-analysis-table">
             <thead>
               <tr>
                 <th rowspan="2">Year</th>
                 <th
-                  colspan="4"
+                  colspan="5"
                   style="
                     background: linear-gradient(45deg, #28a745, #20c997);
                     text-align: center;
                   "
                 >
-                  Self Financed
+                  Self Financed Strategy
                 </th>
                 <th
-                  colspan="4"
+                  colspan="7"
                   style="
                     background: linear-gradient(45deg, #667eea, #764ba2);
                     text-align: center;
                   "
                 >
-                  Bank Financed
+                  Bank Financed Strategy
                 </th>
-                <th rowspan="2">Cash Flow<br />Diff</th>
               </tr>
               <tr>
-                <th>Cash<br />Flow</th>
-                <th>Cumulative</th>
-                <th>Asset<br />Value</th>
-                <th>Net<br />Worth</th>
-                <th>Cash<br />Flow</th>
-                <th>Cumulative</th>
-                <th>Asset<br />Value</th>
-                <th>Net<br />Worth</th>
+                <th>Opening<br />Cash</th>
+                <th>Cash<br />Inflows</th>
+                <th>Cash<br />Outflows</th>
+                <th>Net<br />Cash Flow</th>
+                <th>Closing<br />Cash</th>
+                <th>Opening<br />Cash</th>
+                <th>Cash<br />Inflows</th>
+                <th>Cash<br />Outflows</th>
+                <th>Net<br />Cash Flow</th>
+                <th>Closing<br />Cash</th>
+                <th>Opening<br />Loan</th>
+                <th>Closing<br />Loan</th>
               </tr>
             </thead>
             <tbody id="cashflowBody"></tbody>
@@ -732,39 +746,149 @@
       </div>
 
       <div id="summary" class="tab-content">
-        <div class="summary-cards">
-          <div class="card">
-            <h3>Total Units (Self)</h3>
-            <div class="value" id="totalSelfUnits">0</div>
+        <!-- Header Section -->
+        <div class="summary-header">
+          <div class="summary-title">
+            <h2>📋 Investment Analysis Summary</h2>
+            <p>15-Year Investment Strategy Comparison</p>
           </div>
-          <div class="card">
-            <h3>Total Units (Financed)</h3>
-            <div class="value" id="totalFinancedUnits">0</div>
-          </div>
-          <div class="card">
-            <h3>Self Net Worth</h3>
-            <div class="value" id="selfNetWorth">$0</div>
-          </div>
-          <div class="card">
-            <h3>Financed Net Worth</h3>
-            <div class="value" id="financedNetWorth">$0</div>
-          </div>
-          <div class="card">
-            <h3>Self Cumulative Cash</h3>
-            <div class="value" id="selfCumulative">$0</div>
-          </div>
-          <div class="card">
-            <h3>Financed Cumulative Cash</h3>
-            <div class="value" id="financedCumulative">$0</div>
+          <div class="summary-period">
+            <div class="period-badge">
+              <span class="period-label">Analysis Period</span>
+              <span class="period-value">15 Years</span>
+            </div>
           </div>
         </div>
 
-        <div id="recommendation"></div>
+        <!-- Strategy Comparison Section -->
+        <div class="strategy-comparison-grid">
+          <!-- Self-Financed Strategy -->
+          <div class="strategy-section self-financed">
+            <div class="strategy-header">
+              <div class="strategy-icon">🏦</div>
+              <div class="strategy-info">
+                <h3>Self-Financed Strategy</h3>
+                <p>Pay cash, own outright</p>
+              </div>
+            </div>
+            <div class="strategy-metrics">
+              <div class="metric-card">
+                <div class="metric-icon">🏘️</div>
+                <div class="metric-info">
+                  <div class="metric-label">Total Units</div>
+                  <div class="metric-value" id="totalSelfUnits">0</div>
+                </div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-icon">💎</div>
+                <div class="metric-info">
+                  <div class="metric-label">Final Net Worth</div>
+                  <div class="metric-value" id="selfNetWorth">$0</div>
+                </div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-icon">💰</div>
+                <div class="metric-info">
+                  <div class="metric-label">Total Cash Flow</div>
+                  <div class="metric-value" id="selfCumulative">$0</div>
+                </div>
+              </div>
+            </div>
+          </div>
 
-        <div style="text-align: center; margin-top: 30px">
-          <a href="#" class="download-btn" onclick="downloadExcel()"
-            >Download Excel Report</a
-          >
+          <!-- Bank-Financed Strategy -->
+          <div class="strategy-section bank-financed">
+            <div class="strategy-header">
+              <div class="strategy-icon">🏛️</div>
+              <div class="strategy-info">
+                <h3>Bank-Financed Strategy</h3>
+                <p>Leverage with mortgages</p>
+              </div>
+            </div>
+            <div class="strategy-metrics">
+              <div class="metric-card">
+                <div class="metric-icon">🏘️</div>
+                <div class="metric-info">
+                  <div class="metric-label">Total Units</div>
+                  <div class="metric-value" id="totalFinancedUnits">0</div>
+                </div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-icon">💎</div>
+                <div class="metric-info">
+                  <div class="metric-label">Final Net Worth</div>
+                  <div class="metric-value" id="financedNetWorth">$0</div>
+                </div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-icon">💰</div>
+                <div class="metric-info">
+                  <div class="metric-label">Total Cash Flow</div>
+                  <div class="metric-value" id="financedCumulative">$0</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Key Insights Section -->
+        <div class="insights-section">
+          <div class="insights-header">
+            <h3>📊 Key Performance Indicators</h3>
+          </div>
+          <div class="insights-grid">
+            <div class="insight-card">
+              <div class="insight-icon">⚖️</div>
+              <div class="insight-content">
+                <div class="insight-label">Net Worth Difference</div>
+                <div class="insight-value" id="netWorthDifference">-</div>
+                <div class="insight-description">Advantage to bank financing</div>
+              </div>
+            </div>
+            <div class="insight-card">
+              <div class="insight-icon">📈</div>
+              <div class="insight-content">
+                <div class="insight-label">Unit Acquisition</div>
+                <div class="insight-value" id="unitDifference">-</div>
+                <div class="insight-description">Additional units with leverage</div>
+              </div>
+            </div>
+            <div class="insight-card">
+              <div class="insight-icon">💵</div>
+              <div class="insight-content">
+                <div class="insight-label">Cash Flow Impact</div>
+                <div class="insight-value" id="cashFlowDifference">-</div>
+                <div class="insight-description">Difference in total cash flow</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recommendation Section -->
+        <div id="recommendation" class="recommendation-section"></div>
+
+        <!-- Action Section -->
+        <div class="action-section">
+          <div class="action-header">
+            <h3>📄 Export & Share</h3>
+            <p>Download detailed reports for further analysis</p>
+          </div>
+          <div class="action-buttons">
+            <button class="download-btn primary" onclick="downloadExcel()">
+              <span class="btn-icon">📊</span>
+              <span class="btn-text">
+                <span class="btn-label">Download Excel</span>
+                <span class="btn-description">Complete analysis report</span>
+              </span>
+            </button>
+            <button class="download-btn secondary" onclick="window.print()">
+              <span class="btn-icon">🖨️</span>
+              <span class="btn-text">
+                <span class="btn-label">Print Summary</span>
+                <span class="btn-description">Quick reference sheet</span>
+              </span>
+            </button>
+          </div>
         </div>
       </div>
 
@@ -1055,7 +1179,7 @@
           </div>
 
           <div id="cashflowContent" class="modal-tab-content">
-            <table class="cashflow-table" id="cashflowTable">
+            <table class="cashflow-table" id="modalCashflowTable">
               <thead>
                 <tr>
                   <th>Cash Flow Item</th>
