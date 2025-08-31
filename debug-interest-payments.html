@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Debug Interest Payments</title>
+</head>
+<body>
+    <h1>Debug Interest Payments Issue</h1>
+    <div id="debug-output" style="background: #f0f0f0; padding: 10px; white-space: pre-wrap; font-family: monospace; max-height: 600px; overflow-y: auto;"></div>
+    
+    <script src="js/core/data-model.js"></script>
+    <script src="js/core/utils.js"></script>
+    <script src="js/core/calculations.js"></script>
+    
+    <script>
+        console.log("🔍 Starting interest payments debugging...");
+        
+        // Get default parameters and run calculations
+        const params = dataModel.getDefaultParameters();
+        const results = calculations.performCalculations(params);
+        
+        let debug = "🔍 INTEREST PAYMENTS DEBUGGING\n\n";
+        
+        // Check a few years of financed data
+        for (let year = 1; year <= 5; year++) {
+            const index = year - 1;
+            const financedData = results.financed[index];
+            const detailedData = results.detailedData[index];
+            const strategyData = calculations.getYearlyStrategyData(results, year, 'financed');
+            const cashFlowData = calculations.getCashFlowStatementData(results, year, 'financed');
+            
+            debug += `=== YEAR ${year} FINANCED DATA ===\n`;
+            debug += `financed[${index}] object:\n`;
+            debug += `  - debtService: ${financedData?.debtService}\n`;
+            debug += `  - interestExpense: ${financedData?.interestExpense}\n`;
+            debug += `  - principalPayment: ${financedData?.principalPayment}\n`;
+            debug += `  - units: ${financedData?.units}\n`;
+            debug += `  - newUnits: ${financedData?.newUnits}\n\n`;
+            
+            debug += `detailedData[${index}]:\n`;
+            debug += `  - debtService: ${detailedData?.financedDebtService}\n`;
+            debug += `  - interestExpense: ${detailedData?.financedInterestExpense}\n\n`;
+            
+            debug += `getYearlyStrategyData result:\n`;
+            debug += `  - debtService: ${strategyData?.debtService}\n`;
+            debug += `  - interestExpense: ${strategyData?.interestExpense}\n`;
+            debug += `  - principalPayment: ${strategyData?.principalPayment}\n\n`;
+            
+            debug += `getCashFlowStatementData result:\n`;
+            debug += `  - debtService: ${cashFlowData?.debtService}\n`;
+            debug += `  - interestExpense: ${cashFlowData?.interestExpense}\n`;
+            debug += `  - Has interestExpense property: ${cashFlowData?.hasOwnProperty('interestExpense')}\n`;
+            debug += `  - All keys: ${cashFlowData ? Object.keys(cashFlowData).join(', ') : 'null'}\n\n`;
+            
+            // Test what the modal calculation function would produce
+            if (financedData) {
+                const modalCalc = window.calculateTrueCashFlow ? 
+                    window.calculateTrueCashFlow(year, index, financedData, results, "financed") : null;
+                debug += `calculateTrueCashFlow result:\n`;
+                debug += `  - interestPaid: ${modalCalc?.interestPaid}\n`;
+                debug += `  - principalPayments: ${modalCalc?.principalPayments}\n`;
+                debug += `  - debtService (interest + principal): ${(modalCalc?.interestPaid || 0) + (modalCalc?.principalPayments || 0)}\n\n`;
+            }
+            
+            debug += "---\n\n";
+        }
+        
+        // Check input parameters
+        debug += "=== INPUT PARAMETERS ===\n";
+        debug += `Interest Rate: ${params.interestRate}%\n`;
+        debug += `LTV Ratio: ${params.ltvRatio}%\n`;
+        debug += `Loan Term: ${params.loanTerm} years\n`;
+        debug += `Initial Cost: $${params.initialCost.toLocaleString()}\n\n`;
+        
+        // Check cohorts/loans
+        debug += "=== LOAN COHORTS ===\n";
+        if (results.cohorts) {
+            results.cohorts.forEach((cohort, i) => {
+                if (cohort.loanAmount > 0) {
+                    debug += `Cohort ${i + 1} (Year ${cohort.year}):\n`;
+                    debug += `  - Units: ${cohort.units}\n`;
+                    debug += `  - Cost per Unit: $${cohort.costPerUnit.toLocaleString()}\n`;
+                    debug += `  - Loan Amount: $${cohort.loanAmount.toLocaleString()}\n`;
+                    debug += `  - Monthly EMI: $${cohort.monthlyEMI.toFixed(2)}\n`;
+                    debug += `  - Annual EMI: $${cohort.annualEMI.toFixed(2)}\n\n`;
+                }
+            });
+        } else {
+            debug += "No cohorts data found\n\n";
+        }
+        
+        document.getElementById('debug-output').textContent = debug;
+        console.log(debug);
+    </script>
+</body>
+</html>

@@ -47,14 +47,7 @@ h2 {
   position: relative;
 }
 
-/* Desktop Tab Styles */
-.desktop-tabs {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 3px;
-  border-bottom: 2px solid #eee;
-  padding-bottom: 10px;
-}
+/* Navigation menu is now handled by dropdown in components.css */
 
 /* Mobile Tab Menu */
 .tab-menu-container {

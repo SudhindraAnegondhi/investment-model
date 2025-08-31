@@ -1434,6 +1434,7 @@ function getCashFlowStatementData(results, year, strategy) {
     propertyPurchases: strategyBreakdown.propertyPurchases,
     operatingExpenses: strategyBreakdown.operatingExpenses,
     debtService: strategyBreakdown.debtService,
+    interestExpense: strategyData.interestExpense,
     capex: strategyBreakdown.capex,
     taxes: strategyBreakdown.taxes,
     totalOutflows: strategyBreakdown.totalOutflows,

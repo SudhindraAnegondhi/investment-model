@@ -911,6 +911,104 @@ th[colspan="6"] {
   font-size: 14px;
 }
 
+/* Navigation Menu Dropdown */
+.nav-menu {
+  margin: 15px 0;
+}
+
+.menu-dropdown {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+}
+
+.menu-button {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 12px 16px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 500;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+}
+
+.menu-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.menu-icon {
+  font-size: 18px;
+  margin-right: 10px;
+}
+
+.current-tab-label {
+  flex-grow: 1;
+  text-align: left;
+}
+
+.dropdown-arrow {
+  transition: transform 0.3s ease;
+}
+
+.menu-dropdown.open .dropdown-arrow {
+  transform: rotate(180deg);
+}
+
+.dropdown-content {
+  display: none;
+  position: absolute;
+  background: white;
+  min-width: 100%;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+  border-radius: 8px;
+  margin-top: 4px;
+  overflow: hidden;
+  border: 1px solid #e0e0e0;
+}
+
+.dropdown-content.show {
+  display: block;
+}
+
+.dropdown-content button {
+  background: white;
+  color: #333;
+  padding: 12px 16px;
+  border: none;
+  cursor: pointer;
+  width: 100%;
+  text-align: left;
+  font-size: 14px;
+  transition: background-color 0.2s ease;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.dropdown-content button:last-child {
+  border-bottom: none;
+}
+
+.dropdown-content button:hover {
+  background: #f8f9fa;
+}
+
+.dropdown-content button.active-menu-item {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.dropdown-content button.active-menu-item:hover {
+  background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+}
+
 /* AI Controls Styling */
 .ai-controls {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -919,6 +1017,8 @@ th[colspan="6"] {
   border-radius: 12px;
   margin: 20px 0;
   box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+  width: 100%;
+  grid-column: 1 / -1; /* Span full width of the grid */
 }
 
 .ai-controls h3 {

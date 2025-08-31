@@ -21,12 +21,7 @@
     margin: 1% auto;
   }
 
-  /* Show mobile menu on tablets too if tabs don't fit */
-  .desktop-tabs .tab {
-    padding: 8px 14px;
-    font-size: 12px;
-    min-width: 100px;
-  }
+  /* Dropdown navigation handles all screen sizes */
 }
 
 /* Mobile Styles */
@@ -50,14 +45,7 @@
     font-size: 1.1em;
   }
 
-  /* Show mobile menu, hide desktop tabs */
-  .tab-menu-container {
-    display: block;
-  }
-
-  .desktop-tabs {
-    display: none;
-  }
+  /* Navigation menu is always visible as dropdown */
 
   .tab {
     padding: 8px 12px;
