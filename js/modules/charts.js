@@ -477,26 +477,7 @@ class ChartManager {
 
     const alerts = [];
 
-    // Check for negative cash flow periods
-    const negativeYears = results.selfFinanced.filter(
-      (year) => year.cashFlow < 0
-    ).length;
-    if (negativeYears > 0) {
-      alerts.push({
-        type: "warning",
-        message: `${negativeYears} years of negative cash flow in self-financed strategy`,
-      });
-    }
-
-    const financedNegativeYears = results.financed.filter(
-      (year) => year.cashFlow < 0
-    ).length;
-    if (financedNegativeYears > 0) {
-      alerts.push({
-        type: "warning",
-        message: `${financedNegativeYears} years of negative cash flow in financed strategy`,
-      });
-    }
+    // Negative cash flow analysis is now handled in the dedicated dashboard section
 
     // Check break-even point
     const selfBreakEven = results.selfFinanced.findIndex(

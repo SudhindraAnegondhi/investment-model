@@ -483,6 +483,29 @@
           </div>
         </div>
 
+        <!-- Negative Cash Flow Analysis -->
+        <div class="dashboard-section" id="negative-cashflow-section" style="display: none;">
+          <h3>⚠️ Cash Flow Challenges</h3>
+          <div class="alert-warning" style="margin-bottom: 15px;">
+            <strong>Negative Cash Flow Years Detected</strong><br>
+            Some years show negative closing cash flow, which may require additional funding or cash reserves.
+          </div>
+          <div class="comparison-cards">
+            <div class="comparison-card" style="border-left: 4px solid #ff6b6b;">
+              <h4>💰 Self-Financed Strategy</h4>
+              <div id="self-negative-years" class="negative-years-list">
+                <!-- Will be populated by JavaScript -->
+              </div>
+            </div>
+            <div class="comparison-card" style="border-left: 4px solid #ff6b6b;">
+              <h4>🏦 Bank-Financed Strategy</h4>
+              <div id="financed-negative-years" class="negative-years-list">
+                <!-- Will be populated by JavaScript -->
+              </div>
+            </div>
+          </div>
+        </div>
+
         <!-- Quick Actions -->
         <div class="dashboard-section">
           <h3>Quick Actions</h3>

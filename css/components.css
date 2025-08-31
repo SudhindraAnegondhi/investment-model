@@ -850,3 +850,63 @@ th[colspan="6"] {
   font-weight: 600;
   font-size: 11px;
 }
+
+/* Negative Cash Flow Analysis Styles */
+.negative-years-list {
+  font-size: 14px;
+}
+
+.negative-years-header {
+  font-weight: 600;
+  margin-bottom: 10px;
+  color: #333;
+}
+
+.negative-year-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.negative-year-item:last-child {
+  border-bottom: none;
+}
+
+.negative-year-item .year {
+  font-weight: 500;
+  color: #555;
+}
+
+.negative-year-item .amount.negative {
+  color: #ff4757;
+  font-weight: 600;
+}
+
+.negative-total {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 2px solid #ff4757;
+  font-weight: 700;
+  color: #ff4757;
+  text-align: right;
+}
+
+.no-negative {
+  color: #2ed573;
+  font-weight: 600;
+  text-align: center;
+  padding: 20px;
+  background: #f1f9f1;
+  border-radius: 6px;
+  margin: 10px 0;
+}
+
+.alert-warning {
+  background: #fff3cd;
+  border: 1px solid #ffeaa7;
+  color: #856404;
+  padding: 12px;
+  border-radius: 6px;
+  font-size: 14px;
+}

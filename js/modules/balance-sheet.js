@@ -5,6 +5,7 @@
 window.balanceSheet = {
   updateSummary: updateSummary,
   calculateSummaryMetrics: calculateSummaryMetrics,
+  updateNegativeCashFlowAnalysis: updateNegativeCashFlowAnalysis,
 };
 
 function updateSummary() {
@@ -44,6 +45,9 @@ function updateSummary() {
   
   // Update Summary & Download tab with centralized data
   updateSummaryDownloadTab(results);
+  
+  // Update negative cash flow analysis
+  updateNegativeCashFlowAnalysis();
 }
 
 function updateSummaryDownloadTab(results) {
@@ -327,4 +331,91 @@ function updateSummaryCard(elementId, value) {
       element.className = value >= 0 ? "positive" : "negative";
     }
   }
+}
+
+function updateNegativeCashFlowAnalysis() {
+  if (!utils.calculationResults) return;
+  
+  const results = utils.calculationResults;
+  const section = document.getElementById('negative-cashflow-section');
+  const selfContainer = document.getElementById('self-negative-years');
+  const financedContainer = document.getElementById('financed-negative-years');
+  
+  if (!section || !selfContainer || !financedContainer) return;
+  
+  // Analyze self-financed strategy using same data source as other tabs
+  const selfNegativeYears = [];
+  for (let year = 1; year <= 15; year++) {
+    const yearData = calculations.getYearlyStrategyData(results, year, 'self');
+    if (yearData && yearData.closingCash < 0) {
+      selfNegativeYears.push({
+        year: year,
+        amount: yearData.closingCash
+      });
+    }
+  }
+  
+  // Analyze bank-financed strategy using same data source as other tabs
+  const financedNegativeYears = [];
+  for (let year = 1; year <= 15; year++) {
+    const yearData = calculations.getYearlyStrategyData(results, year, 'financed');
+    if (yearData && yearData.closingCash < 0) {
+      financedNegativeYears.push({
+        year: year,
+        amount: yearData.closingCash
+      });
+    }
+  }
+  
+  // Get parent cards to show/hide individually
+  const selfCard = selfContainer.closest('.comparison-card');
+  const financedCard = financedContainer.closest('.comparison-card');
+  
+  // Update self-financed section
+  if (selfNegativeYears.length > 0) {
+    let selfHTML = '<div class="negative-years-header">Negative Cash Flow Years:</div>';
+    selfNegativeYears.forEach(item => {
+      selfHTML += `
+        <div class="negative-year-item">
+          <span class="year">Year ${item.year}:</span>
+          <span class="amount negative">${utils.formatCurrency(item.amount)}</span>
+        </div>
+      `;
+    });
+    const totalNegative = selfNegativeYears.reduce((sum, item) => sum + Math.abs(item.amount), 0);
+    selfHTML += `<div class="negative-total">Total negative: ${utils.formatCurrency(-totalNegative)}</div>`;
+    selfContainer.innerHTML = selfHTML;
+    if (selfCard) selfCard.style.display = 'block';
+  } else {
+    if (selfCard) selfCard.style.display = 'none';
+  }
+  
+  // Update bank-financed section
+  if (financedNegativeYears.length > 0) {
+    let financedHTML = '<div class="negative-years-header">Negative Cash Flow Years:</div>';
+    financedNegativeYears.forEach(item => {
+      financedHTML += `
+        <div class="negative-year-item">
+          <span class="year">Year ${item.year}:</span>
+          <span class="amount negative">${utils.formatCurrency(item.amount)}</span>
+        </div>
+      `;
+    });
+    const totalNegative = financedNegativeYears.reduce((sum, item) => sum + Math.abs(item.amount), 0);
+    financedHTML += `<div class="negative-total">Total negative: ${utils.formatCurrency(-totalNegative)}</div>`;
+    financedContainer.innerHTML = financedHTML;
+    if (financedCard) financedCard.style.display = 'block';
+  } else {
+    if (financedCard) financedCard.style.display = 'none';
+  }
+  
+  // Show/hide the section based on whether there are any negative years
+  const hasNegativeYears = selfNegativeYears.length > 0 || financedNegativeYears.length > 0;
+  section.style.display = hasNegativeYears ? 'block' : 'none';
+  
+  console.log("📊 Negative cash flow analysis:", {
+    selfNegativeYears: selfNegativeYears.length,
+    financedNegativeYears: financedNegativeYears.length,
+    sectionVisible: hasNegativeYears
+  });
 }
