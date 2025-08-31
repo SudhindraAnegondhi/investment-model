@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Display Direct</title>
+    <link rel="stylesheet" href="css/main.css" />
+    <link rel="stylesheet" href="css/components.css" />
+</head>
+<body>
+    <div class="container">
+        <h1>Test Display Direct</h1>
+        
+        <!-- Copy the exact HTML structure from the main page -->
+        <div class="comparison-card financed">
+            <h4>🏦 Bank-Financed Benefits</h4>
+            <div class="comparison-metrics">
+              <div class="metric">
+                <div class="metric-label">Leverage Multiplier</div>
+                <div class="metric-value" id="leverage-multiplier">1.0x</div>
+                <div class="metric-description">Asset control per equity dollar</div>
+              </div>
+              <div class="metric">
+                <div class="metric-label">Unit Efficiency</div>
+                <div class="metric-value" id="units-per-dollar">0.0</div>
+                <div class="metric-description">Units acquired per $1K invested</div>
+              </div>
+            </div>
+        </div>
+        
+        <button onclick="testDirectUpdate()">Test Direct Update</button>
+        <button onclick="testCalculatedUpdate()">Test with Real Calculations</button>
+        <div id="debug-info"></div>
+    </div>
+    
+    <script src="js/core/data-model.js"></script>
+    <script src="js/core/utils.js"></script>
+    <script src="js/core/calculations.js"></script>
+    <script src="js/modules/balance-sheet.js"></script>
+    
+    <script>
+        function testDirectUpdate() {
+            console.log("🧪 Testing direct manual update...");
+            
+            const leverageEl = document.getElementById('leverage-multiplier');
+            const unitsEl = document.getElementById('units-per-dollar');
+            
+            if (leverageEl) {
+                leverageEl.textContent = "1.13x";
+                console.log("✅ Set leverage manually to 1.13x");
+            }
+            
+            if (unitsEl) {
+                unitsEl.textContent = "0.0235 units per $1K";
+                console.log("✅ Set units manually to 0.0235 units per $1K");
+            }
+        }
+        
+        function testCalculatedUpdate() {
+            console.log("🧪 Testing with real calculations...");
+            
+            const params = dataModel.getDefaultParameters();
+            const results = calculations.performCalculations(params);
+            
+            // Get dashboard metrics
+            const dashboardMetrics = calculations.getDashboardMetrics(results);
+            
+            console.log("Dashboard metrics:", dashboardMetrics);
+            console.log("Results summary metrics:", results.summaryMetrics);
+            console.log("Are they the same object?", dashboardMetrics === results.summaryMetrics);
+            
+            // Test using summary metrics directly
+            console.log("🧪 Testing with summaryMetrics directly:");
+            const summary = results.summaryMetrics;
+            console.log("Direct leverage multiplier:", summary.leverageMultiplier);
+            console.log("Direct units per dollar:", summary.unitsPerDollar.financed);
+            
+            // Try using summary metrics directly instead of dashboardMetrics
+            const leverageEl = document.getElementById('leverage-multiplier');
+            const unitsEl = document.getElementById('units-per-dollar');
+            
+            const summary = results.summaryMetrics;
+            if (leverageEl && summary) {
+                const leverageValue = summary.leverageMultiplier || 0;
+                const formattedLeverage = leverageValue.toFixed(2) + "x";
+                leverageEl.textContent = formattedLeverage;
+                console.log("✅ Set leverage via DIRECT summaryMetrics:", leverageValue, "->", formattedLeverage);
+            }
+            
+            if (unitsEl && summary) {
+                const unitsValue = summary.unitsPerDollar?.financed || 0;
+                const formattedUnits = unitsValue.toFixed(4) + " units per $1K";
+                unitsEl.textContent = formattedUnits;
+                console.log("✅ Set units via DIRECT summaryMetrics:", unitsValue, "->", formattedUnits);
+            }
+            
+            document.getElementById('debug-info').innerHTML = `
+                <p><strong>Dashboard Metrics:</strong></p>
+                <p>Leverage Multiplier: ${dashboardMetrics?.leverageMultiplier}</p>
+                <p>Units per Dollar (Financed): ${dashboardMetrics?.unitsPerDollar?.financed}</p>
+                <p><strong>Current Display:</strong></p>
+                <p>Leverage Element: "${document.getElementById('leverage-multiplier')?.textContent}"</p>
+                <p>Units Element: "${document.getElementById('units-per-dollar')?.textContent}"</p>
+            `;
+        }
+        
+        // Test on page load
+        window.onload = function() {
+            console.log("🔍 Page loaded - initial values:");
+            console.log("Leverage:", document.getElementById('leverage-multiplier')?.textContent);
+            console.log("Units:", document.getElementById('units-per-dollar')?.textContent);
+        };
+    </script>
+</body>
+</html>

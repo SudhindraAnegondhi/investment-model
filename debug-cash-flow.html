@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Debug Cash Flow</title>
+</head>
+<body>
+    <h1>Cash Flow Debug</h1>
+    <div id="debug-output"></div>
+    
+    <script src="js/core/data-model.js"></script>
+    <script src="js/core/utils.js"></script>
+    <script src="js/core/calculations.js"></script>
+    
+    <script>
+        // Test with default parameters
+        const params = dataModel.getDefaultParameters();
+        const results = calculations.performCalculations(params);
+        
+        let output = "<h2>Year 1-6 Self-Financed Cash Flow Continuity:</h2><pre>";
+        
+        for (let year = 1; year <= 6; year++) {
+            const yearData = results.yearlyData[year - 1];
+            const selfData = yearData.selfStrategy;
+            
+            output += `Year ${year}:\n`;
+            output += `  Opening Cash: $${selfData.openingCash.toLocaleString()}\n`;
+            output += `  Annual Budget: $${selfData.annualBudget.toLocaleString()}\n`;
+            output += `  NOI: $${selfData.noi.toLocaleString()}\n`;
+            output += `  Purchase Cost: $${selfData.purchaseCost.toLocaleString()}\n`;
+            output += `  CapEx: $${selfData.capex.toLocaleString()}\n`;
+            output += `  Net Cash Flow: $${selfData.netCashFlow.toLocaleString()}\n`;
+            output += `  Closing Cash: $${selfData.closingCash.toLocaleString()}\n`;
+            output += `  Available Cash: $${selfData.availableCash.toLocaleString()}\n`;
+            
+            // Check continuity
+            if (year > 1) {
+                const prevYear = results.yearlyData[year - 2].selfStrategy;
+                const continuityOK = Math.abs(prevYear.closingCash - selfData.openingCash) < 0.01;
+                output += `  Continuity: ${continuityOK ? '✅ OK' : '❌ BROKEN'} (Prev Close: $${prevYear.closingCash.toLocaleString()})\n`;
+            }
+            output += `  ----\n`;
+        }
+        
+        output += "</pre>";
+        document.getElementById('debug-output').innerHTML = output;
+    </script>
+</body>
+</html>

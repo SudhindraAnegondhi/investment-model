@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Debug Dashboard Detailed</title>
+</head>
+<body>
+    <h1>Detailed Dashboard Debug</h1>
+    <div id="debug-output"></div>
+    
+    <script src="js/core/data-model.js"></script>
+    <script src="js/core/utils.js"></script>
+    <script src="js/core/calculations.js"></script>
+    <script src="js/modules/balance-sheet.js"></script>
+    
+    <script>
+        // Test with default parameters
+        const params = dataModel.getDefaultParameters();
+        console.log("🔧 Starting calculations with params:", params);
+        
+        const results = calculations.performCalculations(params);
+        console.log("📊 Calculation results:", results);
+        
+        let output = "<h2>Detailed Dashboard Debug:</h2><pre>";
+        
+        // Check if results exist
+        if (!results) {
+            output += "❌ No calculation results!\n";
+        } else {
+            output += "✅ Calculation results exist\n";
+            
+            // Check summary metrics
+            if (!results.summaryMetrics) {
+                output += "❌ No summary metrics!\n";
+            } else {
+                output += "✅ Summary metrics exist\n";
+                output += `Summary Metrics Object:\n`;
+                output += `  leverageMultiplier: ${results.summaryMetrics.leverageMultiplier}\n`;
+                output += `  unitsPerDollar: ${JSON.stringify(results.summaryMetrics.unitsPerDollar)}\n`;
+                output += `\n`;
+            }
+            
+            // Test getDashboardMetrics function
+            const dashboardMetrics = calculations.getDashboardMetrics(results);
+            if (!dashboardMetrics) {
+                output += "❌ getDashboardMetrics returned null!\n";
+            } else {
+                output += "✅ getDashboardMetrics returned data\n";
+                output += `Dashboard Metrics:\n`;
+                output += `  leverageMultiplier: ${dashboardMetrics.leverageMultiplier}\n`;
+                output += `  unitsPerDollar.self: ${dashboardMetrics.unitsPerDollar.self}\n`;
+                output += `  unitsPerDollar.financed: ${dashboardMetrics.unitsPerDollar.financed}\n`;
+                output += `\n`;
+            }
+            
+            // Check if balance sheet module is loaded
+            if (typeof window.balanceSheet === 'undefined') {
+                output += "❌ Balance sheet module not loaded!\n";
+            } else {
+                output += "✅ Balance sheet module loaded\n";
+                
+                // Set utils.calculationResults for the balance sheet module
+                if (typeof window.utils === 'undefined') {
+                    window.utils = {};
+                }
+                window.utils.calculationResults = results;
+                
+                // Try calling the update function
+                try {
+                    output += "🔄 Calling balanceSheet.updateSummary()...\n";
+                    window.balanceSheet.updateSummary();
+                    output += "✅ updateSummary called successfully\n";
+                } catch (error) {
+                    output += `❌ Error calling updateSummary: ${error.message}\n`;
+                }
+            }
+            
+            // Check HTML elements
+            const leverageElement = document.getElementById('leverage-multiplier');
+            const unitsElement = document.getElementById('units-per-dollar');
+            
+            output += `\nHTML Elements Check:\n`;
+            output += `  leverage-multiplier element: ${leverageElement ? 'EXISTS' : 'MISSING'}\n`;
+            output += `  units-per-dollar element: ${unitsElement ? 'EXISTS' : 'MISSING'}\n`;
+            
+            if (leverageElement) {
+                output += `  leverage-multiplier content: "${leverageElement.textContent}"\n`;
+            }
+            if (unitsElement) {
+                output += `  units-per-dollar content: "${unitsElement.textContent}"\n`;
+            }
+            
+            // Check final year data manually
+            const finalYearIndex = 14; // Year 15
+            const finalYearData = results.yearlyData[finalYearIndex];
+            if (finalYearData) {
+                const financedFinal = finalYearData.financedStrategy;
+                output += `\nFinal Year (15) Raw Data:\n`;
+                output += `  assetValue: $${(financedFinal.assetValue || 0).toLocaleString()}\n`;
+                output += `  loanBalance: $${(financedFinal.loanBalance || 0).toLocaleString()}\n`;
+                output += `  netEquity: $${(financedFinal.netEquity || 0).toLocaleString()}\n`;
+                output += `  totalUnits: ${financedFinal.totalUnits || 0}\n`;
+                
+                // Manual calculations
+                const assetValue = financedFinal.assetValue || 0;
+                const netEquity = financedFinal.netEquity || 0;
+                const totalUnits = financedFinal.totalUnits || 0;
+                const leverageManual = netEquity > 0 ? assetValue / netEquity : 0;
+                
+                output += `\nManual Leverage Calculation:\n`;
+                output += `  ${assetValue.toLocaleString()} / ${netEquity.toLocaleString()} = ${leverageManual.toFixed(2)}\n`;
+                
+                // Check investment amounts
+                const financedInvested = results.summaryMetrics?.totalCashInvested?.financed || 0;
+                const unitsPerDollarManual = financedInvested > 0 ? totalUnits / financedInvested * 1000 : 0;
+                
+                output += `\nManual Units Per Dollar Calculation:\n`;
+                output += `  Total Invested: $${financedInvested.toLocaleString()}\n`;
+                output += `  ${totalUnits} / ${financedInvested} * 1000 = ${unitsPerDollarManual.toFixed(4)}\n`;
+            }
+        }
+        
+        output += "</pre>";
+        
+        // Create simple HTML structure for testing
+        output += `
+        <div style="margin-top: 20px; padding: 20px; border: 1px solid #ccc;">
+            <h3>Test Elements:</h3>
+            <div>Leverage Multiplier: <span id="leverage-multiplier">not set</span></div>
+            <div>Units Per Dollar: <span id="units-per-dollar">not set</span></div>
+        </div>
+        `;
+        
+        document.getElementById('debug-output').innerHTML = output;
+        
+        // Try to manually update the test elements
+        setTimeout(() => {
+            const dashboardMetrics = calculations.getDashboardMetrics(results);
+            if (dashboardMetrics) {
+                const leverageEl = document.getElementById('leverage-multiplier');
+                const unitsEl = document.getElementById('units-per-dollar');
+                
+                if (leverageEl) {
+                    leverageEl.textContent = dashboardMetrics.leverageMultiplier.toFixed(2) + 'x';
+                }
+                if (unitsEl) {
+                    unitsEl.textContent = dashboardMetrics.unitsPerDollar.financed.toFixed(4) + ' units per $1K';
+                }
+                
+                console.log("✅ Manually updated test elements");
+                console.log("Leverage:", dashboardMetrics.leverageMultiplier);
+                console.log("Units per dollar:", dashboardMetrics.unitsPerDollar.financed);
+            }
+        }, 100);
+    </script>
+</body>
+</html>

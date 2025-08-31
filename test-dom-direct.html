@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test DOM Direct</title>
+    <link rel="stylesheet" href="css/main.css" />
+    <link rel="stylesheet" href="css/components.css" />
+</head>
+<body>
+    <div class="container">
+        <h1>Test DOM Direct Updates</h1>
+        
+        <div class="comparison-card financed">
+            <h4>🏦 Bank-Financed Benefits</h4>
+            <div class="comparison-metrics">
+              <div class="metric">
+                <div class="metric-label">Leverage Multiplier</div>
+                <div class="metric-value" id="leverage-multiplier">1.0x</div>
+                <div class="metric-description">Asset control per equity dollar</div>
+              </div>
+              <div class="metric">
+                <div class="metric-label">Unit Efficiency</div>
+                <div class="metric-value" id="units-per-dollar">0.0</div>
+                <div class="metric-description">Units acquired per $1K invested</div>
+              </div>
+            </div>
+        </div>
+        
+        <button onclick="testDirectUpdate()">Test Direct DOM Update</button>
+        <button onclick="testWithTextContent()">Test with textContent</button>
+        <button onclick="testWithInnerHTML()">Test with innerHTML</button>
+        <button onclick="testWithInnerText()">Test with innerText</button>
+        <button onclick="inspectElements()">Inspect Elements</button>
+        
+        <div id="debug-info" style="background: #f0f0f0; padding: 10px; margin: 10px 0; white-space: pre-wrap; font-family: monospace;"></div>
+    </div>
+    
+    <script>
+        function testDirectUpdate() {
+            console.log("🧪 Testing direct DOM update...");
+            
+            const leverageEl = document.getElementById('leverage-multiplier');
+            const unitsEl = document.getElementById('units-per-dollar');
+            
+            let debug = "🧪 Testing direct DOM update...\n\n";
+            debug += "Elements found:\n";
+            debug += `- leverageEl: ${!!leverageEl} (${leverageEl?.tagName})\n`;
+            debug += `- unitsEl: ${!!unitsEl} (${unitsEl?.tagName})\n`;
+            
+            debug += "\nOriginal values:\n";
+            debug += `- leverage: "${leverageEl?.textContent}"\n`;
+            debug += `- units: "${unitsEl?.textContent}"\n`;
+            
+            if (leverageEl) {
+                leverageEl.textContent = "TEST 1.13x";
+                debug += "\n✅ Set leverage to 'TEST 1.13x'\n";
+            }
+            
+            if (unitsEl) {
+                unitsEl.textContent = "TEST 0.0235 units per $1K";
+                debug += "✅ Set units to 'TEST 0.0235 units per $1K'\n";
+            }
+            
+            debug += "\nNew values:\n";
+            debug += `- leverage: "${leverageEl?.textContent}"\n`;
+            debug += `- units: "${unitsEl?.textContent}"\n`;
+            
+            document.getElementById('debug-info').textContent = debug;
+        }
+        
+        function testWithTextContent() {
+            const leverageEl = document.getElementById('leverage-multiplier');
+            const unitsEl = document.getElementById('units-per-dollar');
+            
+            if (leverageEl) leverageEl.textContent = "TC 1.13x";
+            if (unitsEl) unitsEl.textContent = "TC 0.0235 units per $1K";
+            
+            console.log("Set via textContent");
+        }
+        
+        function testWithInnerHTML() {
+            const leverageEl = document.getElementById('leverage-multiplier');
+            const unitsEl = document.getElementById('units-per-dollar');
+            
+            if (leverageEl) leverageEl.innerHTML = "IH 1.13x";
+            if (unitsEl) unitsEl.innerHTML = "IH 0.0235 units per $1K";
+            
+            console.log("Set via innerHTML");
+        }
+        
+        function testWithInnerText() {
+            const leverageEl = document.getElementById('leverage-multiplier');
+            const unitsEl = document.getElementById('units-per-dollar');
+            
+            if (leverageEl) leverageEl.innerText = "IT 1.13x";
+            if (unitsEl) unitsEl.innerText = "IT 0.0235 units per $1K";
+            
+            console.log("Set via innerText");
+        }
+        
+        function inspectElements() {
+            const leverageEl = document.getElementById('leverage-multiplier');
+            const unitsEl = document.getElementById('units-per-dollar');
+            
+            let debug = "🔍 Element Inspection:\n\n";
+            
+            if (leverageEl) {
+                debug += "LEVERAGE ELEMENT:\n";
+                debug += `- tagName: ${leverageEl.tagName}\n`;
+                debug += `- id: ${leverageEl.id}\n`;
+                debug += `- className: ${leverageEl.className}\n`;
+                debug += `- textContent: "${leverageEl.textContent}"\n`;
+                debug += `- innerHTML: "${leverageEl.innerHTML}"\n`;
+                debug += `- innerText: "${leverageEl.innerText}"\n`;
+                debug += `- style.display: ${leverageEl.style.display || 'not set'}\n`;
+                debug += `- computed display: ${getComputedStyle(leverageEl).display}\n`;
+                debug += `- parent: ${leverageEl.parentElement?.tagName}.${leverageEl.parentElement?.className}\n`;
+            } else {
+                debug += "❌ LEVERAGE ELEMENT NOT FOUND\n";
+            }
+            
+            debug += "\n";
+            
+            if (unitsEl) {
+                debug += "UNITS ELEMENT:\n";
+                debug += `- tagName: ${unitsEl.tagName}\n`;
+                debug += `- id: ${unitsEl.id}\n`;
+                debug += `- className: ${unitsEl.className}\n`;
+                debug += `- textContent: "${unitsEl.textContent}"\n`;
+                debug += `- innerHTML: "${unitsEl.innerHTML}"\n`;
+                debug += `- innerText: "${unitsEl.innerText}"\n`;
+                debug += `- style.display: ${unitsEl.style.display || 'not set'}\n`;
+                debug += `- computed display: ${getComputedStyle(unitsEl).display}\n`;
+                debug += `- parent: ${unitsEl.parentElement?.tagName}.${unitsEl.parentElement?.className}\n`;
+            } else {
+                debug += "❌ UNITS ELEMENT NOT FOUND\n";
+            }
+            
+            // Check for duplicate IDs
+            debug += "\n🔍 Checking for duplicate IDs:\n";
+            const allLeverageEls = document.querySelectorAll('#leverage-multiplier');
+            const allUnitsEls = document.querySelectorAll('#units-per-dollar');
+            debug += `- leverage elements found: ${allLeverageEls.length}\n`;
+            debug += `- units elements found: ${allUnitsEls.length}\n`;
+            
+            if (allLeverageEls.length > 1) {
+                debug += "⚠️ Multiple leverage elements found!\n";
+                allLeverageEls.forEach((el, i) => {
+                    debug += `  ${i}: ${el.textContent} (parent: ${el.parentElement?.className})\n`;
+                });
+            }
+            
+            if (allUnitsEls.length > 1) {
+                debug += "⚠️ Multiple units elements found!\n";
+                allUnitsEls.forEach((el, i) => {
+                    debug += `  ${i}: ${el.textContent} (parent: ${el.parentElement?.className})\n`;
+                });
+            }
+            
+            document.getElementById('debug-info').textContent = debug;
+        }
+        
+        // Run inspection on load
+        window.onload = function() {
+            inspectElements();
+        };
+    </script>
+</body>
+</html>

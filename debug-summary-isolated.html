@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Debug Summary Metrics Isolated</title>
+</head>
+<body>
+    <h1>Debug Summary Metrics Isolated</h1>
+    <div id="debug-output"></div>
+    
+    <script src="js/core/data-model.js"></script>
+    <script src="js/core/utils.js"></script>
+    <script src="js/core/calculations.js"></script>
+    
+    <script>
+        // Test with default parameters
+        const params = dataModel.getDefaultParameters();
+        console.log("🧪 Starting isolated test...");
+        
+        const results = calculations.performCalculations(params);
+        
+        console.log("📊 Results after calculation:", {
+            hasResults: !!results,
+            hasSummaryMetrics: !!(results && results.summaryMetrics),
+            summaryMetrics: results?.summaryMetrics,
+            selfFinancedLength: results?.selfFinanced?.length,
+            financedLength: results?.financed?.length
+        });
+        
+        if (results && results.selfFinanced && results.financed) {
+            const finalYearIndex = 14; // Year 15
+            const selfFinal = results.selfFinanced[finalYearIndex];
+            const financedFinal = results.financed[finalYearIndex];
+            
+            console.log("🔍 Final year data check:", {
+                selfFinal: selfFinal,
+                financedFinal: financedFinal,
+                selfUnits: selfFinal?.units,
+                financedUnits: financedFinal?.units,
+                selfAssetValue: selfFinal?.assetValue,
+                financedAssetValue: financedFinal?.assetValue,
+                financedNetEquity: financedFinal?.netEquity
+            });
+            
+            // Manual calculation test
+            if (selfFinal && financedFinal) {
+                const totalSelfInvested = params.annualBudget * Math.min(params.selfPurchaseYears, 15);
+                const totalFinancedInvested = params.annualBudget * Math.min(params.financedPurchaseYears, 15);
+                
+                const manualLeverageMultiplier = financedFinal.netEquity > 0 ? financedFinal.assetValue / financedFinal.netEquity : 0;
+                const manualUnitsPerDollarFinanced = totalFinancedInvested > 0 ? financedFinal.units / totalFinancedInvested * 1000 : 0;
+                
+                console.log("🧮 Manual calculations:", {
+                    totalSelfInvested: totalSelfInvested,
+                    totalFinancedInvested: totalFinancedInvested,
+                    manualLeverageMultiplier: manualLeverageMultiplier,
+                    manualUnitsPerDollarFinanced: manualUnitsPerDollarFinanced
+                });
+                
+                let output = "<h2>Isolated Summary Metrics Test:</h2><pre>";
+                output += `Self Final (Year 15):\n`;
+                output += `  Units: ${selfFinal.units}\n`;
+                output += `  Asset Value: $${selfFinal.assetValue.toLocaleString()}\n`;
+                output += `  Cumulative Cash Flow: $${selfFinal.cumulativeCashFlow.toLocaleString()}\n`;
+                output += `\n`;
+                output += `Financed Final (Year 15):\n`;
+                output += `  Units: ${financedFinal.units}\n`;
+                output += `  Asset Value: $${financedFinal.assetValue.toLocaleString()}\n`;
+                output += `  Loan Balance: $${financedFinal.loanBalance.toLocaleString()}\n`;
+                output += `  Net Equity: $${financedFinal.netEquity.toLocaleString()}\n`;
+                output += `  Cumulative Cash Flow: $${financedFinal.cumulativeCashFlow.toLocaleString()}\n`;
+                output += `\n`;
+                output += `Manual Calculations:\n`;
+                output += `  Total Self Invested: $${totalSelfInvested.toLocaleString()}\n`;
+                output += `  Total Financed Invested: $${totalFinancedInvested.toLocaleString()}\n`;
+                output += `  Leverage Multiplier: ${manualLeverageMultiplier.toFixed(4)}\n`;
+                output += `  Units per $1K (Financed): ${manualUnitsPerDollarFinanced.toFixed(4)}\n`;
+                output += `\n`;
+                output += `Summary Metrics from Results:\n`;
+                output += `  Leverage Multiplier: ${results.summaryMetrics.leverageMultiplier}\n`;
+                output += `  Units per Dollar (Financed): ${results.summaryMetrics.unitsPerDollar.financed}\n`;
+                output += "</pre>";
+                
+                document.getElementById('debug-output').innerHTML = output;
+            }
+        }
+    </script>
+</body>
+</html>

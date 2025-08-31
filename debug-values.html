@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Debug Values</title>
+</head>
+<body>
+    <h1>Debug Values</h1>
+    <div id="output"></div>
+    
+    <script src="js/core/data-model.js"></script>
+    <script src="js/core/utils.js"></script>
+    <script src="js/core/calculations.js"></script>
+    
+    <script>
+        console.log("🔍 Starting value debugging...");
+        
+        const params = dataModel.getDefaultParameters();
+        const results = calculations.performCalculations(params);
+        
+        let output = "<h2>Raw Values Debug:</h2><pre>";
+        
+        output += "Results exist: " + (!!results) + "\n";
+        output += "Has summaryMetrics: " + (!!results?.summaryMetrics) + "\n\n";
+        
+        if (results?.summaryMetrics) {
+            const summary = results.summaryMetrics;
+            output += "=== SUMMARY METRICS ===\n";
+            output += "leverageMultiplier: " + summary.leverageMultiplier + " (type: " + typeof summary.leverageMultiplier + ")\n";
+            output += "unitsPerDollar object: " + (!!summary.unitsPerDollar) + "\n";
+            
+            if (summary.unitsPerDollar) {
+                output += "unitsPerDollar.self: " + summary.unitsPerDollar.self + " (type: " + typeof summary.unitsPerDollar.self + ")\n";
+                output += "unitsPerDollar.financed: " + summary.unitsPerDollar.financed + " (type: " + typeof summary.unitsPerDollar.financed + ")\n";
+            } else {
+                output += "unitsPerDollar is null/undefined!\n";
+            }
+            
+            output += "\nFull summaryMetrics object:\n" + JSON.stringify(summary, null, 2) + "\n\n";
+        }
+        
+        // Test getDashboardMetrics
+        const dashboardMetrics = calculations.getDashboardMetrics(results);
+        output += "=== DASHBOARD METRICS ===\n";
+        output += "dashboardMetrics exist: " + (!!dashboardMetrics) + "\n";
+        
+        if (dashboardMetrics) {
+            output += "leverageMultiplier: " + dashboardMetrics.leverageMultiplier + " (type: " + typeof dashboardMetrics.leverageMultiplier + ")\n";
+            output += "unitsPerDollar object: " + (!!dashboardMetrics.unitsPerDollar) + "\n";
+            
+            if (dashboardMetrics.unitsPerDollar) {
+                output += "unitsPerDollar.self: " + dashboardMetrics.unitsPerDollar.self + " (type: " + typeof dashboardMetrics.unitsPerDollar.self + ")\n";
+                output += "unitsPerDollar.financed: " + dashboardMetrics.unitsPerDollar.financed + " (type: " + typeof dashboardMetrics.unitsPerDollar.financed + ")\n";
+            } else {
+                output += "unitsPerDollar is null/undefined!\n";
+            }
+            
+            output += "\nFull dashboardMetrics object:\n" + JSON.stringify(dashboardMetrics, null, 2) + "\n\n";
+        }
+        
+        // Test the hybrid logic manually
+        const directMetrics = results.summaryMetrics;
+        output += "=== HYBRID LOGIC TEST ===\n";
+        output += "directMetrics?.leverageMultiplier: " + (directMetrics?.leverageMultiplier) + "\n";
+        output += "directMetrics?.unitsPerDollar?.financed: " + (directMetrics?.unitsPerDollar?.financed) + "\n";
+        
+        const metricsToUse = {
+            leverageMultiplier: directMetrics?.leverageMultiplier || 0,
+            unitsPerDollar: {
+                self: directMetrics?.unitsPerDollar?.self || 0,
+                financed: directMetrics?.unitsPerDollar?.financed || 0
+            }
+        };
+        
+        output += "\nmetricsToUse object:\n" + JSON.stringify(metricsToUse, null, 2) + "\n";
+        output += "\nShould show on dashboard:\n";
+        output += "Leverage: " + metricsToUse.leverageMultiplier.toFixed(2) + "x\n";
+        output += "Units: " + metricsToUse.unitsPerDollar.financed.toFixed(4) + " units per $1K\n";
+        
+        output += "</pre>";
+        document.getElementById('output').innerHTML = output;
+    </script>
+</body>
+</html>

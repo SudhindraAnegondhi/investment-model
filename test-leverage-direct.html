@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Leverage Direct</title>
+</head>
+<body>
+    <h1>Direct Leverage Test</h1>
+    <div id="test-output"></div>
+    
+    <script src="js/core/data-model.js"></script>
+    <script src="js/core/utils.js"></script>
+    <script src="js/core/calculations.js"></script>
+    
+    <script>
+        const params = dataModel.getDefaultParameters();
+        const results = calculations.performCalculations(params);
+        
+        let output = "<h2>Direct Leverage Test Results:</h2><pre>";
+        
+        if (results && results.financed) {
+            const finalIndex = 14; // Year 15
+            const financedFinal = results.financed[finalIndex];
+            
+            output += `Financed Final Year Data (Index ${finalIndex}):\n`;
+            output += `  Asset Value: $${(financedFinal.assetValue || 0).toLocaleString()}\n`;
+            output += `  Loan Balance: $${(financedFinal.loanBalance || 0).toLocaleString()}\n`;
+            output += `  Net Equity: $${(financedFinal.netEquity || 0).toLocaleString()}\n`;
+            output += `  Units: ${financedFinal.units || 0}\n`;
+            output += `\n`;
+            
+            // Manual leverage calculation
+            const assetValue = financedFinal.assetValue || 0;
+            const netEquity = financedFinal.netEquity || 0;
+            const loanBalance = financedFinal.loanBalance || 0;
+            
+            output += `Manual Calculations:\n`;
+            output += `  Expected Net Equity: $${assetValue} - $${loanBalance} = $${(assetValue - loanBalance).toLocaleString()}\n`;
+            output += `  Actual Net Equity: $${netEquity.toLocaleString()}\n`;
+            output += `  Net Equity Match: ${Math.abs(netEquity - (assetValue - loanBalance)) < 1 ? 'YES' : 'NO'}\n`;
+            output += `\n`;
+            
+            const manualLeverage = netEquity > 0 ? assetValue / netEquity : 0;
+            output += `  Leverage Multiplier: $${assetValue.toLocaleString()} / $${netEquity.toLocaleString()} = ${manualLeverage.toFixed(4)}\n`;
+            
+            // Units per dollar
+            const totalInvested = params.annualBudget * Math.min(params.financedPurchaseYears, 15);
+            const unitsPerDollar = totalInvested > 0 ? financedFinal.units / totalInvested * 1000 : 0;
+            output += `  Units per $1K: ${financedFinal.units} / $${totalInvested.toLocaleString()} * 1000 = ${unitsPerDollar.toFixed(4)}\n`;
+            
+            // Summary metrics
+            output += `\n`;
+            output += `Summary Metrics:\n`;
+            output += `  Leverage Multiplier: ${results.summaryMetrics?.leverageMultiplier || 'undefined'}\n`;
+            output += `  Units per Dollar (Financed): ${results.summaryMetrics?.unitsPerDollar?.financed || 'undefined'}\n`;
+            
+            // Test dashboard metrics
+            const dashboardMetrics = calculations.getDashboardMetrics(results);
+            output += `\n`;
+            output += `Dashboard Metrics:\n`;
+            output += `  Leverage Multiplier: ${dashboardMetrics?.leverageMultiplier || 'undefined'}\n`;
+            output += `  Units per Dollar (Financed): ${dashboardMetrics?.unitsPerDollar?.financed || 'undefined'}\n`;
+        }
+        
+        output += "</pre>";
+        document.getElementById('test-output').innerHTML = output;
+        
+        console.log("Full results:", results);
+        console.log("Final financed data:", results?.financed?.[14]);
+    </script>
+</body>
+</html>

@@ -189,9 +189,9 @@ h2 {
 .input-form-container {
   display: flex;
   flex-direction: column;
-  height: calc(100vh - 200px); /* Adjust based on header/nav height */
+  height: calc(100vh - 240px); /* Reduced height to add space below Calculate button */
   min-height: 500px;
-  max-height: calc(100vh - 180px);
+  max-height: calc(100vh - 220px);
   background: white;
   border-radius: 10px;
   overflow: hidden;
@@ -227,7 +227,7 @@ h2 {
 /* Fixed Calculate Button Area */
 .calculate-button-area {
   flex-shrink: 0;
-  padding: 15px 20px;
+  padding: 15px 20px 25px 20px; /* Added extra bottom padding */
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(10px);
   border-top: 1px solid #e0e0e0;

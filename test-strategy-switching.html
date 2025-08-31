@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Strategy Switching</title>
+</head>
+<body>
+    <h1>Strategy Switching Test</h1>
+    <div id="test-output"></div>
+    
+    <script src="js/core/data-model.js"></script>
+    <script src="js/core/utils.js"></script>
+    <script src="js/core/calculations.js"></script>
+    
+    <script>
+        // Test strategy switching data consistency
+        const params = dataModel.getDefaultParameters();
+        const results = calculations.performCalculations(params);
+        
+        let output = "<h2>Strategy Switching Data Consistency Test:</h2><pre>";
+        
+        // Test for Year 1 (index 0)
+        const testYear = 1;
+        const testIndex = 0;
+        
+        output += `Testing Year ${testYear} (Index ${testIndex}):\n\n`;
+        
+        // Get data for self-financed strategy
+        const selfYearData = calculations.getYearlyStrategyData(results, testYear, "self");
+        const selfPLData = calculations.getPLData(results, testYear, "self");
+        const selfCashFlowData = calculations.getCashFlowStatementData(results, testYear, "self");
+        
+        output += `SELF-FINANCED STRATEGY:\n`;
+        output += `  Year Data - New Units: ${selfYearData?.newUnits || 'N/A'}\n`;
+        output += `  Year Data - Total Units: ${selfYearData?.totalUnits || 'N/A'}\n`;
+        output += `  Year Data - Asset Value: $${(selfYearData?.assetValue || 0).toLocaleString()}\n`;
+        output += `  Year Data - Closing Cash: $${(selfYearData?.closingCash || 0).toLocaleString()}\n`;
+        output += `  P&L Data - NOI: $${(selfPLData?.noi || 0).toLocaleString()}\n`;
+        output += `  P&L Data - EGI: $${(selfPLData?.egi || 0).toLocaleString()}\n`;
+        output += `  Cash Flow Data - Net Cash Flow: $${(selfCashFlowData?.netCashFlow || 0).toLocaleString()}\n`;
+        output += `  Cash Flow Data - Opening Cash: $${(selfCashFlowData?.openingCash || 0).toLocaleString()}\n`;
+        output += `\n`;
+        
+        // Get data for bank-financed strategy
+        const financedYearData = calculations.getYearlyStrategyData(results, testYear, "financed");
+        const financedPLData = calculations.getPLData(results, testYear, "financed");
+        const financedCashFlowData = calculations.getCashFlowStatementData(results, testYear, "financed");
+        
+        output += `BANK-FINANCED STRATEGY:\n`;
+        output += `  Year Data - New Units: ${financedYearData?.newUnits || 'N/A'}\n`;
+        output += `  Year Data - Total Units: ${financedYearData?.totalUnits || 'N/A'}\n`;
+        output += `  Year Data - Asset Value: $${(financedYearData?.assetValue || 0).toLocaleString()}\n`;
+        output += `  Year Data - Closing Cash: $${(financedYearData?.closingCash || 0).toLocaleString()}\n`;
+        output += `  P&L Data - NOI: $${(financedPLData?.noi || 0).toLocaleString()}\n`;
+        output += `  P&L Data - EGI: $${(financedPLData?.egi || 0).toLocaleString()}\n`;
+        output += `  Cash Flow Data - Net Cash Flow: $${(financedCashFlowData?.netCashFlow || 0).toLocaleString()}\n`;
+        output += `  Cash Flow Data - Opening Cash: $${(financedCashFlowData?.openingCash || 0).toLocaleString()}\n`;
+        output += `\n`;
+        
+        // Verify that the strategies are different
+        output += `VERIFICATION - Are strategies different?\n`;
+        output += `  New Units: ${selfYearData?.newUnits !== financedYearData?.newUnits ? '✅ DIFFERENT' : '❌ SAME'}\n`;
+        output += `  Total Units: ${selfYearData?.totalUnits !== financedYearData?.totalUnits ? '✅ DIFFERENT' : '❌ SAME'}\n`;
+        output += `  Asset Value: ${selfYearData?.assetValue !== financedYearData?.assetValue ? '✅ DIFFERENT' : '❌ SAME'}\n`;
+        output += `  Closing Cash: ${selfYearData?.closingCash !== financedYearData?.closingCash ? '✅ DIFFERENT' : '❌ SAME'}\n`;
+        output += `  NOI: ${selfPLData?.noi !== financedPLData?.noi ? '✅ DIFFERENT' : '❌ SAME'}\n`;
+        output += `  Net Cash Flow: ${selfCashFlowData?.netCashFlow !== financedCashFlowData?.netCashFlow ? '✅ DIFFERENT' : '❌ SAME'}\n`;
+        output += `\n`;
+        
+        // Test Year 5 as well to see differences over time
+        const testYear5 = 5;
+        const testIndex5 = 4;
+        
+        output += `Testing Year ${testYear5} (Index ${testIndex5}):\n\n`;
+        
+        const self5YearData = calculations.getYearlyStrategyData(results, testYear5, "self");
+        const financed5YearData = calculations.getYearlyStrategyData(results, testYear5, "financed");
+        
+        output += `YEAR 5 COMPARISON:\n`;
+        output += `  Self - New Units: ${self5YearData?.newUnits || 'N/A'}, Total Units: ${self5YearData?.totalUnits || 'N/A'}\n`;
+        output += `  Financed - New Units: ${financed5YearData?.newUnits || 'N/A'}, Total Units: ${financed5YearData?.totalUnits || 'N/A'}\n`;
+        output += `  Self - Asset Value: $${(self5YearData?.assetValue || 0).toLocaleString()}\n`;
+        output += `  Financed - Asset Value: $${(financed5YearData?.assetValue || 0).toLocaleString()}\n`;
+        output += `  Self - Closing Cash: $${(self5YearData?.closingCash || 0).toLocaleString()}\n`;
+        output += `  Financed - Closing Cash: $${(financed5YearData?.closingCash || 0).toLocaleString()}\n`;
+        
+        output += "</pre>";
+        document.getElementById('test-output').innerHTML = output;
+        
+        console.log("Strategy Switching Test Results:");
+        console.log("Self Year 1:", selfYearData);
+        console.log("Financed Year 1:", financedYearData);
+        console.log("Self Year 5:", self5YearData);
+        console.log("Financed Year 5:", financed5YearData);
+    </script>
+</body>
+</html>

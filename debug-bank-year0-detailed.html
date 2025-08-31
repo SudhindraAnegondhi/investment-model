@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Debug Bank Financed Year 0</title>
+</head>
+<body>
+    <h1>Debug Bank Financed Year 0</h1>
+    <div id="debug-output"></div>
+    
+    <script src="js/core/data-model.js"></script>
+    <script src="js/core/utils.js"></script>
+    <script src="js/core/calculations.js"></script>
+    
+    <script>
+        // Test with default parameters
+        const params = dataModel.getDefaultParameters();
+        console.log("Parameters:", params);
+        
+        // Test Year 0 (year=1) bank financed strategy
+        const results = calculations.performCalculations(params);
+        
+        let output = "<h2>Bank Financed Strategy Year 0 Analysis:</h2><pre>";
+        
+        const year0Data = results.yearlyData[0]; // Year 1 is index 0
+        const financedData = year0Data.financedStrategy;
+        
+        output += `Year 1 (Year 0) Bank Financed Results:\n`;
+        output += `  New Units: ${financedData.newUnits}\n`;
+        output += `  Total Units: ${financedData.totalUnits}\n`;
+        output += `  Opening Cash: $${financedData.openingCash.toLocaleString()}\n`;
+        output += `  Annual Budget: $${financedData.annualBudget.toLocaleString()}\n`;
+        output += `  Asset Value: $${financedData.assetValue.toLocaleString()}\n`;
+        output += `  Loan Balance: $${financedData.loanBalance.toLocaleString()}\n`;
+        output += `  Net Cash Flow: $${financedData.netCashFlow.toLocaleString()}\n`;
+        output += `  Closing Cash: $${financedData.closingCash.toLocaleString()}\n`;
+        output += `\n`;
+        
+        // Check the detailed data too
+        const detailedData = results.detailedData[0];
+        output += `Detailed Data Year 1:\n`;
+        output += `  Financed New Units: ${detailedData.financedNewUnits}\n`;
+        output += `  Self New Units: ${detailedData.selfNewUnits}\n`;
+        output += `\n`;
+        
+        // Let's manually test the sustainable units calculation
+        output += `Manual Test of Sustainable Units:\n`;
+        
+        // Simulate the conditions for Year 1
+        const year = 1;
+        const propertyCost = params.initialCost; // 160000
+        const availableCash = 0; // Starting cash
+        const downPaymentPerUnit = propertyCost * (1 - params.ltvRatio / 100);
+        const totalCashForPurchases = availableCash + params.annualBudget;
+        const maxAffordableUnits = Math.floor(totalCashForPurchases / downPaymentPerUnit);
+        
+        output += `  Property Cost: $${propertyCost.toLocaleString()}\n`;
+        output += `  Down Payment Per Unit: $${downPaymentPerUnit.toLocaleString()}\n`;
+        output += `  Available Cash: $${availableCash.toLocaleString()}\n`;
+        output += `  Annual Budget: $${params.annualBudget.toLocaleString()}\n`;
+        output += `  Total Cash: $${totalCashForPurchases.toLocaleString()}\n`;
+        output += `  Max Affordable Units: ${maxAffordableUnits}\n`;
+        output += `\n`;
+        
+        // Let's see what the sustainable calculation returns
+        if (maxAffordableUnits > 0) {
+            output += `Testing Sustainable Units Function:\n`;
+            
+            // We need to access the internal function - let's see if it's available
+            if (typeof window.calculateSustainableUnits === 'function') {
+                const sustainableResult = window.calculateSustainableUnits(
+                    maxAffordableUnits,
+                    year,
+                    [], // empty existing cohorts
+                    [], // empty existing loans
+                    params,
+                    propertyCost,
+                    availableCash
+                );
+                output += `  Sustainable Units: ${sustainableResult.units}\n`;
+                output += `  Cash Flow Balance: $${sustainableResult.cashFlowBalance.toLocaleString()}\n`;
+            } else {
+                output += `  calculateSustainableUnits function not available\n`;
+            }
+        }
+        
+        output += "</pre>";
+        document.getElementById('debug-output').innerHTML = output;
+        
+        // Also log to console for detailed inspection
+        console.log("Year 0 Data:", year0Data);
+        console.log("Detailed Data:", detailedData);
+        console.log("Full Results:", results);
+    </script>
+</body>
+</html>

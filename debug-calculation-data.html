@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Debug Calculation Data</title>
+</head>
+<body>
+    <h1>Debug Calculation Data</h1>
+    <button onclick="debugCalculations()">Debug Calculations</button>
+    <div id="output" style="background: #f0f0f0; padding: 10px; margin: 10px 0; white-space: pre-wrap; font-family: monospace; max-height: 600px; overflow-y: auto;"></div>
+    
+    <script src="js/core/data-model.js"></script>
+    <script src="js/core/utils.js"></script>
+    <script src="js/core/calculations.js"></script>
+    
+    <script>
+        function debugCalculations() {
+            let debug = "🔍 DEBUGGING CALCULATION DATA\n\n";
+            
+            try {
+                // Get parameters - use default params since we don't have form elements
+                const params = dataModel.getDefaultParameters();
+                debug += "✅ Got parameters:\n" + JSON.stringify(params, null, 2) + "\n\n";
+                
+                // Run calculations
+                debug += "🔄 Running performCalculations...\n";
+                const results = calculations.performCalculations(params);
+                debug += "✅ Calculations completed\n\n";
+                
+                // Check results structure
+                debug += "📊 RESULTS STRUCTURE:\n";
+                debug += "- Has results: " + (!!results) + "\n";
+                debug += "- Results keys: " + (results ? Object.keys(results).join(', ') : 'N/A') + "\n";
+                debug += "- Has summaryMetrics: " + (!!results?.summaryMetrics) + "\n";
+                
+                if (results?.summaryMetrics) {
+                    const summary = results.summaryMetrics;
+                    debug += "\n📈 SUMMARY METRICS:\n";
+                    debug += "- leverageMultiplier: " + summary.leverageMultiplier + " (type: " + typeof summary.leverageMultiplier + ")\n";
+                    debug += "- Has unitsPerDollar: " + (!!summary.unitsPerDollar) + "\n";
+                    
+                    if (summary.unitsPerDollar) {
+                        debug += "- unitsPerDollar.self: " + summary.unitsPerDollar.self + "\n";
+                        debug += "- unitsPerDollar.financed: " + summary.unitsPerDollar.financed + "\n";
+                    }
+                    
+                    debug += "\n🔍 FULL SUMMARY METRICS:\n";
+                    debug += JSON.stringify(summary, null, 2) + "\n";
+                } else {
+                    debug += "\n❌ NO SUMMARY METRICS FOUND!\n";
+                }
+                
+                // Check if calculateSummaryMetrics function exists and what it returns
+                debug += "\n🧪 TESTING calculateSummaryMetrics DIRECTLY:\n";
+                if (typeof calculations.calculateSummaryMetrics === 'function') {
+                    debug += "✅ calculateSummaryMetrics function exists\n";
+                    try {
+                        const directSummary = calculations.calculateSummaryMetrics(results);
+                        debug += "✅ Direct call successful\n";
+                        debug += "Direct result: " + JSON.stringify(directSummary, null, 2) + "\n";
+                    } catch (error) {
+                        debug += "❌ Direct call failed: " + error.message + "\n";
+                    }
+                } else {
+                    debug += "❌ calculateSummaryMetrics function not found\n";
+                }
+                
+                // Check raw calculation results
+                debug += "\n🔍 RAW CALCULATION RESULTS:\n";
+                if (results?.financed && results.financed.length > 0) {
+                    const finalFinanced = results.financed[14]; // Year 15
+                    debug += "Final financed data (index 14):\n";
+                    debug += "- units: " + finalFinanced?.units + "\n";
+                    debug += "- assetValue: " + finalFinanced?.assetValue + "\n";
+                    debug += "- loanBalance: " + finalFinanced?.loanBalance + "\n";
+                    debug += "- netEquity: " + finalFinanced?.netEquity + "\n";
+                    
+                    if (finalFinanced?.assetValue && finalFinanced?.netEquity) {
+                        const manualLeverage = finalFinanced.assetValue / finalFinanced.netEquity;
+                        debug += "- Manual leverage calc: " + manualLeverage + "\n";
+                    }
+                } else {
+                    debug += "❌ No financed results found\n";
+                }
+                
+                // Check what getDashboardMetrics returns
+                debug += "\n🎯 TESTING getDashboardMetrics:\n";
+                if (typeof calculations.getDashboardMetrics === 'function') {
+                    try {
+                        const dashboardMetrics = calculations.getDashboardMetrics(results);
+                        debug += "✅ getDashboardMetrics successful\n";
+                        debug += "Dashboard metrics: " + JSON.stringify(dashboardMetrics, null, 2) + "\n";
+                    } catch (error) {
+                        debug += "❌ getDashboardMetrics failed: " + error.message + "\n";
+                    }
+                } else {
+                    debug += "❌ getDashboardMetrics function not found\n";
+                }
+                
+            } catch (error) {
+                debug += "❌ ERROR: " + error.message + "\n";
+                debug += "Stack: " + error.stack + "\n";
+            }
+            
+            document.getElementById('output').textContent = debug;
+            console.log(debug);
+        }
+        
+        // Auto-run on load
+        window.onload = function() {
+            debugCalculations();
+        };
+    </script>
+</body>
+</html>

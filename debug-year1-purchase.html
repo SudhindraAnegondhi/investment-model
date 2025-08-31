@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Debug Year 1 Purchase</title>
+</head>
+<body>
+    <h1>Debug Year 1 Unit Purchase</h1>
+    <div id="debug-output"></div>
+    
+    <script src="js/core/data-model.js"></script>
+    <script src="js/core/utils.js"></script>
+    <script src="js/core/calculations.js"></script>
+    
+    <script>
+        // Test with default parameters
+        const params = dataModel.getDefaultParameters();
+        const results = calculations.performCalculations(params);
+        
+        let output = "<h2>Year 1 Purchase Analysis:</h2><pre>";
+        
+        if (results && results.yearlyData && results.yearlyData[0]) {
+            const year1Data = results.yearlyData[0]; // Year 1 is index 0
+            
+            output += `Year 1 Results:\n`;
+            output += `Self Strategy:\n`;
+            output += `  New Units: ${year1Data.selfStrategy.newUnits}\n`;
+            output += `  Total Units: ${year1Data.selfStrategy.totalUnits}\n`;
+            output += `  Asset Value: $${(year1Data.selfStrategy.assetValue || 0).toLocaleString()}\n`;
+            output += `  Opening Cash: $${(year1Data.selfStrategy.openingCash || 0).toLocaleString()}\n`;
+            output += `  Closing Cash: $${(year1Data.selfStrategy.closingCash || 0).toLocaleString()}\n`;
+            output += `\n`;
+            
+            output += `Financed Strategy:\n`;
+            output += `  New Units: ${year1Data.financedStrategy.newUnits}\n`;
+            output += `  Total Units: ${year1Data.financedStrategy.totalUnits}\n`;
+            output += `  Asset Value: $${(year1Data.financedStrategy.assetValue || 0).toLocaleString()}\n`;
+            output += `  Loan Balance: $${(year1Data.financedStrategy.loanBalance || 0).toLocaleString()}\n`;
+            output += `  Net Equity: $${(year1Data.financedStrategy.netEquity || 0).toLocaleString()}\n`;
+            output += `  Opening Cash: $${(year1Data.financedStrategy.openingCash || 0).toLocaleString()}\n`;
+            output += `  Closing Cash: $${(year1Data.financedStrategy.closingCash || 0).toLocaleString()}\n`;
+            output += `\n`;
+            
+            // Check all years for financed strategy
+            output += `Financed Strategy Progress (New Units by Year):\n`;
+            for (let i = 0; i < Math.min(results.yearlyData.length, 10); i++) {
+                const yearData = results.yearlyData[i];
+                output += `  Year ${i + 1}: ${yearData.financedStrategy.newUnits} new units (total: ${yearData.financedStrategy.totalUnits})\n`;
+            }
+            output += `\n`;
+            
+            // Check final year
+            const finalIndex = 14; // Year 15
+            if (results.yearlyData[finalIndex]) {
+                const finalData = results.yearlyData[finalIndex];
+                output += `Final Year (15) Financed Strategy:\n`;
+                output += `  Total Units: ${finalData.financedStrategy.totalUnits}\n`;
+                output += `  Asset Value: $${(finalData.financedStrategy.assetValue || 0).toLocaleString()}\n`;
+                output += `  Loan Balance: $${(finalData.financedStrategy.loanBalance || 0).toLocaleString()}\n`;
+                output += `  Net Equity: $${(finalData.financedStrategy.netEquity || 0).toLocaleString()}\n`;
+                
+                // Calculate metrics manually
+                const assetValue = finalData.financedStrategy.assetValue || 0;
+                const netEquity = finalData.financedStrategy.netEquity || 0;
+                const totalUnits = finalData.financedStrategy.totalUnits || 0;
+                
+                const leverageMultiplier = netEquity > 0 ? assetValue / netEquity : 0;
+                
+                output += `\n`;
+                output += `Manual Calculations for Final Year:\n`;
+                output += `  Leverage Multiplier: ${assetValue.toLocaleString()} / ${netEquity.toLocaleString()} = ${leverageMultiplier.toFixed(4)}\n`;
+                
+                // Total cash invested for financed strategy
+                const financedInvested = results.summaryMetrics?.totalCashInvested?.financed || 0;
+                const unitsPerDollar = financedInvested > 0 ? totalUnits / financedInvested * 1000 : 0;
+                
+                output += `  Cash Invested: $${financedInvested.toLocaleString()}\n`;
+                output += `  Units per $1K: ${totalUnits} / ${financedInvested} * 1000 = ${unitsPerDollar.toFixed(4)}\n`;
+                
+                // Check for zero cases
+                output += `\n`;
+                output += `Zero Check:\n`;
+                output += `  Is Asset Value zero? ${assetValue === 0 ? 'YES' : 'NO'}\n`;
+                output += `  Is Net Equity zero? ${netEquity === 0 ? 'YES' : 'NO'}\n`;
+                output += `  Is Total Units zero? ${totalUnits === 0 ? 'YES' : 'NO'}\n`;
+                output += `  Is Financed Invested zero? ${financedInvested === 0 ? 'YES' : 'NO'}\n`;
+            }
+            
+        } else {
+            output += "❌ No yearly data found!\n";
+        }
+        
+        output += "</pre>";
+        document.getElementById('debug-output').innerHTML = output;
+        
+        console.log("Full results:", results);
+    </script>
+</body>
+</html>

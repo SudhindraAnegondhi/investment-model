@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Manual Fix Isolated</title>
+    <link rel="stylesheet" href="css/main.css" />
+    <link rel="stylesheet" href="css/components.css" />
+</head>
+<body>
+    <div class="container">
+        <h1>Test Manual Fix Isolated</h1>
+        
+        <!-- Exact HTML structure from main page -->
+        <div class="comparison-card financed">
+            <h4>🏦 Bank-Financed Benefits</h4>
+            <div class="comparison-metrics">
+              <div class="metric">
+                <div class="metric-label">Leverage Multiplier</div>
+                <div class="metric-value" id="leverage-multiplier">1.0x</div>
+                <div class="metric-description">Asset control per equity dollar</div>
+              </div>
+              <div class="metric">
+                <div class="metric-label">Unit Efficiency</div>
+                <div class="metric-value" id="units-per-dollar">0.0</div>
+                <div class="metric-description">Units acquired per $1K invested</div>
+              </div>
+            </div>
+        </div>
+        
+        <button onclick="testManualFix()">Test Manual Fix</button>
+        <button onclick="testCalculateAll()">Test Full calculateAll Flow</button>
+        <div id="debug-info"></div>
+        <div id="console-log" style="background: #f0f0f0; padding: 10px; margin: 10px 0; white-space: pre-wrap; font-family: monospace; max-height: 400px; overflow-y: auto;"></div>
+    </div>
+    
+    <script src="js/core/data-model.js"></script>
+    <script src="js/core/utils.js"></script>
+    <script src="js/core/calculations.js"></script>
+    <script src="js/modules/balance-sheet.js"></script>
+    <script src="js/components/ui-manager.js"></script>
+    
+    <script>
+        // Capture console output
+        let consoleOutput = '';
+        const originalConsoleLog = console.log;
+        const originalConsoleError = console.error;
+        
+        function logToPage(message, isError = false) {
+            consoleOutput += (isError ? '❌ ' : '') + message + '\n';
+            document.getElementById('console-log').textContent = consoleOutput;
+            document.getElementById('console-log').scrollTop = document.getElementById('console-log').scrollHeight;
+        }
+        
+        console.log = function(...args) {
+            const message = args.map(arg => 
+                typeof arg === 'object' ? JSON.stringify(arg, null, 2) : String(arg)
+            ).join(' ');
+            logToPage(message);
+            originalConsoleLog.apply(console, args);
+        };
+        
+        console.error = function(...args) {
+            const message = args.map(arg => 
+                typeof arg === 'object' ? JSON.stringify(arg, null, 2) : String(arg)
+            ).join(' ');
+            logToPage(message, true);
+            originalConsoleError.apply(console, args);
+        };
+        
+        function testManualFix() {
+            console.log("🧪 Testing exact manual fix from index.html...");
+            consoleOutput = '🧪 Testing exact manual fix from index.html...\n';
+            
+            // Get parameters and run calculations exactly like in main page
+            const params = utils.getInputParameters ? utils.getInputParameters() : dataModel.getDefaultParameters();
+            console.log("✅ Got params:", !!params);
+            
+            const results = calculations.performCalculations(params);
+            console.log("✅ Got results:", !!results);
+            
+            // Store results globally like in main page
+            utils.calculationResults = results;
+            
+            // EXACT COPY of the manual fix from index.html
+            setTimeout(() => {
+              console.log("🔧 Manual dashboard fix started...");
+              
+              if (results && results.summaryMetrics) {
+                const summary = results.summaryMetrics;
+                console.log("📊 Manual fix - summaryMetrics:", summary);
+                
+                // Get the DOM elements
+                const leverageEl = document.getElementById('leverage-multiplier');
+                const unitsEl = document.getElementById('units-per-dollar');
+                
+                console.log("🎯 Manual fix - found elements:", {
+                  leverage: !!leverageEl,
+                  units: !!unitsEl
+                });
+                
+                // Set leverage multiplier
+                if (leverageEl && summary.leverageMultiplier) {
+                  const leverageValue = summary.leverageMultiplier;
+                  const formattedValue = leverageValue.toFixed(2) + "x";
+                  leverageEl.textContent = formattedValue;
+                  console.log("✅ Manual fix - set leverage:", leverageValue, "->", formattedValue);
+                }
+                
+                // Set units per dollar
+                if (unitsEl && summary.unitsPerDollar && summary.unitsPerDollar.financed) {
+                  const unitsValue = summary.unitsPerDollar.financed;
+                  const formattedValue = unitsValue.toFixed(4) + " units per $1K";
+                  unitsEl.textContent = formattedValue;
+                  console.log("✅ Manual fix - set units:", unitsValue, "->", formattedValue);
+                }
+                
+                console.log("🎯 Manual fix completed");
+                
+                // Show final values
+                console.log("📋 Final DOM values:");
+                console.log("- Leverage element text:", document.getElementById('leverage-multiplier')?.textContent);
+                console.log("- Units element text:", document.getElementById('units-per-dollar')?.textContent);
+              } else {
+                console.log("❌ No results or summaryMetrics available for manual fix");
+              }
+            }, 100);
+        }
+        
+        function testCalculateAll() {
+            console.log("🧪 Testing full calculateAll flow...");
+            consoleOutput = '🧪 Testing full calculateAll flow...\n';
+            
+            // Simulate the calculateAll function flow
+            try {
+                const params = utils.getInputParameters ? utils.getInputParameters() : dataModel.getDefaultParameters();
+                console.log("✅ Got params for calculateAll");
+                
+                const results = calculations.performCalculations(params);
+                utils.calculationResults = results;
+                console.log("✅ Set utils.calculationResults");
+                
+                // Call updateAllTables if it exists (like in main page)
+                if (typeof updateAllTables === "function") {
+                    console.log("📞 Calling updateAllTables...");
+                    updateAllTables();
+                    console.log("✅ updateAllTables completed");
+                } else {
+                    console.log("⚠️ updateAllTables function not available");
+                    
+                    // Try calling balance sheet update directly
+                    if (window.balanceSheet && window.balanceSheet.updateSummary) {
+                        console.log("📞 Calling balanceSheet.updateSummary directly...");
+                        window.balanceSheet.updateSummary();
+                        console.log("✅ balanceSheet.updateSummary completed");
+                    }
+                }
+                
+                // Then run the manual fix (like in main page)
+                setTimeout(() => {
+                    console.log("🔧 Manual dashboard fix started (from calculateAll flow)...");
+                    
+                    if (results && results.summaryMetrics) {
+                        const summary = results.summaryMetrics;
+                        console.log("📊 Manual fix - summaryMetrics available:", !!summary);
+                        console.log("- leverageMultiplier:", summary.leverageMultiplier);
+                        console.log("- unitsPerDollar.financed:", summary.unitsPerDollar?.financed);
+                        
+                        const leverageEl = document.getElementById('leverage-multiplier');
+                        const unitsEl = document.getElementById('units-per-dollar');
+                        
+                        if (leverageEl && summary.leverageMultiplier) {
+                            const leverageValue = summary.leverageMultiplier;
+                            const formattedValue = leverageValue.toFixed(2) + "x";
+                            leverageEl.textContent = formattedValue;
+                            console.log("✅ Set leverage via calculateAll flow:", formattedValue);
+                        }
+                        
+                        if (unitsEl && summary.unitsPerDollar && summary.unitsPerDollar.financed) {
+                            const unitsValue = summary.unitsPerDollar.financed;
+                            const formattedValue = unitsValue.toFixed(4) + " units per $1K";
+                            unitsEl.textContent = formattedValue;
+                            console.log("✅ Set units via calculateAll flow:", formattedValue);
+                        }
+                        
+                        console.log("🎯 Manual fix in calculateAll flow completed");
+                        
+                        // Final check
+                        console.log("📋 Final values after calculateAll:");
+                        console.log("- Leverage:", document.getElementById('leverage-multiplier')?.textContent);
+                        console.log("- Units:", document.getElementById('units-per-dollar')?.textContent);
+                    }
+                }, 100);
+                
+            } catch (error) {
+                console.error("❌ Error in calculateAll flow:", error);
+            }
+        }
+        
+        // Initial state check
+        window.onload = function() {
+            console.log("🔍 Page loaded - initial DOM values:");
+            console.log("- Leverage:", document.getElementById('leverage-multiplier')?.textContent);
+            console.log("- Units:", document.getElementById('units-per-dollar')?.textContent);
+        };
+    </script>
+</body>
+</html>

@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Debug Leverage and Units Per Dollar</title>
+</head>
+<body>
+    <h1>Debug Leverage Multiplier and Units Per Dollar</h1>
+    <div id="debug-output"></div>
+    
+    <script src="js/core/data-model.js"></script>
+    <script src="js/core/utils.js"></script>
+    <script src="js/core/calculations.js"></script>
+    
+    <script>
+        // Test with default parameters
+        const params = dataModel.getDefaultParameters();
+        const results = calculations.performCalculations(params);
+        
+        let output = "<h2>Leverage Multiplier and Units Per Dollar Debug:</h2><pre>";
+        
+        // Get dashboard metrics
+        const dashboardMetrics = calculations.getDashboardMetrics(results);
+        
+        output += `Dashboard Metrics:\n`;
+        output += `  Leverage Multiplier: ${dashboardMetrics?.leverageMultiplier || 'undefined'}\n`;
+        output += `  Units Per Dollar (Self): ${dashboardMetrics?.unitsPerDollar?.self || 'undefined'}\n`;
+        output += `  Units Per Dollar (Financed): ${dashboardMetrics?.unitsPerDollar?.financed || 'undefined'}\n`;
+        output += `\n`;
+        
+        // Check the summary metrics directly
+        const summaryMetrics = results.summaryMetrics;
+        output += `Summary Metrics Raw:\n`;
+        output += `  Leverage Multiplier: ${summaryMetrics?.leverageMultiplier || 'undefined'}\n`;
+        output += `  Units Per Dollar Self: ${summaryMetrics?.unitsPerDollar?.self || 'undefined'}\n`;
+        output += `  Units Per Dollar Financed: ${summaryMetrics?.unitsPerDollar?.financed || 'undefined'}\n`;
+        output += `\n`;
+        
+        // Check the final year data for financed strategy
+        const finalYear = results.yearlyData[14]; // Year 15 is index 14
+        const financedFinal = finalYear.financedStrategy;
+        
+        output += `Final Year (15) Financed Strategy Data:\n`;
+        output += `  Asset Value: $${(financedFinal?.assetValue || 0).toLocaleString()}\n`;
+        output += `  Loan Balance: $${(financedFinal?.loanBalance || 0).toLocaleString()}\n`;
+        output += `  Net Equity: $${(financedFinal?.netEquity || 0).toLocaleString()}\n`;
+        output += `  Total Units: ${financedFinal?.totalUnits || 0}\n`;
+        output += `\n`;
+        
+        // Calculate leverage multiplier manually
+        const assetValue = financedFinal?.assetValue || 0;
+        const netEquity = financedFinal?.netEquity || 0;
+        const leverageCalc = netEquity > 0 ? assetValue / netEquity : 0;
+        output += `Manual Leverage Calculation:\n`;
+        output += `  Asset Value / Net Equity = ${assetValue.toLocaleString()} / ${netEquity.toLocaleString()} = ${leverageCalc.toFixed(2)}\n`;
+        output += `\n`;
+        
+        // Check invested amounts
+        const selfInvested = summaryMetrics?.totalCashInvested?.self || 0;
+        const financedInvested = summaryMetrics?.totalCashInvested?.financed || 0;
+        const selfFinalUnits = results.yearlyData[14].selfStrategy?.totalUnits || 0;
+        const financedFinalUnits = results.yearlyData[14].financedStrategy?.totalUnits || 0;
+        
+        output += `Investment and Units Data:\n`;
+        output += `  Self Cash Invested: $${selfInvested.toLocaleString()}\n`;
+        output += `  Financed Cash Invested: $${financedInvested.toLocaleString()}\n`;
+        output += `  Self Final Units: ${selfFinalUnits}\n`;
+        output += `  Financed Final Units: ${financedFinalUnits}\n`;
+        output += `\n`;
+        
+        // Calculate units per dollar manually
+        const selfUnitsPerDollar = selfInvested > 0 ? selfFinalUnits / selfInvested * 1000000 : 0;
+        const financedUnitsPerDollar = financedInvested > 0 ? financedFinalUnits / financedInvested * 1000000 : 0;
+        
+        output += `Manual Units Per Dollar Calculation (per million $):\n`;
+        output += `  Self: ${selfFinalUnits} / ${selfInvested} * 1,000,000 = ${selfUnitsPerDollar.toFixed(2)}\n`;
+        output += `  Financed: ${financedFinalUnits} / ${financedInvested} * 1,000,000 = ${financedUnitsPerDollar.toFixed(2)}\n`;
+        output += `\n`;
+        
+        // Check if there are any zero values causing issues
+        output += `Potential Issues:\n`;
+        output += `  Net Equity is zero: ${netEquity === 0 ? 'YES' : 'NO'}\n`;
+        output += `  Self invested is zero: ${selfInvested === 0 ? 'YES' : 'NO'}\n`;
+        output += `  Financed invested is zero: ${financedInvested === 0 ? 'YES' : 'NO'}\n`;
+        output += `  Asset value is zero: ${assetValue === 0 ? 'YES' : 'NO'}\n`;
+        
+        output += "</pre>";
+        document.getElementById('debug-output').innerHTML = output;
+        
+        // Also log to console
+        console.log("Dashboard Metrics:", dashboardMetrics);
+        console.log("Summary Metrics:", summaryMetrics);
+        console.log("Final Year Data:", finalYear);
+    </script>
+</body>
+</html>

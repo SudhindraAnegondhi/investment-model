@@ -12,40 +12,66 @@ function updateSummary() {
 
   const results = utils.calculationResults;
 
-  // Calculate summary metrics for dashboard
-  const summary = calculateSummaryMetrics(results);
-
-  // Update dashboard cards
-  updateSummaryCards(summary);
+  // Use centralized dashboard metrics
+  const dashboardMetrics = calculations.getDashboardMetrics(results);
   
-  // Update Summary & Download tab
+  // TEMPORARY FIX: getDashboardMetrics is returning 0s, use summaryMetrics directly
+  const directMetrics = results.summaryMetrics;
+  console.log("🔍 getDashboardMetrics result:", dashboardMetrics);
+  console.log("🔍 Direct summaryMetrics:", directMetrics);
+  
+  const metricsToUse = {
+    // Use direct summaryMetrics values for the problematic fields
+    leverageMultiplier: directMetrics?.leverageMultiplier || 0,
+    unitsPerDollar: {
+      self: directMetrics?.unitsPerDollar?.self || 0,
+      financed: directMetrics?.unitsPerDollar?.financed || 0
+    },
+    // Use dashboardMetrics for other fields if they work
+    totalReturn: dashboardMetrics?.totalReturn || { self: 0, financed: 0 },
+    roe: dashboardMetrics?.roe || { self: 0, financed: 0 },
+    finalNetWorth: dashboardMetrics?.finalNetWorth || { self: 0, financed: 0 },
+    totalUnits: dashboardMetrics?.totalUnits || { self: 0, financed: 0 },
+    totalCashInvested: dashboardMetrics?.totalCashInvested || { self: 0, financed: 0 }
+  };
+  
+  console.log("🔧 Using hybrid metrics:", metricsToUse);
+  
+  if (metricsToUse) {
+    // Update dashboard cards with hybrid metrics
+    updateSummaryCards(metricsToUse);
+  }
+  
+  // Update Summary & Download tab with centralized data
   updateSummaryDownloadTab(results);
 }
 
 function updateSummaryDownloadTab(results) {
-  // Get final year data
-  const finalYear = results.selfFinanced.length - 1;
-  const selfFinal = results.selfFinanced[finalYear];
-  const financedFinal = results.financed[finalYear];
-  const comparisonFinal = results.comparison[finalYear];
+  // Use centralized dashboard metrics for consistent data
+  const dashboardMetrics = calculations.getDashboardMetrics(results);
+  if (!dashboardMetrics) return;
   
   // Update total units
   const totalSelfUnits = document.getElementById('totalSelfUnits');
   const totalFinancedUnits = document.getElementById('totalFinancedUnits');
-  if (totalSelfUnits) totalSelfUnits.textContent = selfFinal.units || comparisonFinal.selfTotalUnits;
-  if (totalFinancedUnits) totalFinancedUnits.textContent = financedFinal.units || comparisonFinal.financedTotalUnits;
+  if (totalSelfUnits) totalSelfUnits.textContent = dashboardMetrics.totalUnits.self;
+  if (totalFinancedUnits) totalFinancedUnits.textContent = dashboardMetrics.totalUnits.financed;
   
   // Update net worth
   const selfNetWorth = document.getElementById('selfNetWorth');
   const financedNetWorth = document.getElementById('financedNetWorth');
-  if (selfNetWorth) selfNetWorth.textContent = utils.formatCurrency(selfFinal.netWorth);
-  if (financedNetWorth) financedNetWorth.textContent = utils.formatCurrency(financedFinal.netWorth);
+  if (selfNetWorth) selfNetWorth.textContent = utils.formatCurrency(dashboardMetrics.finalNetWorth.self);
+  if (financedNetWorth) financedNetWorth.textContent = utils.formatCurrency(dashboardMetrics.finalNetWorth.financed);
+  
+  // Get final year detailed data for cumulative cash flow
+  const finalSelfData = calculations.getYearlyStrategyData(results, 15, 'self');
+  const finalFinancedData = calculations.getYearlyStrategyData(results, 15, 'financed');
   
   // Update cumulative cash flow
   const selfCumulative = document.getElementById('selfCumulative');
   const financedCumulative = document.getElementById('financedCumulative');
-  if (selfCumulative) selfCumulative.textContent = utils.formatCurrency(selfFinal.cumulativeCashFlow);
-  if (financedCumulative) financedCumulative.textContent = utils.formatCurrency(financedFinal.cumulativeCashFlow);
+  if (selfCumulative && finalSelfData) selfCumulative.textContent = utils.formatCurrency(finalSelfData.cumulativeCashFlow);
+  if (financedCumulative && finalFinancedData) financedCumulative.textContent = utils.formatCurrency(finalFinancedData.cumulativeCashFlow);
   
   // Update KPI insights
   updateInsightsSection(results);
@@ -58,52 +84,58 @@ function generateRecommendation(results) {
   const recommendationDiv = document.getElementById('recommendation');
   if (!recommendationDiv) return;
   
-  const finalYear = results.selfFinanced.length - 1;
-  const selfFinal = results.selfFinanced[finalYear];
-  const financedFinal = results.financed[finalYear];
+  // Use centralized recommendation data
+  const recommendationData = calculations.getRecommendationData(results);
+  if (!recommendationData) return;
   
-  const netWorthDiff = financedFinal.netWorth - selfFinal.netWorth;
-  const cashFlowDiff = financedFinal.cumulativeCashFlow - selfFinal.cumulativeCashFlow;
-  const unitsDiff = financedFinal.units - selfFinal.units;
+  const netWorthDiff = recommendationData.financedAdvantage;
+  const dashboardMetrics = calculations.getDashboardMetrics(results);
+  
+  // Get final year data for additional context
+  const finalSelfData = calculations.getYearlyStrategyData(results, 15, 'self');
+  const finalFinancedData = calculations.getYearlyStrategyData(results, 15, 'financed');
+  
+  const cashFlowDiff = finalFinancedData.cumulativeCashFlow - finalSelfData.cumulativeCashFlow;
+  const unitsDiff = dashboardMetrics.totalUnits.financed - dashboardMetrics.totalUnits.self;
   
   let recommendation = "";
-  let recommendationType = "";
+  let recommendationType = recommendationData.recommendation;
   
-  if (netWorthDiff > 50000) {
-    recommendationType = "financed";
+  if (recommendationType === 'financed') {
     recommendation = `
       <h3>💰 Recommendation: Bank Financing Strategy</h3>
       <p><strong>Bank financing is the superior strategy</strong> for your investment parameters.</p>
       <ul>
         <li><strong>Net Worth Advantage:</strong> ${utils.formatCurrency(netWorthDiff)} higher final net worth</li>
-        <li><strong>Property Portfolio:</strong> ${unitsDiff} more units acquired (${financedFinal.units} vs ${selfFinal.units})</li>
-        <li><strong>Leverage Benefits:</strong> Control more assets with the same capital investment</li>
+        <li><strong>Property Portfolio:</strong> ${unitsDiff} more units acquired (${dashboardMetrics.totalUnits.financed} vs ${dashboardMetrics.totalUnits.self})</li>
+        <li><strong>ROE Advantage:</strong> ${recommendationData.performance.financedROE.toFixed(1)}% vs ${recommendationData.performance.selfROE.toFixed(1)}%</li>
+        <li><strong>Leverage Benefits:</strong> ${recommendationData.leverageMultiplier.toFixed(2)}x leverage multiplier</li>
       </ul>
-      <p><em>Key insight:</em> Despite lower cash flow (${utils.formatCurrency(Math.abs(cashFlowDiff))} less), 
-      the wealth accumulation through leveraged real estate ownership significantly outweighs the cash flow difference.</p>
+      <p><em>Key insight:</em> Despite ${cashFlowDiff < 0 ? 'lower cash flow (' + utils.formatCurrency(Math.abs(cashFlowDiff)) + ' less)' : 'higher cash flow'}, 
+      the wealth accumulation through leveraged real estate ownership significantly outweighs the difference.</p>
     `;
-  } else if (netWorthDiff < -50000) {
-    recommendationType = "self";
+  } else if (recommendationType === 'self') {
     recommendation = `
       <h3>🏦 Recommendation: Self-Financing Strategy</h3>
       <p><strong>Self-financing is the superior strategy</strong> for your investment parameters.</p>
       <ul>
         <li><strong>Net Worth Advantage:</strong> ${utils.formatCurrency(Math.abs(netWorthDiff))} higher final net worth</li>
-        <li><strong>Cash Flow Advantage:</strong> ${utils.formatCurrency(cashFlowDiff)} more cumulative cash flow</li>
+        <li><strong>ROE Advantage:</strong> ${recommendationData.performance.selfROE.toFixed(1)}% vs ${recommendationData.performance.financedROE.toFixed(1)}%</li>
+        <li><strong>Cash Flow Advantage:</strong> ${utils.formatCurrency(Math.abs(cashFlowDiff))} more cumulative cash flow</li>
         <li><strong>Risk Reduction:</strong> No debt obligations or interest payments</li>
       </ul>
       <p><em>Key insight:</em> Lower leverage means less risk and potentially higher returns 
       when property appreciation and rent growth are moderate.</p>
     `;
   } else {
-    recommendationType = "neutral";
     recommendation = `
       <h3>⚖️ Recommendation: Strategies Are Nearly Equal</h3>
       <p><strong>Both strategies yield similar results</strong> with your current parameters.</p>
       <ul>
-        <li><strong>Net Worth Difference:</strong> Only ${utils.formatCurrency(Math.abs(netWorthDiff))}</li>
-        <li><strong>Self-Financed:</strong> ${selfFinal.units} units, ${utils.formatCurrency(selfFinal.netWorth)} net worth</li>
-        <li><strong>Bank-Financed:</strong> ${financedFinal.units} units, ${utils.formatCurrency(financedFinal.netWorth)} net worth</li>
+        <li><strong>Net Worth Difference:</strong> Only ${utils.formatCurrency(Math.abs(netWorthDiff))} (${recommendationData.percentDifference.toFixed(1)}% difference)</li>
+        <li><strong>Self-Financed:</strong> ${dashboardMetrics.totalUnits.self} units, ${utils.formatCurrency(dashboardMetrics.finalNetWorth.self)} net worth</li>
+        <li><strong>Bank-Financed:</strong> ${dashboardMetrics.totalUnits.financed} units, ${utils.formatCurrency(dashboardMetrics.finalNetWorth.financed)} net worth</li>
+        <li><strong>Leverage Impact:</strong> ${recommendationData.leverageMultiplier.toFixed(2)}x multiplier with financing</li>
       </ul>
       <p><em>Consider:</em> Personal risk tolerance, cash flow preferences, and market conditions 
       when making your final decision.</p>
@@ -115,13 +147,17 @@ function generateRecommendation(results) {
 }
 
 function updateInsightsSection(results) {
-  const finalYear = results.selfFinanced.length - 1;
-  const selfFinal = results.selfFinanced[finalYear];
-  const financedFinal = results.financed[finalYear];
+  // Use centralized data for consistent metrics
+  const dashboardMetrics = calculations.getDashboardMetrics(results);
+  if (!dashboardMetrics) return;
   
-  const netWorthDiff = financedFinal.netWorth - selfFinal.netWorth;
-  const cashFlowDiff = financedFinal.cumulativeCashFlow - selfFinal.cumulativeCashFlow;
-  const unitsDiff = financedFinal.units - selfFinal.units;
+  // Get detailed data for cash flow difference
+  const finalSelfData = calculations.getYearlyStrategyData(results, 15, 'self');
+  const finalFinancedData = calculations.getYearlyStrategyData(results, 15, 'financed');
+  
+  const netWorthDiff = dashboardMetrics.finalNetWorth.financed - dashboardMetrics.finalNetWorth.self;
+  const cashFlowDiff = finalFinancedData.cumulativeCashFlow - finalSelfData.cumulativeCashFlow;
+  const unitsDiff = dashboardMetrics.totalUnits.financed - dashboardMetrics.totalUnits.self;
   
   // Update net worth difference
   const netWorthDifference = document.getElementById('netWorthDifference');
@@ -230,40 +266,58 @@ function calculateTotalCashInvested(results, strategy) {
   return totalInvested;
 }
 
-function updateSummaryCards(summary) {
+function updateSummaryCards(dashboardMetrics) {
+  console.log("📊 Updating dashboard cards with centralized data:", {
+    leverageMultiplier: dashboardMetrics.leverageMultiplier,
+    unitsPerDollar: dashboardMetrics.unitsPerDollar.financed,
+    finalNetWorth: dashboardMetrics.finalNetWorth,
+    totalReturn: dashboardMetrics.totalReturn
+  });
+
   // Update self-financed summary cards
-  updateSummaryCard("self-net-worth", summary.self.finalNetWorth);
-  updateSummaryCard("self-cash-flow", summary.self.totalCashFlow);
-  updateSummaryCard("self-roi", summary.self.totalROI);
+  updateSummaryCard("self-net-worth", dashboardMetrics.finalNetWorth.self);
+  updateSummaryCard("self-cash-flow", dashboardMetrics.totalReturn.self);  // Using total return as it's more comprehensive
+  updateSummaryCard("self-roi", dashboardMetrics.roe.self);
 
   // Update bank-financed summary cards
-  updateSummaryCard("financed-net-worth", summary.financed.finalNetWorth);
-  updateSummaryCard("financed-cash-flow", summary.financed.totalCashFlow);
-  updateSummaryCard("financed-roi", summary.financed.totalROI);
+  updateSummaryCard("financed-net-worth", dashboardMetrics.finalNetWorth.financed);
+  updateSummaryCard("financed-cash-flow", dashboardMetrics.totalReturn.financed);
+  updateSummaryCard("financed-roi", dashboardMetrics.roe.financed);
 
   // Update comparison cards
-  updateSummaryCard("net-worth-diff", summary.comparison.netWorthDifference);
-  updateSummaryCard("cash-flow-diff", summary.comparison.cashFlowDifference);
-  updateSummaryCard(
-    "leverage-multiplier",
-    summary.comparison.leverageMultiplier
-  );
-  updateSummaryCard("units-per-dollar", summary.comparison.unitsPerDollar);
+  const netWorthDiff = dashboardMetrics.finalNetWorth.financed - dashboardMetrics.finalNetWorth.self;
+  const cashFlowDiff = dashboardMetrics.totalReturn.financed - dashboardMetrics.totalReturn.self;
+  
+  updateSummaryCard("net-worth-diff", netWorthDiff);
+  updateSummaryCard("cash-flow-diff", cashFlowDiff);
+  
+  // Bank Financed Benefits - these are the key metrics that should show correct centralized data
+  console.log("🏦 Updating Bank Financed Benefits with:", {
+    leverageMultiplier: dashboardMetrics.leverageMultiplier,
+    unitsPerDollar: dashboardMetrics.unitsPerDollar.financed
+  });
+  updateSummaryCard("leverage-multiplier", dashboardMetrics.leverageMultiplier);
+  updateSummaryCard("units-per-dollar", dashboardMetrics.unitsPerDollar.financed);
 }
 
 function updateSummaryCard(elementId, value) {
   const element = document.getElementById(elementId);
   if (!element) return;
 
+  console.log(`🔍 updateSummaryCard called: elementId=${elementId}, value=${value}, type=${typeof value}`);
+
   if (typeof value === "number") {
     if (elementId.includes("roi")) {
       element.textContent = utils.formatPercentage(value);
     } else if (elementId.includes("multiplier")) {
-      element.textContent = value.toFixed(2) + "x";
+      const formattedValue = value.toFixed(2) + "x";
+      console.log(`📊 Setting leverage multiplier: ${value} -> ${formattedValue}`);
+      element.textContent = formattedValue;
     } else if (elementId.includes("per-dollar")) {
-      // Format as units per $1000 invested for better readability
-      const unitsPerThousand = value * 1000;
-      element.textContent = unitsPerThousand.toFixed(4) + " units per $1K";
+      // Value is already units per $1000 invested
+      const formattedValue = value.toFixed(4) + " units per $1K";
+      console.log(`📊 Setting units per dollar: ${value} -> ${formattedValue}`);
+      element.textContent = formattedValue;
     } else {
       element.textContent = utils.formatCurrency(value);
     }

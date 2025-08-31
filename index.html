@@ -636,11 +636,11 @@
               <tr>
                 <th>New<br />Units</th>
                 <th>Total<br />Units</th>
-                <th>Cash<br />Flow</th>
+                <th>Closing<br />Cash</th>
                 <th>Asset<br />Value</th>
                 <th>New<br />Units</th>
                 <th>Total<br />Units</th>
-                <th>Cash<br />Flow</th>
+                <th>Closing<br />Cash</th>
                 <th>Asset<br />Value</th>
                 <th>Loan<br />Balance</th>
                 <th>Net<br />Equity</th>
@@ -1320,6 +1320,7 @@
         }
       });
 
+
       // Enhanced calculateAll that updates charts after calculation
       function calculateAll() {
         try {
@@ -1350,6 +1351,18 @@
             );
             // Fallback to direct calculation
             const results = calculations.performCalculations(params);
+            
+            // Ensure summary metrics are calculated
+            if (results && !results.summaryMetrics?.leverageMultiplier) {
+              console.log("⚠️ Summary metrics incomplete, manually calling calculateSummaryMetrics...");
+              try {
+                calculations.calculateSummaryMetrics(results);
+                console.log("✅ Manual calculateSummaryMetrics completed in calculateAll");
+              } catch (error) {
+                console.error("❌ calculateSummaryMetrics failed in calculateAll:", error);
+              }
+            }
+            
             utils.calculationResults = results;
 
             if (typeof updateAllTables === "function") {

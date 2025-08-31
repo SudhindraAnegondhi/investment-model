@@ -39,6 +39,17 @@ class WorkerManager {
           console.log("Running calculations with params:", params);
           const results = calculations.performCalculations(params);
           console.log("Calculation results:", results);
+          
+          // Ensure summary metrics are calculated
+          if (results && !results.summaryMetrics?.leverageMultiplier) {
+            console.log("⚠️ Summary metrics incomplete in worker, manually calling calculateSummaryMetrics...");
+            try {
+              calculations.calculateSummaryMetrics(results);
+              console.log("✅ Manual calculateSummaryMetrics completed in worker");
+            } catch (error) {
+              console.error("❌ calculateSummaryMetrics failed in worker:", error);
+            }
+          }
 
           this.isCalculating = false;
           this.hideLoadingIndicator();

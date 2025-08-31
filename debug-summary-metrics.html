@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Debug Summary Metrics</title>
+</head>
+<body>
+    <h1>Debug Summary Metrics</h1>
+    <div id="output" style="background: #f0f0f0; padding: 10px; white-space: pre-wrap; font-family: monospace; max-height: 600px; overflow-y: auto;"></div>
+    
+    <script src="js/core/data-model.js"></script>
+    <script src="js/core/utils.js"></script>
+    <script src="js/core/calculations.js"></script>
+    
+    <script>
+        console.log("🔍 Starting summary metrics debugging...");
+        
+        let debug = "🔍 SUMMARY METRICS DEBUGGING\n\n";
+        
+        try {
+            // Get default parameters
+            const params = dataModel.getDefaultParameters();
+            debug += "✅ Got default parameters\n\n";
+            
+            // Run calculations
+            debug += "🔄 Running performCalculations...\n";
+            const results = calculations.performCalculations(params);
+            debug += "✅ Calculations completed\n\n";
+            
+            debug += "📊 RESULTS STRUCTURE:\n";
+            debug += "- Has results: " + (!!results) + "\n";
+            debug += "- Results keys: " + Object.keys(results).join(', ') + "\n\n";
+            
+            // Check if summaryMetrics exists
+            debug += "📈 SUMMARY METRICS CHECK:\n";
+            debug += "- Has summaryMetrics: " + (!!results.summaryMetrics) + "\n";
+            
+            if (results.summaryMetrics) {
+                const summary = results.summaryMetrics;
+                debug += "- summaryMetrics keys: " + Object.keys(summary).join(', ') + "\n";
+                debug += "- leverageMultiplier: " + summary.leverageMultiplier + " (type: " + typeof summary.leverageMultiplier + ")\n";
+                debug += "- unitsPerDollar exists: " + (!!summary.unitsPerDollar) + "\n";
+                
+                if (summary.unitsPerDollar) {
+                    debug += "- unitsPerDollar keys: " + Object.keys(summary.unitsPerDollar).join(', ') + "\n";
+                    debug += "- unitsPerDollar.self: " + summary.unitsPerDollar.self + "\n";
+                    debug += "- unitsPerDollar.financed: " + summary.unitsPerDollar.financed + "\n";
+                } else {
+                    debug += "- unitsPerDollar is null/undefined\n";
+                }
+                
+                debug += "\nFULL SUMMARY METRICS:\n" + JSON.stringify(summary, null, 2) + "\n\n";
+            } else {
+                debug += "❌ summaryMetrics is null/undefined!\n\n";
+            }
+            
+            // Check raw calculation data that summaryMetrics should be based on
+            debug += "🔍 RAW DATA FOR SUMMARY CALCULATION:\n";
+            
+            if (results.financed && results.financed.length > 0) {
+                const finalFinanced = results.financed[14]; // Index 14 = Year 15
+                debug += "Final financed data (index 14):\n";
+                debug += "- exists: " + (!!finalFinanced) + "\n";
+                
+                if (finalFinanced) {
+                    debug += "- units: " + finalFinanced.units + "\n";
+                    debug += "- assetValue: " + finalFinanced.assetValue + "\n";
+                    debug += "- loanBalance: " + finalFinanced.loanBalance + "\n";
+                    debug += "- netEquity: " + finalFinanced.netEquity + "\n";
+                    debug += "- cumulativeCashFlow: " + finalFinanced.cumulativeCashFlow + "\n";
+                    
+                    // Manual calculation
+                    if (finalFinanced.netEquity > 0) {
+                        const manualLeverage = finalFinanced.assetValue / finalFinanced.netEquity;
+                        debug += "- MANUAL LEVERAGE CALC: " + manualLeverage + "\n";
+                    } else {
+                        debug += "- Cannot calc leverage: netEquity is " + finalFinanced.netEquity + "\n";
+                    }
+                }
+            } else {
+                debug += "❌ No financed results found\n";
+            }
+            
+            // Check if calculateSummaryMetrics is being called properly
+            debug += "\n🧪 TESTING calculateSummaryMetrics MANUALLY:\n";
+            if (typeof calculations.calculateSummaryMetrics === 'function') {
+                debug += "✅ calculateSummaryMetrics function exists\n";
+                
+                // Initialize empty summaryMetrics if it doesn't exist
+                if (!results.summaryMetrics) {
+                    results.summaryMetrics = {
+                        leverageMultiplier: 0,
+                        unitsPerDollar: { self: 0, financed: 0 },
+                        totalCashInvested: { self: 0, financed: 0 }
+                    };
+                    debug += "⚠️ Created empty summaryMetrics object\n";
+                }
+                
+                try {
+                    console.log("🔄 Calling calculateSummaryMetrics manually...");
+                    calculations.calculateSummaryMetrics(results);
+                    debug += "✅ Manual calculateSummaryMetrics call completed\n";
+                    
+                    debug += "\nAFTER MANUAL CALL:\n";
+                    const summary = results.summaryMetrics;
+                    debug += "- leverageMultiplier: " + summary.leverageMultiplier + "\n";
+                    debug += "- unitsPerDollar.financed: " + (summary.unitsPerDollar?.financed) + "\n";
+                    debug += "- Full object: " + JSON.stringify(summary, null, 2) + "\n";
+                } catch (error) {
+                    debug += "❌ Manual call failed: " + error.message + "\n";
+                    debug += "Stack: " + error.stack + "\n";
+                }
+            } else {
+                debug += "❌ calculateSummaryMetrics function not found\n";
+            }
+            
+        } catch (error) {
+            debug += "❌ MAIN ERROR: " + error.message + "\n";
+            debug += "Stack: " + error.stack + "\n";
+        }
+        
+        document.getElementById('output').textContent = debug;
+        console.log(debug);
+    }

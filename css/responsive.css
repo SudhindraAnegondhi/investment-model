@@ -69,9 +69,9 @@
 
   /* Input Form Mobile Adjustments */
   .input-form-container {
-    height: calc(100vh - 160px);
+    height: calc(100vh - 200px); /* Reduced height to add space below */
     min-height: 400px;
-    max-height: calc(100vh - 140px);
+    max-height: calc(100vh - 180px);
   }
 
   .form-scroll-area {
@@ -226,9 +226,9 @@
 
   /* Small Mobile Form Adjustments */
   .input-form-container {
-    height: calc(100vh - 140px);
+    height: calc(100vh - 180px); /* Reduced height to add space below */
     min-height: 350px;
-    max-height: calc(100vh - 120px);
+    max-height: calc(100vh - 160px);
   }
 
   .calculate-button-area {
@@ -335,17 +335,17 @@
   }
 }
 
-/* Hide navigation buttons on mobile devices where swipe is more natural */
-@media (max-width: 768px) {
-  .nav-btn {
-    display: none;
-  }
+/* Always show navigation buttons - users can choose between buttons and swipe */
+.nav-btn {
+  display: flex !important;
 }
 
-/* Show navigation buttons on desktop */
-@media (min-width: 769px) {
+/* On very small screens, make buttons smaller but keep them visible */
+@media (max-width: 480px) {
   .nav-btn {
-    display: flex;
+    width: 28px;
+    height: 28px;
+    font-size: 14px;
   }
 }
 
@@ -443,9 +443,6 @@
     margin: 0;
   }
 
-  .nav-btn {
-    display: none;
-  }
 }
 
 @media (max-width: 480px) {

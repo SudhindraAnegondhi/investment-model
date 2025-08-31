@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Debug Hybrid Fix</title>
+    <link rel="stylesheet" href="css/main.css" />
+    <link rel="stylesheet" href="css/components.css" />
+</head>
+<body>
+    <div class="container">
+        <h1>Debug Hybrid Fix</h1>
+        
+        <!-- Copy the exact HTML structure from the main page -->
+        <div class="comparison-card financed">
+            <h4>🏦 Bank-Financed Benefits</h4>
+            <div class="comparison-metrics">
+              <div class="metric">
+                <div class="metric-label">Leverage Multiplier</div>
+                <div class="metric-value" id="leverage-multiplier">1.0x</div>
+                <div class="metric-description">Asset control per equity dollar</div>
+              </div>
+              <div class="metric">
+                <div class="metric-label">Unit Efficiency</div>
+                <div class="metric-value" id="units-per-dollar">0.0</div>
+                <div class="metric-description">Units acquired per $1K invested</div>
+              </div>
+            </div>
+        </div>
+        
+        <button onclick="testHybridFix()">Test Hybrid Fix</button>
+        <div id="debug-info"></div>
+        <div id="console-log" style="background: #f0f0f0; padding: 10px; margin: 10px 0; white-space: pre-wrap; font-family: monospace;"></div>
+    </div>
+    
+    <script src="js/core/data-model.js"></script>
+    <script src="js/core/utils.js"></script>
+    <script src="js/core/calculations.js"></script>
+    <script src="js/modules/balance-sheet.js"></script>
+    
+    <script>
+        // Capture console output
+        let consoleOutput = '';
+        const originalConsoleLog = console.log;
+        console.log = function(...args) {
+            const message = args.map(arg => 
+                typeof arg === 'object' ? JSON.stringify(arg, null, 2) : String(arg)
+            ).join(' ');
+            consoleOutput += message + '\n';
+            document.getElementById('console-log').textContent = consoleOutput;
+            originalConsoleLog.apply(console, args);
+        };
+        
+        function testHybridFix() {
+            console.log("🧪 Testing hybrid fix approach...");
+            consoleOutput = '🧪 Testing hybrid fix approach...\n';
+            
+            // Get calculation results
+            const params = dataModel.getDefaultParameters();
+            const results = calculations.performCalculations(params);
+            
+            console.log("✅ Got results:", !!results);
+            console.log("✅ Has summaryMetrics:", !!results?.summaryMetrics);
+            
+            if (results?.summaryMetrics) {
+                const summary = results.summaryMetrics;
+                console.log("📊 Direct summaryMetrics values:");
+                console.log("- leverageMultiplier:", summary.leverageMultiplier);
+                console.log("- unitsPerDollar.financed:", summary.unitsPerDollar?.financed);
+                console.log("- unitsPerDollar.self:", summary.unitsPerDollar?.self);
+            }
+            
+            // Test getDashboardMetrics
+            const dashboardMetrics = calculations.getDashboardMetrics(results);
+            console.log("📊 getDashboardMetrics result:");
+            console.log("- leverageMultiplier:", dashboardMetrics?.leverageMultiplier);
+            console.log("- unitsPerDollar.financed:", dashboardMetrics?.unitsPerDollar?.financed);
+            
+            // Test the hybrid approach that should be working in balance-sheet.js
+            console.log("🔧 Testing hybrid approach manually:");
+            const directMetrics = results.summaryMetrics;
+            
+            const metricsToUse = {
+                leverageMultiplier: directMetrics?.leverageMultiplier || 0,
+                unitsPerDollar: {
+                    self: directMetrics?.unitsPerDollar?.self || 0,
+                    financed: directMetrics?.unitsPerDollar?.financed || 0
+                }
+            };
+            
+            console.log("🎯 metricsToUse object:", metricsToUse);
+            
+            // Now try updating the DOM elements directly
+            const leverageEl = document.getElementById('leverage-multiplier');
+            const unitsEl = document.getElementById('units-per-dollar');
+            
+            console.log("🎯 Found DOM elements:", {
+                leverage: !!leverageEl,
+                units: !!unitsEl
+            });
+            
+            if (leverageEl && metricsToUse.leverageMultiplier) {
+                const leverageValue = metricsToUse.leverageMultiplier;
+                const formattedValue = leverageValue.toFixed(2) + "x";
+                leverageEl.textContent = formattedValue;
+                console.log("✅ Set leverage manually:", leverageValue, "->", formattedValue);
+            }
+            
+            if (unitsEl && metricsToUse.unitsPerDollar.financed) {
+                const unitsValue = metricsToUse.unitsPerDollar.financed;
+                const formattedValue = unitsValue.toFixed(4) + " units per $1K";
+                unitsEl.textContent = formattedValue;
+                console.log("✅ Set units manually:", unitsValue, "->", formattedValue);
+            }
+            
+            // Now test the actual balance sheet function
+            console.log("🧪 Now calling balanceSheet.updateSummary()...");
+            if (window.balanceSheet && window.balanceSheet.updateSummary) {
+                // Set the global calculationResults that balance sheet uses
+                utils.calculationResults = results;
+                window.balanceSheet.updateSummary();
+                
+                console.log("📋 After balance sheet update:");
+                console.log("- leverage element:", document.getElementById('leverage-multiplier')?.textContent);
+                console.log("- units element:", document.getElementById('units-per-dollar')?.textContent);
+            } else {
+                console.log("❌ balanceSheet.updateSummary not available");
+            }
+        }
+    </script>
+</body>
+</html>

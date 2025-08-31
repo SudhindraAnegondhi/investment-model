@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Manual Update</title>
+    <link rel="stylesheet" href="css/main.css" />
+    <link rel="stylesheet" href="css/components.css" />
+</head>
+<body>
+    <div class="container">
+        <h1>Test Manual Dashboard Update</h1>
+        
+        <!-- Copy the relevant HTML structure from index.html -->
+        <div class="comparison-card financed">
+            <h4>🏦 Bank-Financed Benefits</h4>
+            <div class="comparison-metrics">
+              <div class="metric">
+                <div class="metric-label">Leverage Multiplier</div>
+                <div class="metric-value" id="leverage-multiplier">1.0x</div>
+                <div class="metric-description">Asset control per equity dollar</div>
+              </div>
+              <div class="metric">
+                <div class="metric-label">Unit Efficiency</div>
+                <div class="metric-value" id="units-per-dollar">0.0</div>
+                <div class="metric-description">Units acquired per $1K invested</div>
+              </div>
+            </div>
+          </div>
+          
+        <button onclick="testUpdate()">Test Manual Update</button>
+        <div id="debug-info"></div>
+    </div>
+    
+    <script>
+        function testUpdate() {
+            console.log("🧪 Testing manual update...");
+            
+            const leverageEl = document.getElementById('leverage-multiplier');
+            const unitsEl = document.getElementById('units-per-dollar');
+            
+            console.log("Elements found:", {
+                leverageEl: !!leverageEl,
+                unitsEl: !!unitsEl
+            });
+            
+            if (leverageEl) {
+                console.log("Original leverage content:", leverageEl.textContent);
+                leverageEl.textContent = "2.50x";
+                console.log("Updated leverage content:", leverageEl.textContent);
+            }
+            
+            if (unitsEl) {
+                console.log("Original units content:", unitsEl.textContent);
+                unitsEl.textContent = "0.1250 units per $1K";
+                console.log("Updated units content:", unitsEl.textContent);
+            }
+            
+            document.getElementById('debug-info').innerHTML = `
+                <p>Leverage Element: ${leverageEl ? 'Found' : 'Not Found'}</p>
+                <p>Units Element: ${unitsEl ? 'Found' : 'Not Found'}</p>
+                <p>Leverage Content: "${leverageEl?.textContent}"</p>
+                <p>Units Content: "${unitsEl?.textContent}"</p>
+            `;
+        }
+        
+        // Test on page load
+        window.onload = function() {
+            console.log("Page loaded, testing elements...");
+            const leverageEl = document.getElementById('leverage-multiplier');
+            const unitsEl = document.getElementById('units-per-dollar');
+            
+            console.log("On load - Elements exist:", {
+                leverage: !!leverageEl,
+                units: !!unitsEl
+            });
+            
+            if (leverageEl) console.log("Leverage initial:", leverageEl.textContent);
+            if (unitsEl) console.log("Units initial:", unitsEl.textContent);
+        };
+    </script>
+</body>
+</html>

@@ -44,6 +44,136 @@ class CalculationResults {
     this.inputParams = null;
     this.sensitivityResults = null;
     this.breakEvenResults = null;
+    
+    // Enhanced centralized data structures
+    this.yearlyData = []; // Comprehensive yearly data for both strategies
+    this.summaryMetrics = null; // Key summary metrics
+    this.recommendationData = null; // Recommendation analysis data
+    this.cashFlowData = null; // Detailed cash flow analysis
+  }
+}
+
+// Enhanced yearly data structure for centralized calculations
+class YearlyData {
+  constructor(year) {
+    this.year = year;
+    this.selfStrategy = new StrategyYearData();
+    this.financedStrategy = new StrategyYearData();
+    this.costPerUnit = 0;
+    this.comparison = {};
+  }
+}
+
+// Comprehensive strategy data for each year
+class StrategyYearData {
+  constructor() {
+    // Core metrics
+    this.units = 0;
+    this.newUnits = 0;
+    this.totalUnits = 0;
+    this.assetValue = 0;
+    this.loanBalance = 0;
+    this.netEquity = 0;
+    
+    // Cash flow components
+    this.openingCash = 0;
+    this.closingCash = 0;
+    this.annualBudget = 0;
+    this.gpr = 0;
+    this.egi = 0;
+    this.noi = 0;
+    this.capex = 0;
+    this.debtService = 0;
+    this.interestExpense = 0;
+    this.principalPayment = 0;
+    this.netCashFlow = 0;
+    this.cumulativeCashFlow = 0;
+    
+    // Tax calculations
+    this.depreciation = 0;
+    this.taxableIncome = 0;
+    this.taxes = 0;
+    this.netIncome = 0;
+    
+    // Purchase calculations
+    this.purchaseCost = 0;
+    this.downPayment = 0;
+    this.loanAmount = 0;
+    this.closingCosts = 0;
+    
+    // Running balances
+    this.availableCash = 0;
+    this.cumulativeCapEx = 0;
+  }
+}
+
+// Summary metrics for dashboard and recommendations
+class SummaryMetrics {
+  constructor() {
+    // Performance comparison
+    this.selfTotalReturn = 0;
+    this.financedTotalReturn = 0;
+    this.selfIRR = 0;
+    this.financedIRR = 0;
+    this.selfROE = 0;
+    this.financedROE = 0;
+    
+    // Risk metrics
+    this.leverageMultiplier = 0;
+    this.unitsPerDollar = { self: 0, financed: 0 };
+    this.debtServiceCoverage = 0;
+    
+    // Operational metrics
+    this.totalUnits = { self: 0, financed: 0 };
+    this.finalAssetValue = { self: 0, financed: 0 };
+    this.finalNetWorth = { self: 0, financed: 0 };
+    this.totalCashInvested = { self: 0, financed: 0 };
+    
+    // Break-even analysis
+    this.breakEvenYear = { self: 0, financed: 0 };
+    this.paybackPeriod = { self: 0, financed: 0 };
+  }
+}
+
+// Cash flow analysis data structure
+class CashFlowAnalysisData {
+  constructor() {
+    this.yearlyBreakdown = []; // Array of YearlyCashFlowBreakdown
+    this.continuityCheck = true;
+    this.errors = [];
+  }
+}
+
+class YearlyCashFlowBreakdown {
+  constructor(year) {
+    this.year = year;
+    this.self = new CashFlowBreakdownStrategy();
+    this.financed = new CashFlowBreakdownStrategy();
+  }
+}
+
+class CashFlowBreakdownStrategy {
+  constructor() {
+    this.openingCash = 0;
+    this.openingLoan = 0;
+    
+    // Inflows
+    this.annualBudget = 0;
+    this.rentalIncome = 0;
+    this.loanProceeds = 0;
+    this.totalInflows = 0;
+    
+    // Outflows
+    this.propertyPurchases = 0;
+    this.operatingExpenses = 0;
+    this.debtService = 0;
+    this.capex = 0;
+    this.taxes = 0;
+    this.totalOutflows = 0;
+    
+    this.netCashFlow = 0;
+    this.closingCash = 0;
+    this.closingLoan = 0;
   }
 }
 
@@ -173,6 +303,12 @@ if (typeof module !== 'undefined' && module.exports) {
     InvestmentCohort,
     YearlyMetrics,
     CalculationResults,
+    YearlyData,
+    StrategyYearData,
+    SummaryMetrics,
+    CashFlowAnalysisData,
+    YearlyCashFlowBreakdown,
+    CashFlowBreakdownStrategy,
     validateInvestmentParameters,
     getDefaultParameters,
     parameterPresets,
@@ -184,6 +320,12 @@ if (typeof module !== 'undefined' && module.exports) {
     InvestmentCohort,
     YearlyMetrics,
     CalculationResults,
+    YearlyData,
+    StrategyYearData,
+    SummaryMetrics,
+    CashFlowAnalysisData,
+    YearlyCashFlowBreakdown,
+    CashFlowBreakdownStrategy,
     validateInvestmentParameters,
     getDefaultParameters,
     parameterPresets,

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Simple Debug</title>
+</head>
+<body>
+    <h1>Simple Debug Test</h1>
+    <div id="debug-output"></div>
+    
+    <script src="js/core/data-model.js"></script>
+    <script src="js/core/utils.js"></script>
+    <script src="js/core/calculations.js"></script>
+    
+    <script>
+        console.log("🔍 Starting simple debug test...");
+        
+        const params = dataModel.getDefaultParameters();
+        console.log("✅ Got params:", params);
+        
+        console.log("🔄 Calling performCalculations...");
+        const results = calculations.performCalculations(params);
+        console.log("✅ Got results:", results);
+        
+        console.log("📊 Checking results structure:");
+        console.log("- Has selfFinanced:", !!results?.selfFinanced);
+        console.log("- Has financed:", !!results?.financed);
+        console.log("- Has summaryMetrics:", !!results?.summaryMetrics);
+        console.log("- selfFinanced length:", results?.selfFinanced?.length);
+        console.log("- financed length:", results?.financed?.length);
+        
+        if (results?.financed && results.financed.length > 0) {
+            const finalIndex = 14;
+            const finalFinanced = results.financed[finalIndex];
+            console.log("📈 Final financed data (index 14):");
+            console.log("- Units:", finalFinanced?.units);
+            console.log("- Asset Value:", finalFinanced?.assetValue);
+            console.log("- Loan Balance:", finalFinanced?.loanBalance);
+            console.log("- Net Equity:", finalFinanced?.netEquity);
+        }
+        
+        if (results?.summaryMetrics) {
+            console.log("📊 Summary metrics:");
+            console.log("- Leverage Multiplier:", results.summaryMetrics.leverageMultiplier);
+            console.log("- Units per Dollar:", results.summaryMetrics.unitsPerDollar);
+            console.log("- Full summary object:", results.summaryMetrics);
+        } else {
+            console.log("❌ No summaryMetrics found!");
+        }
+        
+        let output = "<h2>Simple Debug Results:</h2><pre>";
+        output += `Results exist: ${!!results}\n`;
+        output += `SummaryMetrics exist: ${!!results?.summaryMetrics}\n`;
+        
+        if (results?.summaryMetrics) {
+            output += `Leverage Multiplier: ${results.summaryMetrics.leverageMultiplier}\n`;
+            output += `Units per Dollar (Self): ${results.summaryMetrics.unitsPerDollar?.self}\n`;
+            output += `Units per Dollar (Financed): ${results.summaryMetrics.unitsPerDollar?.financed}\n`;
+        }
+        
+        if (results?.financed) {
+            const finalFinanced = results.financed[14];
+            if (finalFinanced) {
+                output += `\nFinal Financed Data:\n`;
+                output += `  Units: ${finalFinanced.units}\n`;
+                output += `  Asset Value: $${finalFinanced.assetValue?.toLocaleString()}\n`;
+                output += `  Net Equity: $${finalFinanced.netEquity?.toLocaleString()}\n`;
+            }
+        }
+        
+        output += "</pre>";
+        document.getElementById('debug-output').innerHTML = output;
+    </script>
+</body>
+</html>

@@ -17,7 +17,16 @@ function updateAllTables() {
 
   updateComparisonTable();
   updateCashFlowTable();
-  updateSummary();
+  // Call balance sheet module's updateSummary function
+  console.log("🔄 About to call balance sheet updateSummary...");
+  if (window.balanceSheet && window.balanceSheet.updateSummary) {
+    console.log("✅ Calling window.balanceSheet.updateSummary()");
+    window.balanceSheet.updateSummary();
+    console.log("✅ Balance sheet updateSummary completed");
+  } else {
+    console.error("❌ Balance sheet module not loaded or updateSummary function not available");
+    console.log("window.balanceSheet:", window.balanceSheet);
+  }
   updateROIAnalysis();
   updateSensitivityAnalysis();
   updateBreakEvenAnalysis();
@@ -33,28 +42,94 @@ function updateComparisonTable() {
 
   for (let year = 1; year <= 15; year++) {
     const comparison = results.comparison[year - 1];
+    
+    // Get closing cash from centralized data instead of cash flow
+    const selfData = calculations.getYearlyStrategyData(results, year, 'self');
+    const financedData = calculations.getYearlyStrategyData(results, year, 'financed');
+    
+    const selfClosingCash = selfData ? selfData.closingCash : 0;
+    const financedClosingCash = financedData ? financedData.closingCash : 0;
 
     const tr = document.createElement("tr");
-    tr.onclick = () => showYearModal(year, year - 1);
 
-    tr.innerHTML = `
-      <td>${year}</td>
-      <td>${utils.formatCurrency(comparison.propertyCost)}</td>
-      <td>${comparison.selfNewUnits}</td>
-      <td>${comparison.selfTotalUnits}</td>
-      <td class="${
-        comparison.selfCashFlow >= 0 ? "positive" : "negative"
-      }">${utils.formatCurrency(comparison.selfCashFlow)}</td>
-      <td>${utils.formatCurrency(comparison.selfAssetValue)}</td>
-      <td>${comparison.financedNewUnits}</td>
-      <td>${comparison.financedTotalUnits}</td>
-      <td class="${
-        comparison.financedCashFlow >= 0 ? "positive" : "negative"
-      }">${utils.formatCurrency(comparison.financedCashFlow)}</td>
-      <td>${utils.formatCurrency(comparison.financedAssetValue)}</td>
-      <td>${utils.formatCurrency(comparison.loanBalance)}</td>
-      <td>${utils.formatCurrency(comparison.netEquity)}</td>
-    `;
+    // Create cells with individual click handlers
+    const yearCell = document.createElement("td");
+    yearCell.textContent = year;
+    yearCell.onclick = () => showYearModal(year, year - 1, "self"); // Default to self for year column
+    yearCell.style.cursor = "pointer";
+
+    const costCell = document.createElement("td");
+    costCell.textContent = utils.formatCurrency(comparison.propertyCost);
+    costCell.onclick = () => showYearModal(year, year - 1, "self"); // Cost applies to both, default to self
+    costCell.style.cursor = "pointer";
+
+    // Self-financed columns
+    const selfNewUnitsCell = document.createElement("td");
+    selfNewUnitsCell.textContent = comparison.selfNewUnits;
+    selfNewUnitsCell.onclick = () => showYearModal(year, year - 1, "self");
+    selfNewUnitsCell.style.cursor = "pointer";
+
+    const selfTotalUnitsCell = document.createElement("td");
+    selfTotalUnitsCell.textContent = comparison.selfTotalUnits;
+    selfTotalUnitsCell.onclick = () => showYearModal(year, year - 1, "self");
+    selfTotalUnitsCell.style.cursor = "pointer";
+
+    const selfClosingCashCell = document.createElement("td");
+    selfClosingCashCell.className = selfClosingCash >= 0 ? "positive" : "negative";
+    selfClosingCashCell.textContent = utils.formatCurrency(selfClosingCash);
+    selfClosingCashCell.onclick = () => showYearModal(year, year - 1, "self");
+    selfClosingCashCell.style.cursor = "pointer";
+
+    const selfAssetValueCell = document.createElement("td");
+    selfAssetValueCell.textContent = utils.formatCurrency(comparison.selfAssetValue);
+    selfAssetValueCell.onclick = () => showYearModal(year, year - 1, "self");
+    selfAssetValueCell.style.cursor = "pointer";
+
+    // Bank-financed columns
+    const financedNewUnitsCell = document.createElement("td");
+    financedNewUnitsCell.textContent = comparison.financedNewUnits;
+    financedNewUnitsCell.onclick = () => showYearModal(year, year - 1, "financed");
+    financedNewUnitsCell.style.cursor = "pointer";
+
+    const financedTotalUnitsCell = document.createElement("td");
+    financedTotalUnitsCell.textContent = comparison.financedTotalUnits;
+    financedTotalUnitsCell.onclick = () => showYearModal(year, year - 1, "financed");
+    financedTotalUnitsCell.style.cursor = "pointer";
+
+    const financedClosingCashCell = document.createElement("td");
+    financedClosingCashCell.className = financedClosingCash >= 0 ? "positive" : "negative";
+    financedClosingCashCell.textContent = utils.formatCurrency(financedClosingCash);
+    financedClosingCashCell.onclick = () => showYearModal(year, year - 1, "financed");
+    financedClosingCashCell.style.cursor = "pointer";
+
+    const financedAssetValueCell = document.createElement("td");
+    financedAssetValueCell.textContent = utils.formatCurrency(comparison.financedAssetValue);
+    financedAssetValueCell.onclick = () => showYearModal(year, year - 1, "financed");
+    financedAssetValueCell.style.cursor = "pointer";
+
+    const loanBalanceCell = document.createElement("td");
+    loanBalanceCell.textContent = utils.formatCurrency(comparison.loanBalance);
+    loanBalanceCell.onclick = () => showYearModal(year, year - 1, "financed");
+    loanBalanceCell.style.cursor = "pointer";
+
+    const netEquityCell = document.createElement("td");
+    netEquityCell.textContent = utils.formatCurrency(comparison.netEquity);
+    netEquityCell.onclick = () => showYearModal(year, year - 1, "financed");
+    netEquityCell.style.cursor = "pointer";
+
+    // Append all cells to the row
+    tr.appendChild(yearCell);
+    tr.appendChild(costCell);
+    tr.appendChild(selfNewUnitsCell);
+    tr.appendChild(selfTotalUnitsCell);
+    tr.appendChild(selfClosingCashCell);
+    tr.appendChild(selfAssetValueCell);
+    tr.appendChild(financedNewUnitsCell);
+    tr.appendChild(financedTotalUnitsCell);
+    tr.appendChild(financedClosingCashCell);
+    tr.appendChild(financedAssetValueCell);
+    tr.appendChild(loanBalanceCell);
+    tr.appendChild(netEquityCell);
 
     tbody.appendChild(tr);
   }
@@ -106,8 +181,8 @@ function calculateYearlyCashFlowBreakdownWithContinuity(year, index, strategy, r
   const totalOutflows = operatingExpenses + debtService + capexOutflows + taxes + propertyAcquisitions;
   const netCashFlow = totalInflows - totalOutflows;
   
-  // Closing cash = opening cash + net cash flow (perfect continuity)
-  const closingCash = Math.max(0, openingCash + netCashFlow);
+  // Closing cash = opening cash + net cash flow (allow negative balances)
+  const closingCash = openingCash + netCashFlow;
   
   return {
     openingCash,
@@ -229,36 +304,111 @@ function updateCashFlowTable() {
     const closingLoan = financedData.loanBalance || 0;
 
     const tr = document.createElement("tr");
-    tr.onclick = () => showYearModal(year, index);
-    tr.style.cursor = "pointer";
 
-    tr.innerHTML = `
-      <td><strong>${year}</strong></td>
-      <!-- Self Financed -->
-      <td>${utils.formatCurrency(selfBreakdown.openingCash)}</td>
-      <td class="positive">${utils.formatCurrency(selfBreakdown.totalInflows)}</td>
-      <td class="negative">${utils.formatCurrency(selfBreakdown.totalOutflows)}</td>
-      <td class="${selfBreakdown.netCashFlow >= 0 ? "positive" : "negative"}">${utils.formatCurrency(selfBreakdown.netCashFlow)}</td>
-      <td>${utils.formatCurrency(selfBreakdown.closingCash)}</td>
-      <!-- Bank Financed -->
-      <td>${utils.formatCurrency(financedBreakdown.openingCash)}</td>
-      <td class="positive">${utils.formatCurrency(financedBreakdown.totalInflows)}</td>
-      <td class="negative">${utils.formatCurrency(financedBreakdown.totalOutflows)}</td>
-      <td class="${financedBreakdown.netCashFlow >= 0 ? "positive" : "negative"}">${utils.formatCurrency(financedBreakdown.netCashFlow)}</td>
-      <td>${utils.formatCurrency(financedBreakdown.closingCash)}</td>
-      <td class="negative">${utils.formatCurrency(openingLoan)}</td>
-      <td class="negative">${utils.formatCurrency(closingLoan)}</td>
-    `;
+    // Year column
+    const yearCol = document.createElement("td");
+    yearCol.innerHTML = `<strong>${year}</strong>`;
+    yearCol.onclick = () => showYearModal(year, index, "self"); // Default to self for year column
+    yearCol.style.cursor = "pointer";
+
+    // Self Financed columns
+    const selfOpeningCash = document.createElement("td");
+    selfOpeningCash.className = selfBreakdown.openingCash >= 0 ? "positive" : "negative";
+    selfOpeningCash.textContent = utils.formatCurrency(selfBreakdown.openingCash);
+    selfOpeningCash.onclick = () => showYearModal(year, index, "self");
+    selfOpeningCash.style.cursor = "pointer";
+
+    const selfTotalInflows = document.createElement("td");
+    selfTotalInflows.className = "positive";
+    selfTotalInflows.textContent = utils.formatCurrency(selfBreakdown.totalInflows);
+    selfTotalInflows.onclick = () => showYearModal(year, index, "self");
+    selfTotalInflows.style.cursor = "pointer";
+
+    const selfTotalOutflows = document.createElement("td");
+    selfTotalOutflows.className = "negative";
+    selfTotalOutflows.textContent = utils.formatCurrency(selfBreakdown.totalOutflows);
+    selfTotalOutflows.onclick = () => showYearModal(year, index, "self");
+    selfTotalOutflows.style.cursor = "pointer";
+
+    const selfNetCashFlow = document.createElement("td");
+    selfNetCashFlow.className = selfBreakdown.netCashFlow >= 0 ? "positive" : "negative";
+    selfNetCashFlow.textContent = utils.formatCurrency(selfBreakdown.netCashFlow);
+    selfNetCashFlow.onclick = () => showYearModal(year, index, "self");
+    selfNetCashFlow.style.cursor = "pointer";
+
+    const selfClosingCashCol = document.createElement("td");
+    selfClosingCashCol.className = selfBreakdown.closingCash >= 0 ? "positive" : "negative";
+    selfClosingCashCol.textContent = utils.formatCurrency(selfBreakdown.closingCash);
+    selfClosingCashCol.onclick = () => showYearModal(year, index, "self");
+    selfClosingCashCol.style.cursor = "pointer";
+
+    // Bank Financed columns
+    const financedOpeningCash = document.createElement("td");
+    financedOpeningCash.className = financedBreakdown.openingCash >= 0 ? "positive" : "negative";
+    financedOpeningCash.textContent = utils.formatCurrency(financedBreakdown.openingCash);
+    financedOpeningCash.onclick = () => showYearModal(year, index, "financed");
+    financedOpeningCash.style.cursor = "pointer";
+
+    const financedTotalInflows = document.createElement("td");
+    financedTotalInflows.className = "positive";
+    financedTotalInflows.textContent = utils.formatCurrency(financedBreakdown.totalInflows);
+    financedTotalInflows.onclick = () => showYearModal(year, index, "financed");
+    financedTotalInflows.style.cursor = "pointer";
+
+    const financedTotalOutflows = document.createElement("td");
+    financedTotalOutflows.className = "negative";
+    financedTotalOutflows.textContent = utils.formatCurrency(financedBreakdown.totalOutflows);
+    financedTotalOutflows.onclick = () => showYearModal(year, index, "financed");
+    financedTotalOutflows.style.cursor = "pointer";
+
+    const financedNetCashFlow = document.createElement("td");
+    financedNetCashFlow.className = financedBreakdown.netCashFlow >= 0 ? "positive" : "negative";
+    financedNetCashFlow.textContent = utils.formatCurrency(financedBreakdown.netCashFlow);
+    financedNetCashFlow.onclick = () => showYearModal(year, index, "financed");
+    financedNetCashFlow.style.cursor = "pointer";
+
+    const financedClosingCashCol = document.createElement("td");
+    financedClosingCashCol.className = financedBreakdown.closingCash >= 0 ? "positive" : "negative";
+    financedClosingCashCol.textContent = utils.formatCurrency(financedBreakdown.closingCash);
+    financedClosingCashCol.onclick = () => showYearModal(year, index, "financed");
+    financedClosingCashCol.style.cursor = "pointer";
+
+    const openingLoanCol = document.createElement("td");
+    openingLoanCol.className = "negative";
+    openingLoanCol.textContent = utils.formatCurrency(openingLoan);
+    openingLoanCol.onclick = () => showYearModal(year, index, "financed");
+    openingLoanCol.style.cursor = "pointer";
+
+    const closingLoanCol = document.createElement("td");
+    closingLoanCol.className = "negative";
+    closingLoanCol.textContent = utils.formatCurrency(closingLoan);
+    closingLoanCol.onclick = () => showYearModal(year, index, "financed");
+    closingLoanCol.style.cursor = "pointer";
+
+    // Append all cells to the row
+    tr.appendChild(yearCol);
+    tr.appendChild(selfOpeningCash);
+    tr.appendChild(selfTotalInflows);
+    tr.appendChild(selfTotalOutflows);
+    tr.appendChild(selfNetCashFlow);
+    tr.appendChild(selfClosingCashCol);
+    tr.appendChild(financedOpeningCash);
+    tr.appendChild(financedTotalInflows);
+    tr.appendChild(financedTotalOutflows);
+    tr.appendChild(financedNetCashFlow);
+    tr.appendChild(financedClosingCashCol);
+    tr.appendChild(openingLoanCol);
+    tr.appendChild(closingLoanCol);
 
     tbody.appendChild(tr);
   }
 }
 
 // Show year detail modal
-function showYearModal(year, index) {
+function showYearModal(year, index, strategy = "self") {
   utils.currentModalYear = year;
   utils.currentModalIndex = index;
-  currentModalStrategy = "self"; // Set initial strategy
+  currentModalStrategy = strategy; // Set strategy based on clicked column group
 
   document.getElementById("modalYear").textContent = year;
   const modal = document.getElementById("yearModal");
@@ -276,10 +426,11 @@ function showYearModal(year, index) {
   console.log("Modal width:", computedStyle.width);
   console.log("Modal height:", computedStyle.height);
 
-  // Set initial dropdown values and subtitle
-  document.getElementById("strategySelect").value = "self";
+  // Set initial dropdown values and subtitle based on strategy
+  document.getElementById("strategySelect").value = strategy;
   document.getElementById("statementSelect").value = "pl";
-  document.getElementById("selectedStrategy").textContent = "Self-Financed";
+  const strategyText = strategy === "self" ? "Self-Financed" : "Bank-Financed";
+  document.getElementById("selectedStrategy").textContent = strategyText;
   document.getElementById("selectedStatement").textContent = "P&L Statement";
 
   populateYearDetails(year, index);
@@ -465,6 +616,8 @@ function closeModal() {
 
 // Switch between self-financed and bank-financed strategies
 function switchStrategy(strategy) {
+  console.log("🔄 Switching to strategy:", strategy, "for Year", utils.currentModalYear);
+  
   currentModalStrategy = strategy;
 
   // Update dropdown selection
@@ -476,6 +629,8 @@ function switchStrategy(strategy) {
 
   // Repopulate the current view
   populateYearDetails(utils.currentModalYear, utils.currentModalIndex);
+  
+  console.log("✅ Strategy switch completed for", strategyText);
 }
 
 // Show different modal tabs (P&L or Balance Sheet)
@@ -522,103 +677,124 @@ function populateYearDetails(year, index) {
   if (!utils.calculationResults) return;
 
   const results = utils.calculationResults;
-  const data =
-    currentModalStrategy === "self"
-      ? results.selfFinanced[index]
-      : results.financed[index];
+  
+  // Use centralized data accessor functions instead of old arrays
+  const strategy = currentModalStrategy === "self" ? "self" : "financed";
+  console.log("📊 Populating year details - Year:", year, "Strategy:", strategy);
+  
+  const yearData = calculations.getYearlyStrategyData(results, year, strategy);
+  const plData = calculations.getPLData(results, year, strategy);
+  const cashFlowData = calculations.getCashFlowStatementData(results, year, strategy);
+  
+  console.log("📈 Year data:", {
+    newUnits: yearData?.newUnits,
+    totalUnits: yearData?.totalUnits, 
+    assetValue: yearData?.assetValue,
+    closingCash: yearData?.closingCash
+  });
+  
+  // Fallback to old data structure if centralized data is not available
+  const data = yearData || (currentModalStrategy === "self" ? results.selfFinanced[index] : results.financed[index]);
   const detailedData = results.detailedData[index];
 
-  // Populate P&L Statement
+  // Populate P&L Statement using centralized data
   const plBody = document.getElementById("plBody");
+  const plDataToUse = plData || data; // Use centralized P&L data if available, fallback to old data
+  
   plBody.innerHTML = `
     <tr><td>Gross Potential Rent</td><td>${utils.formatCurrency(
-      data.gpr
+      plDataToUse.gpr || 0
     )}</td></tr>
     <tr><td>Vacancy Loss</td><td>${utils.formatCurrency(
-      data.gpr - data.egi
+      (plDataToUse.gpr || 0) - (plDataToUse.egi || 0)
     )}</td></tr>
     <tr><td><strong>Effective Gross Income</strong></td><td><strong>${utils.formatCurrency(
-      data.egi
+      plDataToUse.egi || 0
     )}</strong></td></tr>
     <tr><td>Management Fee</td><td>${utils.formatCurrency(
-      data.egi * (results.inputParams.managementRate / 100)
+      (plDataToUse.egi || 0) * (results.inputParams.managementRate / 100)
     )}</td></tr>
     <tr><td>Maintenance</td><td>${utils.formatCurrency(
-      data.egi * (results.inputParams.maintenanceRate / 100)
+      (plDataToUse.egi || 0) * (results.inputParams.maintenanceRate / 100)
     )}</td></tr>
     <tr><td>Property Tax</td><td>${utils.formatCurrency(
-      data.egi -
-        data.noi -
-        data.capex -
-        data.egi * (results.inputParams.managementRate / 100) -
-        data.egi * (results.inputParams.maintenanceRate / 100)
+      (plDataToUse.egi || 0) -
+        (plDataToUse.noi || 0) -
+        (plDataToUse.capex || 0) -
+        (plDataToUse.egi || 0) * (results.inputParams.managementRate / 100) -
+        (plDataToUse.egi || 0) * (results.inputParams.maintenanceRate / 100)
     )}</td></tr>
     <tr><td>Insurance</td><td>${utils.formatCurrency(
-      data.egi -
-        data.noi -
-        data.egi * (results.inputParams.managementRate / 100) -
-        data.egi * (results.inputParams.maintenanceRate / 100)
+      (plDataToUse.egi || 0) -
+        (plDataToUse.noi || 0) -
+        (plDataToUse.egi || 0) * (results.inputParams.managementRate / 100) -
+        (plDataToUse.egi || 0) * (results.inputParams.maintenanceRate / 100)
     )}</td></tr>
     <tr><td><strong>Net Operating Income</strong></td><td><strong>${utils.formatCurrency(
-      data.noi
+      plDataToUse.noi || 0
     )}</strong></td></tr>
     <tr><td>Depreciation</td><td>${utils.formatCurrency(
-      data.depreciation
+      plDataToUse.depreciation || 0
     )}</td></tr>
     <tr><td>Interest Expense</td><td>${utils.formatCurrency(
-      data.interestExpense || 0
+      plDataToUse.interestExpense || 0
     )}</td></tr>
     <tr><td><strong>Taxable Income</strong></td><td><strong>${utils.formatCurrency(
-      data.taxableIncome
+      plDataToUse.taxableIncome || 0
     )}</strong></td></tr>
-    <tr><td>Taxes</td><td>${utils.formatCurrency(data.taxes)}</td></tr>
+    <tr><td>Taxes</td><td>${utils.formatCurrency(plDataToUse.taxes || 0)}</td></tr>
     <tr><td><strong>Net Income</strong></td><td><strong>${utils.formatCurrency(
-      data.netIncome
+      plDataToUse.netIncome || 0
     )}</strong></td></tr>
     <tr><td colspan="2" style="background: #f8f9fa; font-weight: bold;">CASH FLOW ITEMS</td></tr>
     <tr><td>Principal Payments</td><td>${utils.formatCurrency(
-      (data.debtService || 0) - (data.interestExpense || 0)
+      (plDataToUse.debtService || 0) - (plDataToUse.interestExpense || 0)
     )}</td></tr>
-    <tr><td>CapEx Reserves</td><td>${utils.formatCurrency(data.capex)}</td></tr>
+    <tr><td>CapEx Reserves</td><td>${utils.formatCurrency(plDataToUse.capex || 0)}</td></tr>
     <tr><td><strong>Net Cash Flow</strong></td><td><strong>${utils.formatCurrency(
-      data.cashFlow
+      (yearData && yearData.netCashFlow) || (data && data.cashFlow) || 0
     )}</strong></td></tr>
   `;
 
-  // Populate Balance Sheet
+  // Populate Balance Sheet using centralized data
   const balanceBody = document.getElementById("balanceBody");
-  const cumulativeCapEx =
-    currentModalStrategy === "self"
-      ? detailedData.selfCumulativeCapEx
-      : detailedData.financedCumulativeCapEx;
+  const balanceDataToUse = yearData || data;
+  const cumulativeCapEx = (yearData && yearData.cumulativeCapEx) || 
+    (currentModalStrategy === "self" ? detailedData.selfCumulativeCapEx : detailedData.financedCumulativeCapEx);
 
   balanceBody.innerHTML = `
     <tr><td colspan="2" style="background: #f8f9fa; font-weight: bold;">ASSETS</td></tr>
-    <tr><td>Real Estate Properties</td><td>${utils.formatCurrency(
-      data.assetValue
+    <tr><td>Real Estate Properties (New ${data.newUnits || 0}, Total ${balanceDataToUse.totalUnits || 0})</td><td>${utils.formatCurrency(
+      balanceDataToUse.assetValue || 0
     )}</td></tr>
     <tr><td>CapEx Reserves</td><td>${utils.formatCurrency(
-      cumulativeCapEx
+      cumulativeCapEx || 0
     )}</td></tr>
     <tr><td><strong>TOTAL ASSETS</strong></td><td><strong>${utils.formatCurrency(
-      data.assetValue + cumulativeCapEx
+      (balanceDataToUse.assetValue || 0) + (cumulativeCapEx || 0)
     )}</strong></td></tr>
     <tr><td colspan="2" style="background: #f8f9fa; font-weight: bold;">LIABILITIES</td></tr>
     <tr><td>Mortgage Debt</td><td>${utils.formatCurrency(
-      data.loanBalance || 0
+      balanceDataToUse.loanBalance || 0
     )}</td></tr>
     <tr><td><strong>TOTAL LIABILITIES</strong></td><td><strong>${utils.formatCurrency(
-      data.loanBalance || 0
+      balanceDataToUse.loanBalance || 0
     )}</strong></td></tr>
     <tr><td colspan="2" style="background: #f8f9fa; font-weight: bold;">EQUITY</td></tr>
     <tr><td>Property Equity</td><td>${utils.formatCurrency(
-      data.assetValue - (data.loanBalance || 0)
+      (balanceDataToUse.assetValue || 0) - (balanceDataToUse.loanBalance || 0)
     )}</td></tr>
-    <tr><td>Reserves</td><td>${utils.formatCurrency(cumulativeCapEx)}</td></tr>
+    <tr><td>Reserves</td><td>${utils.formatCurrency(cumulativeCapEx || 0)}</td></tr>
     <tr><td><strong>TOTAL EQUITY</strong></td><td><strong>${utils.formatCurrency(
-      data.assetValue - (data.loanBalance || 0) + cumulativeCapEx
+      (balanceDataToUse.assetValue || 0) - (balanceDataToUse.loanBalance || 0) + (cumulativeCapEx || 0)
     )}</strong></td></tr>
   `;
+
+  // Check if Cash Flow tab is currently active and update it
+  const cashflowElement = document.getElementById("cashflowContent");
+  if (cashflowElement && cashflowElement.classList.contains("active")) {
+    populateCashFlowData(year, index);
+  }
 
 }
 
@@ -671,10 +847,16 @@ function populateCashFlowData(year, index) {
   }
 
   const results = utils.calculationResults;
-  const data = currentModalStrategy === "self" ? results.selfFinanced[index] : results.financed[index];
+  
+  // Use centralized data accessor functions
+  const strategy = currentModalStrategy === "self" ? "self" : "financed";
+  const cashFlowData = calculations.getCashFlowStatementData(results, year, strategy);
+  
+  // Fallback to old data structure if needed
+  const data = cashFlowData || (currentModalStrategy === "self" ? results.selfFinanced[index] : results.financed[index]);
   const detailedData = results.detailedData[index];
   const isFinanced = currentModalStrategy === "financed";
-  const costPerUnit = (results.inputParams?.initialCost || 160000) * Math.pow(1 + ((results.inputParams?.costIncrease || 1) / 100), year - 1);
+  const costPerUnit = cashFlowData?.costPerUnit || ((results.inputParams?.initialCost || 160000) * Math.pow(1 + ((results.inputParams?.costIncrease || 1) / 100), year - 1));
 
   // Populate Cash Flow Statement
   const cashflowBody = document.getElementById("modalCashflowBody");
@@ -698,20 +880,40 @@ function populateCashFlowData(year, index) {
     return;
   }
   
-  // Use the unified cash flow calculation function
-  let cashFlowData;
-  try {
-    cashFlowData = calculateTrueCashFlow(year, index, data, results, currentModalStrategy);
-  } catch (error) {
-    console.error("❌ Error in calculateTrueCashFlow:", error);
-    cashflowBody.innerHTML += `<tr><td colspan="2" style="color: red;">ERROR in calculation: ${error.message}</td></tr>`;
-    return;
-  }
+  // Use centralized cash flow data if available, otherwise fall back to old calculation
+  let cashFlowDataFromCentral = cashFlowData;
+  let calculatedCashFlowData = null;
   
-  if (!cashFlowData) {
-    console.error("❌ calculateTrueCashFlow returned null/undefined");
-    cashflowBody.innerHTML += `<tr><td colspan="2" style="color: red;">ERROR: Calculation returned no data</td></tr>`;
-    return;
+  if (cashFlowDataFromCentral) {
+    // Use centralized data - convert to format expected by the modal
+    calculatedCashFlowData = {
+      netCashFlow: cashFlowDataFromCentral.netCashFlow || 0,
+      totalInflows: cashFlowDataFromCentral.totalInflows || 0,
+      totalOutflows: cashFlowDataFromCentral.totalOutflows || 0,
+      annualBudget: cashFlowDataFromCentral.annualBudget || 0,
+      rentalIncome: cashFlowDataFromCentral.rentalIncome || 0,
+      operatingExpenses: cashFlowDataFromCentral.operatingExpenses || 0,
+      interestPaid: (data && data.interestExpense) || 0,
+      principalPayments: ((data && data.debtService) || 0) - ((data && data.interestExpense) || 0),
+      capexOutflows: cashFlowDataFromCentral.capex || 0,
+      taxes: cashFlowDataFromCentral.taxes || 0,
+      downPaymentOutflows: ((strategy === 'financed' && cashFlowDataFromCentral.propertyPurchases) || 0) * 0.3 // Approximate down payment
+    };
+  } else {
+    // Fall back to old calculation
+    try {
+      calculatedCashFlowData = calculateTrueCashFlow(year, index, data, results, currentModalStrategy);
+    } catch (error) {
+      console.error("❌ Error in calculateTrueCashFlow:", error);
+      cashflowBody.innerHTML += `<tr><td colspan="2" style="color: red;">ERROR in calculation: ${error.message}</td></tr>`;
+      return;
+    }
+    
+    if (!calculatedCashFlowData) {
+      console.error("❌ calculateTrueCashFlow returned null/undefined");
+      cashflowBody.innerHTML += `<tr><td colspan="2" style="color: red;">ERROR: Calculation returned no data</td></tr>`;
+      return;
+    }
   }
   
   const {
@@ -726,24 +928,32 @@ function populateCashFlowData(year, index) {
     capexOutflows,
     taxes,
     downPaymentOutflows
-  } = cashFlowData;
+  } = calculatedCashFlowData;
   
-  // Calculate opening cash - should be previous year's actual available cash balance
+  // Use centralized cash flow data for opening and closing cash if available
   let openingCash = 0;
-  if (index > 0) {
-    const prevYearIndex = index - 1;
-    const prevDetailedData = results.detailedData[prevYearIndex];
-    
-    // Opening cash = Previous year's actual available cash balance
-    openingCash = isFinanced 
-      ? (prevDetailedData.financedAvailableCash || 0)
-      : (prevDetailedData.selfAvailableCash || 0);
+  let closingCash = 0;
+  
+  if (cashFlowDataFromCentral) {
+    openingCash = cashFlowDataFromCentral.openingCash || 0;
+    closingCash = cashFlowDataFromCentral.closingCash || 0;
+  } else {
+    // Fallback to old calculation
+    if (index > 0) {
+      const prevYearIndex = index - 1;
+      const prevDetailedData = results.detailedData[prevYearIndex];
+      
+      // Opening cash = Previous year's actual available cash balance
+      openingCash = isFinanced 
+        ? (prevDetailedData.financedAvailableCash || 0)
+        : (prevDetailedData.selfAvailableCash || 0);
+    }
+    // Closing cash should be the actual available cash balance after all transactions
+    const currentDetailedData = results.detailedData[index];
+    closingCash = isFinanced 
+      ? (currentDetailedData.financedAvailableCash || 0)
+      : (currentDetailedData.selfAvailableCash || 0);
   }
-  // Closing cash should be the actual available cash balance after all transactions
-  const currentDetailedData = results.detailedData[index];
-  const closingCash = isFinanced 
-    ? (currentDetailedData.financedAvailableCash || 0)
-    : (currentDetailedData.selfAvailableCash || 0);
   
   
   // Helper function for currency formatting
