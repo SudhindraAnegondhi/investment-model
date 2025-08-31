@@ -27,6 +27,7 @@ class ChartManager {
     this.createNetWorthProgression(results);
     this.createSensitivityTornado(results);
     this.createLoanTrackingChart(results);
+    this.createCashInjectionsChart(results);
     this.updateKPITiles(results);
   }
 
@@ -648,6 +649,155 @@ class ChartManager {
             ticks: {
               callback: function(value) {
                 return '$' + (value / 1000).toFixed(0) + 'K';
+              }
+            },
+            grid: {
+              drawOnChartArea: false,
+            }
+          }
+        }
+      }
+    });
+  }
+
+  // Cash Injections Chart
+  createCashInjectionsChart(results) {
+    const ctx = document.getElementById("cashInjectionsChart");
+    if (!ctx) return;
+    
+    // Check if needs-based budget mode is active
+    const budgetMode = typeof getBudgetMode === 'function' ? getBudgetMode() : 'predetermined';
+    const chartContainer = document.getElementById("cash-injections-chart-container");
+    
+    if (budgetMode !== 'needsBased') {
+      if (chartContainer) chartContainer.style.display = 'none';
+      return;
+    }
+    
+    if (chartContainer) chartContainer.style.display = 'block';
+
+    // Destroy existing chart
+    if (this.charts.cashInjections) {
+      this.charts.cashInjections.destroy();
+    }
+
+    // Get cash injection data
+    const yearlyData = [];
+    for (let year = 1; year <= 15; year++) {
+      const selfData = calculations.getYearlyStrategyData ? calculations.getYearlyStrategyData(results, year, 'self') : null;
+      if (selfData) {
+        yearlyData.push({
+          year: year,
+          netCashFlow: selfData.netCashFlow || 0,
+          totalInvestment: selfData.annualBudget || 0,
+          closingCash: selfData.closingCash || 0
+        });
+      }
+    }
+    const injections = typeof calculateAdditionalCashInjections === 'function' 
+      ? calculateAdditionalCashInjections(yearlyData) 
+      : [];
+
+    if (injections.length === 0) {
+      // Show empty chart message
+      ctx.getContext('2d').clearRect(0, 0, ctx.width, ctx.height);
+      ctx.getContext('2d').fillStyle = '#666';
+      ctx.getContext('2d').font = '16px Arial';
+      ctx.getContext('2d').textAlign = 'center';
+      ctx.getContext('2d').fillText('No cash injections required based on current thresholds', ctx.width/2, ctx.height/2);
+      return;
+    }
+
+    const years = injections.map(inj => `Year ${inj.year}`);
+    const amounts = injections.map(inj => inj.amount);
+    const rois = injections.map(inj => parseFloat(inj.projectedROI));
+
+    this.charts.cashInjections = new Chart(ctx, {
+      type: "bar",
+      data: {
+        labels: years,
+        datasets: [
+          {
+            label: "Cash Injection Required",
+            data: amounts,
+            backgroundColor: "rgba(220, 38, 38, 0.8)",
+            borderColor: "#dc2626",
+            borderWidth: 2,
+            yAxisID: 'y'
+          },
+          {
+            label: "Projected ROI (%)",
+            data: rois,
+            type: 'line',
+            backgroundColor: "rgba(22, 163, 74, 0.2)",
+            borderColor: "#16a34a",
+            borderWidth: 3,
+            fill: false,
+            yAxisID: 'y1'
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: {
+          mode: 'index',
+          intersect: false,
+        },
+        plugins: {
+          title: {
+            display: true,
+            text: 'Additional Cash Injections Required (Needs-Based Strategy)',
+            font: { size: 16, weight: 'bold' }
+          },
+          legend: {
+            display: true,
+            position: 'top'
+          },
+          tooltip: {
+            callbacks: {
+              label: function(context) {
+                if (context.datasetIndex === 0) {
+                  return 'Cash Injection: $' + context.raw.toLocaleString();
+                } else {
+                  return 'Projected ROI: ' + context.raw.toFixed(1) + '%';
+                }
+              }
+            }
+          }
+        },
+        scales: {
+          x: {
+            title: {
+              display: true,
+              text: 'Investment Year'
+            }
+          },
+          y: {
+            type: 'linear',
+            display: true,
+            position: 'left',
+            title: {
+              display: true,
+              text: 'Cash Injection Amount ($)'
+            },
+            ticks: {
+              callback: function(value) {
+                return '$' + (value / 1000).toFixed(0) + 'K';
+              }
+            }
+          },
+          y1: {
+            type: 'linear',
+            display: true,
+            position: 'right',
+            title: {
+              display: true,
+              text: 'Projected ROI (%)'
+            },
+            ticks: {
+              callback: function(value) {
+                return value.toFixed(1) + '%';
               }
             },
             grid: {

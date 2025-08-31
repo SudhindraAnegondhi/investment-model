@@ -31,6 +31,175 @@ function calculateAll() {
   }
 }
 
+// Calculate investment score based on objective
+function calculateInvestmentScore(params, year, propertyCost, netOperatingIncome, projectedROI) {
+  const objective = params.investmentObjective;
+  const riskTolerance = params.riskTolerance;
+  let score = 0;
+  let weight = 1.0;
+  
+  // Risk adjustment multiplier
+  const riskMultiplier = riskTolerance === 'conservative' ? 0.8 : 
+                       riskTolerance === 'aggressive' ? 1.2 : 1.0;
+  
+  switch (objective) {
+    case 'maxCashFlow':
+      // Prioritize net operating income (cash flow)
+      score = netOperatingIncome;
+      weight = riskMultiplier;
+      break;
+      
+    case 'maxTotalReturn':
+      // Combine cash flow with projected appreciation
+      const appreciation = propertyCost * (params.appreciationRate / 100);
+      score = (netOperatingIncome + appreciation) / propertyCost * 100;
+      weight = riskMultiplier;
+      break;
+      
+    case 'maxROI':
+      // Pure ROI focus
+      score = projectedROI;
+      weight = riskMultiplier * 1.1; // Slight bonus for efficiency
+      break;
+      
+    case 'maxPortfolioSize':
+      // Favor lower cost properties (more units possible)
+      score = 1000000 / propertyCost; // Inverse relationship to cost
+      weight = riskMultiplier * 1.1;
+      break;
+      
+    case 'conservative':
+      // Favor stability over returns
+      score = Math.min(projectedROI, 15); // Cap at 15% to avoid risky high-return deals
+      weight = riskMultiplier * 0.9;
+      break;
+      
+    case 'balanced':
+    default:
+      // Balance cash flow, ROI, and appreciation
+      const cashFlowScore = netOperatingIncome / 10000; // Normalize to 0-10 scale
+      const roiScore = Math.min(projectedROI, 25) / 2.5; // Normalize to 0-10 scale
+      const balancedAppreciation = propertyCost * (params.appreciationRate / 100);
+      const appreciationScore = (balancedAppreciation / propertyCost * 100) / 1.0; // Normalize
+      score = (cashFlowScore * 0.4) + (roiScore * 0.4) + (appreciationScore * 0.2);
+      weight = riskMultiplier;
+      break;
+  }
+  
+  return score * weight;
+}
+
+// Get objective-adjusted ROI threshold
+function getObjectiveThreshold(params) {
+  const baseThreshold = params.minROIThreshold;
+  const riskTolerance = params.riskTolerance;
+  const objective = params.investmentObjective;
+  
+  let adjustment = 0;
+  
+  // Risk-based adjustment
+  if (riskTolerance === 'conservative') adjustment += 1;
+  if (riskTolerance === 'aggressive') adjustment -= 1;
+  
+  // Objective-based adjustment
+  switch (objective) {
+    case 'maxPortfolioSize':
+      adjustment -= 2; // Lower threshold to acquire more units
+      break;
+    case 'conservative':
+      adjustment += 2; // Higher threshold for quality
+      break;
+    case 'maxROI':
+      adjustment += 1; // Slightly higher threshold for efficiency
+      break;
+    case 'maxCashFlow':
+      adjustment -= 1; // Slightly lower ROI acceptable if cash flow is good
+      break;
+  }
+  
+  return Math.max(3, baseThreshold + adjustment); // Minimum 3% threshold
+}
+
+// Calculate dynamic annual budget based on budget mode and investment objectives
+function calculateDynamicAnnualBudget(params, year, previousResults, propertyCost, strategy = 'self') {
+  const purchaseYears = strategy === 'financed' ? params.financedPurchaseYears : params.selfPurchaseYears;
+  
+  // Debug: Show what budget mode we're in
+  if (year === 1 && strategy === 'self') {
+    console.log(`🔍 Budget Mode: ${params.budgetMode}, Objective: ${params.investmentObjective}, Risk: ${params.riskTolerance}`);
+  }
+  
+  if (params.budgetMode !== 'needsBased' || year > purchaseYears) {
+    // Use predetermined budget for predetermined mode or after purchase years
+    return year <= purchaseYears ? params.annualBudget : 0;
+  }
+  
+  // Needs-based logic
+  let totalInvestedSoFar = 0;
+  let totalCashFlowGenerated = 0;
+  for (let i = 0; i < previousResults.length; i++) {
+    const invested = previousResults[i].selfStrategy?.annualBudget || 0;
+    totalInvestedSoFar += invested;
+    totalCashFlowGenerated += previousResults[i].selfStrategy?.noi || 0;
+  }
+  
+  // Check if we've reached investment limits
+  if (totalInvestedSoFar >= params.totalInvestmentLimit) {
+    console.log(`🎯 Year ${year}: Investment limit reached ($${totalInvestedSoFar.toLocaleString()})`);
+    return 0;
+  }
+  
+  // Check if we've reached target cash flow (for cash flow objective)
+  if (params.investmentObjective === 'maxCashFlow' && totalCashFlowGenerated >= params.targetAnnualCashFlow) {
+    console.log(`🎯 Year ${year}: Target cash flow reached ($${totalCashFlowGenerated.toLocaleString()})`);
+    return 0;
+  }
+  
+  // Calculate projected financials for this year's investment
+  const currentRentalRate = params.rentalRate * (1 + params.rentGrowthRate / 100) ** (year - 1);
+  const annualRent = propertyCost * (currentRentalRate / 100) * 12;
+  
+  // Calculate operating expenses
+  const vacancyCost = annualRent * (params.vacancyRate / 100);
+  const managementCost = annualRent * (params.managementRate / 100);
+  const capexCost = annualRent * (params.capexRate / 100);
+  const maintenanceCost = annualRent * (params.maintenanceRate / 100);
+  const insuranceCost = params.insurance || (propertyCost * 0.005);
+  
+  const totalOperatingExpenses = vacancyCost + managementCost + capexCost + maintenanceCost + insuranceCost;
+  const netOperatingIncome = annualRent - totalOperatingExpenses;
+  const projectedROI = (netOperatingIncome / propertyCost) * 100;
+  
+  // Get objective-adjusted threshold
+  const effectiveThreshold = getObjectiveThreshold(params);
+  
+  // Calculate investment score
+  const investmentScore = calculateInvestmentScore(params, year, propertyCost, netOperatingIncome, projectedROI);
+  
+  // Only invest if meets threshold and has good score
+  if (projectedROI < effectiveThreshold) {
+    console.log(`🎯 Year ${year}: ROI ${projectedROI.toFixed(1)}% below ${params.investmentObjective} threshold ${effectiveThreshold.toFixed(1)}%`);
+    return 0;
+  }
+  
+  // Calculate optimal investment amount within limits
+  const remainingLimit = params.totalInvestmentLimit - totalInvestedSoFar;
+  let optimalInvestment = Math.min(
+    params.maxSingleInvestment,
+    remainingLimit,
+    propertyCost * 1.02 // Include closing costs
+  );
+  
+  // Adjust investment amount based on objective and score
+  if (params.investmentObjective === 'maxPortfolioSize' && investmentScore > 50) {
+    // For portfolio maximization, prefer smaller amounts to buy more units
+    optimalInvestment = Math.min(optimalInvestment, propertyCost * 0.25); // Down payment only
+  }
+  
+  console.log(`✅ Year ${year}: ${params.investmentObjective} investment approved $${optimalInvestment.toLocaleString()} (ROI: ${projectedROI.toFixed(1)}%, Score: ${investmentScore.toFixed(1)})`);
+  return optimalInvestment;
+}
+
 // Enhanced calculation function with centralized data generation
 function performCalculations(params) {
   
@@ -86,7 +255,8 @@ function performCalculations(params) {
     // SELF-FINANCED STRATEGY
     let selfNewUnits = 0;
     // Track annual budget separately to avoid double-counting
-    const selfAnnualBudget = year <= params.selfPurchaseYears ? params.annualBudget : 0;
+    // Use dynamic budget calculation for needs-based mode
+    const selfAnnualBudget = calculateDynamicAnnualBudget(params, year, results.yearlyData, propertyCost, 'self');
 
     // Self-financed purchases with reasonable cash flow constraint
     const selfCostPerUnit = propertyCost * 1.02; // Including 2% closing costs
@@ -132,7 +302,8 @@ function performCalculations(params) {
     let financedCashFlowBalance = 0;
     
     // Track annual budget separately to avoid double-counting
-    const financedAnnualBudget = year <= params.financedPurchaseYears ? params.annualBudget : 0;
+    // Use dynamic budget calculation for financed strategy as well (for equity portion)
+    const financedAnnualBudget = calculateDynamicAnnualBudget(params, year, results.yearlyData, propertyCost, 'financed');
 
     const downPaymentPerUnit = propertyCost * (1 - params.ltvRatio / 100); // Down payment without closing costs
     const financedTotalCashForPurchases = financedAvailableCash + financedAnnualBudget;

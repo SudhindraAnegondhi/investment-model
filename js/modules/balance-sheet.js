@@ -56,6 +56,24 @@ function updateSummary() {
   
   // Update AI insights if available
   updateAIInsights();
+  
+  // Update cash injections analysis if available
+  if (typeof updateCashInjectionsDisplay === 'function') {
+    // Create yearly data array from individual year data
+    const yearlyData = [];
+    for (let year = 1; year <= 15; year++) {
+      const selfData = calculations.getYearlyStrategyData(results, year, 'self');
+      if (selfData) {
+        yearlyData.push({
+          year: year,
+          netCashFlow: selfData.netCashFlow || 0,
+          totalInvestment: selfData.annualBudget || 0,
+          closingCash: selfData.closingCash || 0
+        });
+      }
+    }
+    updateCashInjectionsDisplay(yearlyData);
+  }
 }
 
 function updateSummaryDownloadTab(results) {
@@ -461,15 +479,56 @@ function updateModelSynopsis() {
   // Key settings impact analysis
   const keySettings = analyzeKeySettings(params, results, aiData);
   
+  // Get current budget mode
+  const budgetMode = params.budgetMode || 'predetermined';
+  
+  // Generate budget-specific strategy overview
+  let strategyOverview = '';
+  if (budgetMode === 'needsBased') {
+    const objectiveLabels = {
+      'maxCashFlow': '🏠 Maximize Cash Flow',
+      'maxTotalReturn': '📈 Maximize Total Return', 
+      'maxROI': '⚡ Maximize ROI',
+      'maxPortfolioSize': '🏘️ Maximize Portfolio Size',
+      'balanced': '⚖️ Balanced Growth',
+      'conservative': '🛡️ Conservative Growth'
+    };
+    
+    strategyOverview = `
+      <div class="strategy-mode-badge needs-based">🎯 Needs-Based Investment Strategy</div>
+      <div class="strategy-details">
+        <div class="objective-info">
+          <strong>Investment Objective:</strong> ${objectiveLabels[params.investmentObjective] || 'Balanced Growth'}
+        </div>
+        <div class="risk-info">
+          <strong>Risk Tolerance:</strong> ${(params.riskTolerance || 'moderate').charAt(0).toUpperCase() + (params.riskTolerance || 'moderate').slice(1)}
+        </div>
+      </div>
+    `;
+  } else {
+    strategyOverview = `
+      <div class="strategy-mode-badge predetermined">💰 Predetermined Budget Strategy</div>
+      <div class="strategy-details">
+        <div class="budget-info">
+          <strong>Consistent Investment:</strong> Fixed annual budget approach
+        </div>
+        <div class="approach-info">
+          <strong>Investment Approach:</strong> Steady, predictable capital deployment
+        </div>
+      </div>
+    `;
+  }
+  
   let synopsisHTML = `
     <div class="synopsis-grid">
       <!-- Investment Overview -->
       <div class="synopsis-card">
         <h4>🎯 Investment Strategy Overview</h4>
         <div class="synopsis-content">
+          ${strategyOverview}
           <div class="strategy-comparison">
             <div class="better-strategy">
-              <strong>Recommended Strategy:</strong> ${betterStrategy}
+              <strong>Recommended Approach:</strong> ${betterStrategy}
               <span class="advantage">+${utils.formatCurrency(advantage)} (${advantagePercent}% better)</span>
             </div>
           </div>
@@ -478,7 +537,8 @@ function updateModelSynopsis() {
               <span>Investment Timeline:</span> <strong>${params.selfPurchaseYears || 15} years</strong>
             </div>
             <div class="metric-row">
-              <span>Annual Budget:</span> <strong>${utils.formatCurrency(params.annualBudget)}</strong>
+              <span>${budgetMode === 'needsBased' ? 'Max Investment Limit' : 'Annual Budget'}:</span> 
+              <strong>${budgetMode === 'needsBased' ? utils.formatCurrency(params.totalInvestmentLimit || 2000000) : utils.formatCurrency(params.annualBudget)}</strong>
             </div>
             <div class="metric-row">
               <span>Property Cost:</span> <strong>${utils.formatCurrency(params.initialCost)}</strong>

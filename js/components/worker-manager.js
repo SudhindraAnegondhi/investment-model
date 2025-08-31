@@ -81,6 +81,11 @@ class WorkerManager {
           }
 
           this.showSuccess("Calculations completed successfully");
+          
+          // Navigate back to previous tab after calculations complete
+          if (typeof navigateAfterCalculation === "function") {
+            navigateAfterCalculation();
+          }
         } catch (error) {
           this.isCalculating = false;
           this.hideLoadingIndicator();

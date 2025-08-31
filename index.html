@@ -208,8 +208,51 @@
               </div>
 
               <div class="control-group">
+                <h4>💰 Investment Budget Strategy</h4>
+                <div class="budget-mode-selection">
+                  <label class="budget-mode-option">
+                    <input type="radio" name="budgetMode" value="predetermined" checked>
+                    <span class="radio-label">Predetermined Annual Budget</span>
+                    <small>Fixed amount invested each year</small>
+                  </label>
+                  <label class="budget-mode-option">
+                    <input type="radio" name="budgetMode" value="needsBased">
+                    <span class="radio-label">Needs-Based Investment</span>
+                    <small>Invest optimal amounts when opportunities arise</small>
+                  </label>
+                </div>
+              </div>
+              
+              <div class="control-group" id="predeterminedBudgetControls">
                 <label>Annual Investment Budget ($)</label>
                 <input type="number" id="annualBudget" value="170000" min="0" />
+              </div>
+              
+              <div class="control-group" id="needsBasedControls" style="display: none;">
+                <label>Investment Objective</label>
+                <select id="investmentObjective">
+                  <option value="maxCashFlow">🏠 Maximize Cash Flow</option>
+                  <option value="maxTotalReturn">📈 Maximize Total Return</option>
+                  <option value="maxROI">⚡ Maximize ROI</option>
+                  <option value="maxPortfolioSize">🏘️ Maximize Portfolio Size</option>
+                  <option value="balanced" selected>⚖️ Balanced Growth</option>
+                  <option value="conservative">🛡️ Conservative Growth</option>
+                </select>
+                
+                <label>Maximum Single Investment ($)</label>
+                <input type="number" id="maxSingleInvestment" value="500000" min="0" />
+                <label>Total Investment Limit ($)</label>
+                <input type="number" id="totalInvestmentLimit" value="2000000" min="0" />
+                <label>Minimum ROI Threshold (%)</label>
+                <input type="number" id="minROIThreshold" value="8" min="0" step="0.5" />
+                <label>Target Annual Cash Flow ($)</label>
+                <input type="number" id="targetAnnualCashFlow" value="50000" min="0" />
+                <label>Risk Tolerance</label>
+                <select id="riskTolerance">
+                  <option value="conservative">🛡️ Conservative</option>
+                  <option value="moderate" selected>⚖️ Moderate</option>
+                  <option value="aggressive">🚀 Aggressive</option>
+                </select>
               </div>
               <div
                 class="control-group highlighted-control"
@@ -642,6 +685,48 @@
           </div>
         </div>
 
+        <!-- Additional Cash Injections Analysis -->
+        <div class="dashboard-section" id="cash-injections-section" style="display: none;">
+          <h3>💰 Additional Cash Injections Required</h3>
+          <div class="alert-info" style="margin-bottom: 15px;">
+            <strong>Needs-Based Investment Strategy</strong><br>
+            Based on ROI thresholds and optimal investment timing, here are the additional cash injections required.
+          </div>
+          <div class="table-container">
+            <table class="cash-injections-table">
+              <thead>
+                <tr>
+                  <th>Year</th>
+                  <th>Cash Injection</th>
+                  <th>Projected ROI</th>
+                  <th>Cumulative Investment</th>
+                  <th>Investment Reason</th>
+                </tr>
+              </thead>
+              <tbody id="cash-injections-tbody">
+                <!-- Will be populated dynamically -->
+              </tbody>
+              <tfoot id="cash-injections-summary">
+                <tr class="summary-row">
+                  <td><strong>Total</strong></td>
+                  <td><strong id="total-cash-injections">$0</strong></td>
+                  <td><strong id="avg-projected-roi">0%</strong></td>
+                  <td><strong id="final-cumulative-investment">$0</strong></td>
+                  <td>Investment Summary</td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+          <div class="cash-injection-insights">
+            <div class="insight-card">
+              <h4>📈 Investment Strategy</h4>
+              <div id="investment-strategy-summary">
+                <!-- Will be populated with investment strategy analysis -->
+              </div>
+            </div>
+          </div>
+        </div>
+
         <!-- Quick Actions -->
         <div class="dashboard-section">
           <h3>Quick Actions</h3>
@@ -725,6 +810,24 @@
               <div class="legend-item">
                 <span class="legend-color" style="background: #F44336;"></span>
                 <span>Outstanding Balance</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Cash Injections Chart -->
+          <div class="chart-container" id="cash-injections-chart-container" style="display: none;">
+            <h3>💰 Additional Cash Injections Timeline</h3>
+            <div class="chart-wrapper">
+              <canvas id="cashInjectionsChart"></canvas>
+            </div>
+            <div class="chart-legend">
+              <div class="legend-item">
+                <span class="legend-color" style="background: #dc2626;"></span>
+                <span>Cash Injection Required</span>
+              </div>
+              <div class="legend-item">
+                <span class="legend-color" style="background: #16a34a;"></span>
+                <span>Projected ROI</span>
               </div>
             </div>
           </div>
@@ -1588,25 +1691,91 @@
         }
       }
 
-      function selectTab(tabId, tabName) {
-        // Update current tab name
-        document.querySelector('.current-tab-name').textContent = tabName;
+      // Track previous tab for navigation after calculations
+      let previousTab = 'dashboard'; // Default to dashboard
+
+      // Navigate to previous tab or dashboard after calculations
+      function navigateAfterCalculation() {
+        // Get the tab names for navigation
+        const tabNames = {
+          'dashboard': '📊 Dashboard',
+          'charts': '📈 Charts & Analysis', 
+          'scenarios': '💾 Scenarios',
+          'comparison': '📊 Strategy Comparison',
+          'cashflow': '💰 Cash Flow Analysis',
+          'sensitivity': '🎯 Sensitivity Analysis',
+          'breakeven': '⚖️ Break-Even Analysis',
+          'roi': '📈 ROI Analysis',
+          'summary': '📋 Summary & Download',
+          'help': '❓ Help'
+        };
         
-        // Update active state in dropdown
+        const targetTab = previousTab || 'dashboard';
+        const tabName = tabNames[targetTab] || '📊 Dashboard';
+        
+        // Small delay to ensure all calculations and UI updates are complete
+        setTimeout(() => {
+          selectTab(targetTab, tabName);
+          console.log(`🎯 Navigated back to: ${targetTab}`);
+        }, 100);
+      }
+
+      function selectTab(tabId, tabName) {
+        // Store previous tab when navigating to settings
+        const currentActiveTab = document.querySelector('.tab-option.active');
+        if (currentActiveTab && tabId === 'inputs' && currentActiveTab.getAttribute('data-tab') !== 'inputs') {
+          previousTab = currentActiveTab.getAttribute('data-tab') || 'dashboard';
+          console.log(`📝 Navigating to settings from: ${previousTab}`);
+        }
+        // Handle navigation dropdown
+        const navDropdown = document.getElementById('nav-dropdown');
+        const menuDropdown = document.querySelector('.menu-dropdown');
+        if (navDropdown) {
+          navDropdown.classList.remove('show');
+        }
+        if (menuDropdown) {
+          menuDropdown.classList.remove('open');
+        }
+        
+        // Update current tab label for navigation dropdown
+        const currentTabLabel = document.querySelector('.current-tab-label');
+        if (currentTabLabel) {
+          currentTabLabel.textContent = tabName;
+        }
+        
+        // Update active menu item in navigation dropdown
+        document.querySelectorAll('.dropdown-content button').forEach(btn => {
+          btn.classList.remove('active-menu-item');
+          if (btn.textContent.includes(tabName)) {
+            btn.classList.add('active-menu-item');
+          }
+        });
+        
+        // Handle tab menu dropdown (if it exists)
+        const tabDropdown = document.getElementById('tabDropdown');
+        const tabToggle = document.querySelector('.tab-menu-toggle');
+        if (tabDropdown && tabToggle) {
+          tabDropdown.classList.remove('show');
+          tabToggle.classList.remove('active');
+        }
+        
+        // Update current tab name (if element exists)
+        const currentTabName = document.querySelector('.current-tab-name');
+        if (currentTabName) {
+          currentTabName.textContent = tabName;
+        }
+        
+        // Update active state in tab options
         document.querySelectorAll('.tab-option').forEach(option => {
           option.classList.remove('active');
         });
-        document.querySelector(`[data-tab="${tabId}"]`).classList.add('active');
+        const targetOption = document.querySelector(`[data-tab="${tabId}"]`);
+        if (targetOption) {
+          targetOption.classList.add('active');
+        }
         
-        // Close dropdown
-        const dropdown = document.getElementById('tabDropdown');
-        const toggle = document.querySelector('.tab-menu-toggle');
-        dropdown.classList.remove('show');
-        toggle.classList.remove('active');
-        
-        // Activate the tab (reuse existing function)
-        const fakeButton = { classList: { remove: () => {}, add: () => {} } };
-        activateTab(fakeButton, tabId);
+        // Activate the tab
+        activateTab(null, tabId);
       }
 
       // Close dropdown when clicking outside
@@ -1677,6 +1846,9 @@
             if (typeof updateAllTables === "function") {
               updateAllTables();
             }
+            
+            // Navigate back to previous tab after calculations complete
+            navigateAfterCalculation();
           }
         } catch (error) {
           console.error("Calculation error:", error);
@@ -1703,25 +1875,6 @@
         }
       }
 
-      function selectTab(tabId, tabLabel) {
-        // Hide dropdown
-        const dropdown = document.getElementById('nav-dropdown');
-        const menuDropdown = document.querySelector('.menu-dropdown');
-        dropdown.classList.remove('show');
-        menuDropdown.classList.remove('open');
-        
-        // Update current tab label
-        document.querySelector('.current-tab-label').textContent = tabLabel;
-        
-        // Update active menu item
-        document.querySelectorAll('.dropdown-content button').forEach(btn => {
-          btn.classList.remove('active-menu-item');
-        });
-        event.target.classList.add('active-menu-item');
-        
-        // Activate tab
-        activateTab(null, tabId);
-      }
 
       function activateTab(btn, tabName) {
         // Hide all tab contents
@@ -2024,6 +2177,431 @@
         
         return overrides;
       };
+
+      // Budget Mode Functions
+      function toggleBudgetMode() {
+        const predeterminedRadio = document.querySelector('input[name="budgetMode"][value="predetermined"]');
+        const needsBasedRadio = document.querySelector('input[name="budgetMode"][value="needsBased"]');
+        const predeterminedControls = document.getElementById('predeterminedBudgetControls');
+        const needsBasedControls = document.getElementById('needsBasedControls');
+        
+        if (predeterminedRadio.checked) {
+          predeterminedControls.style.display = 'block';
+          needsBasedControls.style.display = 'none';
+          console.log("💰 Switched to predetermined budget mode");
+          
+          // Hide cash injections sections
+          const cashInjectionsSection = document.getElementById('cash-injections-section');
+          const cashInjectionsChart = document.getElementById('cash-injections-chart-container');
+          if (cashInjectionsSection) cashInjectionsSection.style.display = 'none';
+          if (cashInjectionsChart) cashInjectionsChart.style.display = 'none';
+        } else if (needsBasedRadio.checked) {
+          predeterminedControls.style.display = 'none';
+          needsBasedControls.style.display = 'block';
+          console.log("🎯 Switched to needs-based investment mode");
+          
+          // Show cash injections sections (they will be populated on next calculation)
+          const cashInjectionsSection = document.getElementById('cash-injections-section');
+          const cashInjectionsChart = document.getElementById('cash-injections-chart-container');
+          if (cashInjectionsSection) cashInjectionsSection.style.display = 'block';
+          if (cashInjectionsChart) cashInjectionsChart.style.display = 'block';
+        }
+        
+        // Update the Investment Strategy Overview immediately if results exist
+        if (utils.calculationResults && window.balanceSheet && typeof balanceSheet.updateModelSynopsis === 'function') {
+          balanceSheet.updateModelSynopsis();
+          console.log("📊 Updated Investment Strategy Overview for new budget mode");
+        }
+      }
+
+      function getBudgetMode() {
+        const budgetModeRadio = document.querySelector('input[name="budgetMode"]:checked');
+        return budgetModeRadio ? budgetModeRadio.value : 'predetermined';
+      }
+
+      function getBudgetSettings() {
+        const budgetMode = getBudgetMode();
+        
+        if (budgetMode === 'predetermined') {
+          return {
+            mode: 'predetermined',
+            annualBudget: parseFloat(document.getElementById('annualBudget').value) || 170000
+          };
+        } else {
+          return {
+            mode: 'needsBased',
+            investmentObjective: document.getElementById('investmentObjective').value || 'balanced',
+            maxSingleInvestment: parseFloat(document.getElementById('maxSingleInvestment').value) || 500000,
+            totalInvestmentLimit: parseFloat(document.getElementById('totalInvestmentLimit').value) || 2000000,
+            minROIThreshold: parseFloat(document.getElementById('minROIThreshold').value) || 8,
+            targetAnnualCashFlow: parseFloat(document.getElementById('targetAnnualCashFlow').value) || 50000,
+            riskTolerance: document.getElementById('riskTolerance').value || 'moderate'
+          };
+        }
+      }
+
+      function calculateAdditionalCashInjections(data) {
+        const budgetSettings = getBudgetSettings();
+        const injections = [];
+        
+        if (budgetSettings.mode === 'needsBased') {
+          let totalInvested = 0;
+          let totalCashFlow = 0;
+          const selfPurchaseYears = parseInt(document.getElementById('selfPurchaseYears').value) || 3;
+          const objective = budgetSettings.investmentObjective || 'balanced';
+          
+          // Get objective description for reasons
+          const objectiveDescriptions = {
+            'maxCashFlow': 'maximizes cash flow generation',
+            'maxTotalReturn': 'optimizes total return (cash flow + appreciation)',
+            'maxROI': 'achieves highest capital efficiency',
+            'maxPortfolioSize': 'maximizes property acquisition',
+            'balanced': 'provides balanced growth and income',
+            'conservative': 'offers stable, low-risk returns'
+          };
+          
+          for (let year = 1; year <= selfPurchaseYears; year++) {
+            const yearData = data.find(d => d.year === year);
+            if (!yearData) continue;
+            
+            // Calculate comprehensive investment metrics
+            const projectedROI = yearData.netCashFlow / yearData.totalInvestment * 100;
+            const yearCashFlow = yearData.netCashFlow || 0;
+            
+            // Check various thresholds based on objective
+            let shouldInvest = false;
+            let investmentReason = '';
+            let adjustedThreshold = budgetSettings.minROIThreshold;
+            
+            switch (objective) {
+              case 'maxCashFlow':
+                shouldInvest = yearCashFlow > 0 && projectedROI >= (adjustedThreshold - 1);
+                investmentReason = `Strong cash flow potential ($${yearCashFlow.toLocaleString()}/year)`;
+                if (totalCashFlow >= budgetSettings.targetAnnualCashFlow) shouldInvest = false;
+                break;
+                
+              case 'maxTotalReturn':
+                const totalReturn = projectedROI + 3; // Assume 3% appreciation
+                shouldInvest = totalReturn >= adjustedThreshold;
+                investmentReason = `Excellent total return potential (${totalReturn.toFixed(1)}% combined)`;
+                break;
+                
+              case 'maxROI':
+                adjustedThreshold = budgetSettings.minROIThreshold + 1;
+                shouldInvest = projectedROI >= adjustedThreshold;
+                investmentReason = `High ROI efficiency (${projectedROI.toFixed(1)}%)`;
+                break;
+                
+              case 'maxPortfolioSize':
+                adjustedThreshold = Math.max(3, budgetSettings.minROIThreshold - 2);
+                shouldInvest = projectedROI >= adjustedThreshold;
+                investmentReason = `Portfolio expansion opportunity (${projectedROI.toFixed(1)}% ROI)`;
+                break;
+                
+              case 'conservative':
+                adjustedThreshold = budgetSettings.minROIThreshold + 2;
+                shouldInvest = projectedROI >= adjustedThreshold && projectedROI <= 15;
+                investmentReason = `Stable, conservative investment (${projectedROI.toFixed(1)}% ROI)`;
+                break;
+                
+              case 'balanced':
+              default:
+                shouldInvest = projectedROI >= adjustedThreshold;
+                investmentReason = `Balanced investment opportunity (${projectedROI.toFixed(1)}% ROI)`;
+                break;
+            }
+            
+            if (shouldInvest && totalInvested < budgetSettings.totalInvestmentLimit) {
+              let optimalInvestment = Math.min(
+                budgetSettings.maxSingleInvestment,
+                budgetSettings.totalInvestmentLimit - totalInvested,
+                yearData.totalInvestment || 0
+              );
+              
+              // Adjust investment size based on objective
+              if (objective === 'maxPortfolioSize') {
+                // Prefer smaller investments to maximize unit count
+                optimalInvestment = Math.min(optimalInvestment, yearData.totalInvestment * 0.3);
+              } else if (objective === 'maxCashFlow') {
+                // Adjust based on cash flow potential
+                const cashFlowMultiplier = Math.min(2.0, yearCashFlow / 20000);
+                optimalInvestment = Math.min(optimalInvestment, optimalInvestment * cashFlowMultiplier);
+              }
+              
+              if (optimalInvestment > 0) {
+                injections.push({
+                  year: year,
+                  amount: optimalInvestment,
+                  projectedROI: projectedROI.toFixed(1),
+                  reason: investmentReason,
+                  objective: objectiveDescriptions[objective] || 'strategic investment',
+                  expectedCashFlow: yearCashFlow
+                });
+                totalInvested += optimalInvestment;
+                totalCashFlow += yearCashFlow;
+              }
+            }
+          }
+        }
+        
+        return injections;
+      }
+
+      function calculateROIComparison(data, budgetSettings, injections) {
+        const annualBudget = parseFloat(document.getElementById('annualBudget').value) || 170000;
+        const selfPurchaseYears = parseInt(document.getElementById('selfPurchaseYears').value) || 3;
+        
+        // Calculate predetermined budget scenario
+        const predeterminedTotalInvestment = annualBudget * selfPurchaseYears;
+        
+        // Calculate predetermined ROI more safely
+        let predeterminedAverageROI = 0;
+        if (data.length > 0) {
+          let validROIEntries = 0;
+          let totalROI = 0;
+          
+          data.forEach(year => {
+            if (year.netCashFlow && year.totalInvestment && year.totalInvestment > 0) {
+              const yearROI = (year.netCashFlow / year.totalInvestment) * 100;
+              if (!isNaN(yearROI) && isFinite(yearROI)) {
+                totalROI += yearROI;
+                validROIEntries++;
+              }
+            }
+          });
+          
+          if (validROIEntries > 0) {
+            predeterminedAverageROI = totalROI / validROIEntries;
+          } else {
+            // Fallback: estimate ROI based on typical rental property metrics
+            const initialCost = parseFloat(document.getElementById('initialCost').value) || 160000;
+            const rentalRate = parseFloat(document.getElementById('rentalRate').value) || 1.9;
+            const annualRent = initialCost * (rentalRate / 100) * 12;
+            const estimatedNOI = annualRent * 0.7; // Assume 30% expenses
+            predeterminedAverageROI = (estimatedNOI / initialCost) * 100;
+          }
+        }
+        
+        // Calculate needs-based scenario
+        const needsBasedTotalInvestment = injections.reduce((sum, inj) => sum + inj.amount, 0);
+        const needsBasedAverageROI = injections.length > 0 
+          ? injections.reduce((sum, inj) => sum + parseFloat(inj.projectedROI), 0) / injections.length 
+          : 0;
+        
+        // Calculate 15-year projections with compound growth
+        const predeterminedNetWorth = predeterminedTotalInvestment * Math.pow(1 + predeterminedAverageROI / 100, selfPurchaseYears);
+        const needsBasedNetWorth = needsBasedTotalInvestment * Math.pow(1 + needsBasedAverageROI / 100, selfPurchaseYears);
+        
+        // Add safety checks for NaN values
+        const safePredeterminedAverageROI = isNaN(predeterminedAverageROI) ? 0 : predeterminedAverageROI;
+        const safeNeedsBasedAverageROI = isNaN(needsBasedAverageROI) ? 0 : needsBasedAverageROI;
+        const safePredeterminedNetWorth = isNaN(predeterminedNetWorth) ? predeterminedTotalInvestment : predeterminedNetWorth;
+        const safeNeedsBasedNetWorth = isNaN(needsBasedNetWorth) ? needsBasedTotalInvestment : needsBasedNetWorth;
+        
+        const advantage = safeNeedsBasedNetWorth - safePredeterminedNetWorth;
+        const advantagePercent = safePredeterminedNetWorth > 0 ? (advantage / safePredeterminedNetWorth * 100) : 0;
+        
+        // Determine which strategy is better
+        const betterStrategy = safeNeedsBasedNetWorth > safePredeterminedNetWorth ? 'needs-based' : 'predetermined';
+        const efficiency = (safeNeedsBasedAverageROI > 0 && safePredeterminedAverageROI > 0) 
+          ? (safeNeedsBasedAverageROI / safePredeterminedAverageROI) : 1;
+        
+        // Debug logging
+        console.log('🔍 ROI Comparison Debug:', {
+          predeterminedTotalInvestment,
+          predeterminedAverageROI: safePredeterminedAverageROI,
+          predeterminedNetWorth: safePredeterminedNetWorth,
+          needsBasedTotalInvestment,
+          needsBasedAverageROI: safeNeedsBasedAverageROI,
+          needsBasedNetWorth: safeNeedsBasedNetWorth,
+          dataLength: data.length,
+          injectionsLength: injections.length
+        });
+        
+        let html = '';
+        
+        if (injections.length === 0) {
+          html = `
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+              <div>
+                <strong>Predetermined Budget:</strong><br>
+                • Total Investment: $${predeterminedTotalInvestment.toLocaleString()}<br>
+                • Average ROI: ${safePredeterminedAverageROI.toFixed(1)}%<br>
+                • Strategy: Consistent annual investment
+              </div>
+              <div>
+                <strong>Needs-Based Analysis:</strong><br>
+                • No opportunities meet ROI threshold<br>
+                • Consider lowering threshold from ${budgetSettings.minROIThreshold}%<br>
+                • <em style="color: #dc2626;">Predetermined strategy recommended</em>
+              </div>
+            </div>
+          `;
+        } else {
+          html = `
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+              <div>
+                <strong>Predetermined Budget:</strong><br>
+                • Total Investment: $${predeterminedTotalInvestment.toLocaleString()}<br>
+                • Average ROI: ${safePredeterminedAverageROI.toFixed(1)}%<br>
+                • Projected Value: $${safePredeterminedNetWorth.toLocaleString()}
+              </div>
+              <div>
+                <strong>Needs-Based Strategy:</strong><br>
+                • Total Investment: $${needsBasedTotalInvestment.toLocaleString()}<br>
+                • Average ROI: ${safeNeedsBasedAverageROI.toFixed(1)}%<br>
+                • Projected Value: $${safeNeedsBasedNetWorth.toLocaleString()}
+              </div>
+            </div>
+            <div style="margin-top: 12px; padding: 10px; background: ${betterStrategy === 'needs-based' ? 'rgba(22, 163, 74, 0.1)' : 'rgba(245, 158, 11, 0.1)'}; border-radius: 6px;">
+              <strong style="color: ${betterStrategy === 'needs-based' ? '#16a34a' : '#f59e0b'};">
+                ${betterStrategy === 'needs-based' ? '✅ Needs-Based Strategy Recommended' : '⚠️ Predetermined Strategy May Be Better'}
+              </strong><br>
+              ${advantage > 0 ? 
+                `Net advantage: $${Math.abs(advantage).toLocaleString()} (${Math.abs(advantagePercent).toFixed(1)}% better)` : 
+                `Net disadvantage: $${Math.abs(advantage).toLocaleString()} (${Math.abs(advantagePercent).toFixed(1)}% worse)`
+              }<br>
+              ROI efficiency: ${efficiency.toFixed(2)}x ${efficiency > 1 ? 'better' : 'worse'} than predetermined budget
+            </div>
+          `;
+        }
+        
+        return {
+          predeterminedTotalInvestment,
+          predeterminedAverageROI: safePredeterminedAverageROI,
+          needsBasedTotalInvestment,
+          needsBasedAverageROI: safeNeedsBasedAverageROI,
+          advantage,
+          advantagePercent,
+          betterStrategy,
+          efficiency,
+          html
+        };
+      }
+
+      function updateCashInjectionsDisplay(data) {
+        const budgetMode = getBudgetMode();
+        const cashInjectionsSection = document.getElementById('cash-injections-section');
+        
+        if (budgetMode === 'needsBased') {
+          const injections = calculateAdditionalCashInjections(data);
+          const tbody = document.getElementById('cash-injections-tbody');
+          const strategySummary = document.getElementById('investment-strategy-summary');
+          
+          // Show the section
+          cashInjectionsSection.style.display = 'block';
+          
+          // Clear existing rows
+          tbody.innerHTML = '';
+          
+          if (injections.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; font-style: italic; color: #666;">No additional cash injections required based on current ROI thresholds</td></tr>';
+            strategySummary.innerHTML = '<p>Current settings do not require additional cash injections. Consider lowering ROI threshold or increasing investment limits to identify opportunities.</p>';
+          } else {
+            let cumulativeInvestment = 0;
+            let totalInjections = 0;
+            let totalROI = 0;
+            
+            injections.forEach(injection => {
+              cumulativeInvestment += injection.amount;
+              totalInjections += injection.amount;
+              totalROI += parseFloat(injection.projectedROI);
+              
+              const row = document.createElement('tr');
+              row.innerHTML = `
+                <td>Year ${injection.year}</td>
+                <td style="color: #dc2626; font-weight: 600;">$${injection.amount.toLocaleString()}</td>
+                <td style="color: #16a34a; font-weight: 600;">${injection.projectedROI}%</td>
+                <td>$${cumulativeInvestment.toLocaleString()}</td>
+                <td style="text-align: left; font-size: 10px;">
+                  <div style="font-weight: 600;">${injection.reason}</div>
+                  <div style="color: #6b7280; font-size: 9px; margin-top: 2px;">${injection.objective}</div>
+                </td>
+              `;
+              tbody.appendChild(row);
+            });
+            
+            // Update summary
+            document.getElementById('total-cash-injections').textContent = `$${totalInjections.toLocaleString()}`;
+            document.getElementById('avg-projected-roi').textContent = `${(totalROI / injections.length).toFixed(1)}%`;
+            document.getElementById('final-cumulative-investment').textContent = `$${cumulativeInvestment.toLocaleString()}`;
+            
+            // Update strategy summary
+            const budgetSettings = getBudgetSettings();
+            // Calculate enhanced ROI comparison
+            const roiComparison = calculateROIComparison(data, budgetSettings, injections);
+            
+            // Get objective description
+            const objectiveLabels = {
+              'maxCashFlow': '🏠 Maximize Cash Flow',
+              'maxTotalReturn': '📈 Maximize Total Return',
+              'maxROI': '⚡ Maximize ROI',
+              'maxPortfolioSize': '🏘️ Maximize Portfolio Size',
+              'balanced': '⚖️ Balanced Growth',
+              'conservative': '🛡️ Conservative Growth'
+            };
+            
+            strategySummary.innerHTML = `
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <div>
+                  <strong>Investment Strategy:</strong><br>
+                  • Objective: ${objectiveLabels[budgetSettings.investmentObjective] || budgetSettings.investmentObjective}<br>
+                  • Risk Tolerance: ${budgetSettings.riskTolerance.charAt(0).toUpperCase() + budgetSettings.riskTolerance.slice(1)}<br>
+                  • Target Cash Flow: $${budgetSettings.targetAnnualCashFlow.toLocaleString()}/year<br>
+                  • Min ROI Threshold: ${budgetSettings.minROIThreshold}%
+                </div>
+                <div>
+                  <strong>Investment Limits:</strong><br>
+                  • Max Single Investment: $${budgetSettings.maxSingleInvestment.toLocaleString()}<br>
+                  • Total Investment Limit: $${budgetSettings.totalInvestmentLimit.toLocaleString()}<br>
+                  • ${injections.length} strategic injection${injections.length > 1 ? 's' : ''} identified<br>
+                  • Average projected ROI: ${(totalROI / injections.length).toFixed(1)}%
+                </div>
+              </div>
+              <div style="margin-top: 15px; padding: 15px; background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); border-radius: 8px; border-left: 4px solid #0ea5e9;">
+                <h5 style="margin: 0 0 10px 0; color: #0369a1;">📊 ${objectiveLabels[budgetSettings.investmentObjective]} Strategy Comparison</h5>
+                ${roiComparison.html}
+              </div>
+            `;
+          }
+        } else {
+          // Hide the section for predetermined budget mode
+          cashInjectionsSection.style.display = 'none';
+        }
+      }
+
+      // Initialize budget mode event listeners
+      document.addEventListener('DOMContentLoaded', function() {
+        const budgetModeRadios = document.querySelectorAll('input[name="budgetMode"]');
+        budgetModeRadios.forEach(radio => {
+          radio.addEventListener('change', toggleBudgetMode);
+        });
+        
+        // Add event listener for investment objective changes
+        const investmentObjectiveSelect = document.getElementById('investmentObjective');
+        if (investmentObjectiveSelect) {
+          investmentObjectiveSelect.addEventListener('change', function() {
+            if (utils.calculationResults && window.balanceSheet && typeof balanceSheet.updateModelSynopsis === 'function') {
+              balanceSheet.updateModelSynopsis();
+              console.log("📊 Updated Investment Strategy Overview for new objective");
+            }
+          });
+        }
+        
+        // Add event listener for risk tolerance changes
+        const riskToleranceSelect = document.getElementById('riskTolerance');
+        if (riskToleranceSelect) {
+          riskToleranceSelect.addEventListener('change', function() {
+            if (utils.calculationResults && window.balanceSheet && typeof balanceSheet.updateModelSynopsis === 'function') {
+              balanceSheet.updateModelSynopsis();
+              console.log("📊 Updated Investment Strategy Overview for new risk tolerance");
+            }
+          });
+        }
+        
+        // Initialize with default state
+        toggleBudgetMode();
+      });
 
       // Close dropdown when clicking outside
       document.addEventListener('click', function(event) {

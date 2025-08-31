@@ -151,6 +151,15 @@ function getInputParameters() {
       0,
       100
     ),
+    
+    // Budget Mode Parameters
+    budgetMode: typeof getBudgetMode === 'function' ? getBudgetMode() : 'predetermined',
+    investmentObjective: document.getElementById("investmentObjective")?.value || 'balanced',
+    maxSingleInvestment: validateInput(document.getElementById("maxSingleInvestment")?.value || 500000),
+    totalInvestmentLimit: validateInput(document.getElementById("totalInvestmentLimit")?.value || 2000000),
+    minROIThreshold: validateInput(document.getElementById("minROIThreshold")?.value || 8),
+    targetAnnualCashFlow: validateInput(document.getElementById("targetAnnualCashFlow")?.value || 50000),
+    riskTolerance: document.getElementById("riskTolerance")?.value || 'moderate',
   };
 }
 
