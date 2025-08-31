@@ -6,6 +6,7 @@ window.balanceSheet = {
   updateSummary: updateSummary,
   calculateSummaryMetrics: calculateSummaryMetrics,
   updateNegativeCashFlowAnalysis: updateNegativeCashFlowAnalysis,
+  updateAIInsights: updateAIInsights,
 };
 
 function updateSummary() {
@@ -48,6 +49,9 @@ function updateSummary() {
   
   // Update negative cash flow analysis
   updateNegativeCashFlowAnalysis();
+  
+  // Update AI insights if available
+  updateAIInsights();
 }
 
 function updateSummaryDownloadTab(results) {
@@ -367,9 +371,9 @@ function updateNegativeCashFlowAnalysis() {
     }
   }
   
-  // Get parent cards to show/hide individually
-  const selfCard = selfContainer.closest('.comparison-card');
-  const financedCard = financedContainer.closest('.comparison-card');
+  // Get cards by ID for precise control
+  const selfCard = document.getElementById('self-negative-card');
+  const financedCard = document.getElementById('financed-negative-card');
   
   // Update self-financed section
   if (selfNegativeYears.length > 0) {
@@ -418,4 +422,69 @@ function updateNegativeCashFlowAnalysis() {
     financedNegativeYears: financedNegativeYears.length,
     sectionVisible: hasNegativeYears
   });
+}
+
+function updateAIInsights() {
+  if (!utils.calculationResults) return;
+  
+  const results = utils.calculationResults;
+  const section = document.getElementById('ai-insights-section');
+  
+  if (!section) return;
+  
+  // Check if AI data is available in the calculation results
+  const aiData = results.inputParams?.aiData;
+  
+  if (!aiData || !aiData.enabled) {
+    section.style.display = 'none';
+    return;
+  }
+  
+  // Show the AI insights section
+  section.style.display = 'block';
+  
+  const projections = aiData.projections;
+  
+  // Update market conditions
+  const conditionsEl = document.getElementById('ai-market-conditions');
+  if (conditionsEl && projections.marketConditions) {
+    const conditionClass = projections.marketConditions.toLowerCase();
+    conditionsEl.innerHTML = `
+      <div class="ai-market-condition ${conditionClass}">${projections.marketConditions}</div>
+      <p>${projections.summary || 'Market analysis based on current trends and economic indicators.'}</p>
+      <div style="margin-top: 10px;">
+        <strong>Confidence Level:</strong> ${(projections.confidence * 100).toFixed(0)}%
+      </div>
+    `;
+  }
+  
+  // Update risk factors
+  const riskEl = document.getElementById('ai-risk-factors');
+  if (riskEl && projections.riskFactors) {
+    let riskHTML = '<ul>';
+    projections.riskFactors.forEach(risk => {
+      riskHTML += `<li>${risk}</li>`;
+    });
+    riskHTML += '</ul>';
+    riskEl.innerHTML = riskHTML;
+  }
+  
+  // Update opportunities
+  const opportunitiesEl = document.getElementById('ai-opportunities');
+  if (opportunitiesEl && projections.opportunities) {
+    let oppHTML = '<ul>';
+    projections.opportunities.forEach(opp => {
+      oppHTML += `<li>${opp}</li>`;
+    });
+    oppHTML += '</ul>';
+    opportunitiesEl.innerHTML = oppHTML;
+  }
+  
+  // Update location display
+  const locationEl = document.getElementById('ai-location-display');
+  if (locationEl && aiData.location) {
+    locationEl.textContent = `${aiData.location.city}, ${aiData.location.state}`;
+  }
+  
+  console.log("🤖 AI insights updated for", aiData.location);
 }

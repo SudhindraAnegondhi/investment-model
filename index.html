@@ -392,6 +392,82 @@
             </div>
           </div>
 
+          <!-- AI Market Data Section -->
+          <div class="control-group ai-controls">
+            <h3>🤖 AI Market Analysis</h3>
+            <div class="ai-toggle-section">
+              <label class="ai-toggle-label">
+                <input type="checkbox" id="useAIData" onchange="toggleAIData()">
+                <span class="ai-toggle-slider"></span>
+                Enable AI-Enhanced Market Projections
+              </label>
+              <div class="ai-status" id="ai-status">Static model - Enable AI for real market data</div>
+            </div>
+            
+            <div class="ai-settings" id="ai-settings" style="display: none;">
+              <div class="control-group">
+                <h4>📍 Property Location</h4>
+                <div class="location-inputs">
+                  <input type="text" id="city" placeholder="City (e.g., Austin)" style="width: 120px;">
+                  <select id="state" style="width: 100px;">
+                    <option value="">State</option>
+                    <option value="California">CA</option>
+                    <option value="Texas">TX</option>
+                    <option value="Florida">FL</option>
+                    <option value="New York">NY</option>
+                    <option value="Illinois">IL</option>
+                    <option value="Georgia">GA</option>
+                    <option value="North Carolina">NC</option>
+                    <option value="Arizona">AZ</option>
+                    <option value="Colorado">CO</option>
+                    <option value="Washington">WA</option>
+                    <option value="Oregon">OR</option>
+                  </select>
+                  <input type="text" id="zipCode" placeholder="ZIP (optional)" style="width: 100px;">
+                </div>
+              </div>
+              
+              <div class="control-group">
+                <label for="propertyType">🏠 Property Type</label>
+                <select id="propertyType">
+                  <option value="single-family">Single Family Home</option>
+                  <option value="condo">Condominium</option>
+                  <option value="townhouse">Townhouse</option>
+                  <option value="multi-family">Multi-Family (2-4 units)</option>
+                </select>
+              </div>
+              
+              <div class="control-group">
+                <h4>📊 AI Data Sources</h4>
+                <div class="ai-overrides">
+                  <label>
+                    <input type="checkbox" id="useAIAppreciation" checked>
+                    Property Price Trends (Zillow + AI)
+                  </label>
+                  <label>
+                    <input type="checkbox" id="useAIRentGrowth" checked>
+                    Rent Growth Projections (Rentometer + AI)
+                  </label>
+                  <label>
+                    <input type="checkbox" id="useAIInterestRates" checked>
+                    Interest Rate Forecasts (Federal Reserve + AI)
+                  </label>
+                  <label>
+                    <input type="checkbox" id="useAIMarketInsights" checked>
+                    Market Insights & Risk Analysis (AI)
+                  </label>
+                </div>
+              </div>
+              
+              <div class="ai-data-preview" id="ai-data-preview" style="display: none;">
+                <h4>📈 Current AI Projections</h4>
+                <div class="ai-preview-content">
+                  <!-- Will be populated when AI data is fetched -->
+                </div>
+              </div>
+            </div>
+          </div>
+
           <!-- Fixed Calculate Button Area -->
           <div class="calculate-button-area">
             <button class="calculate-btn" onclick="calculateAll()">
@@ -490,19 +566,47 @@
             <strong>Negative Cash Flow Years Detected</strong><br>
             Some years show negative closing cash flow, which may require additional funding or cash reserves.
           </div>
-          <div class="comparison-cards">
-            <div class="comparison-card" style="border-left: 4px solid #ff6b6b;">
+          <div class="comparison-cards" id="negative-cashflow-cards">
+            <div class="comparison-card" id="self-negative-card" style="border-left: 4px solid #ff6b6b; display: none;">
               <h4>💰 Self-Financed Strategy</h4>
               <div id="self-negative-years" class="negative-years-list">
                 <!-- Will be populated by JavaScript -->
               </div>
             </div>
-            <div class="comparison-card" style="border-left: 4px solid #ff6b6b;">
+            <div class="comparison-card" id="financed-negative-card" style="border-left: 4px solid #ff6b6b; display: none;">
               <h4>🏦 Bank-Financed Strategy</h4>
               <div id="financed-negative-years" class="negative-years-list">
                 <!-- Will be populated by JavaScript -->
               </div>
             </div>
+          </div>
+        </div>
+
+        <!-- AI Market Insights -->
+        <div class="dashboard-section" id="ai-insights-section" style="display: none;">
+          <h3>🤖 AI Market Analysis</h3>
+          <div class="ai-insights-container">
+            <div class="ai-insight-card">
+              <h4>📊 Market Conditions</h4>
+              <div id="ai-market-conditions" class="ai-insight-content">
+                <!-- Will be populated by AI analysis -->
+              </div>
+            </div>
+            <div class="ai-insight-card">
+              <h4>⚠️ Risk Factors</h4>
+              <div id="ai-risk-factors" class="ai-insight-content">
+                <!-- Will be populated by AI analysis -->
+              </div>
+            </div>
+            <div class="ai-insight-card">
+              <h4>🎯 Investment Opportunities</h4>
+              <div id="ai-opportunities" class="ai-insight-content">
+                <!-- Will be populated by AI analysis -->
+              </div>
+            </div>
+          </div>
+          <div class="ai-data-source">
+            <small>💡 AI analysis based on current market data and trends for <span id="ai-location-display"></span></small>
           </div>
         </div>
 
@@ -1227,6 +1331,7 @@
     <script src="js/modules/roi-analysis.js"></script>
     <script src="js/modules/sensitivity-analysis.js"></script>
     <script src="js/modules/balance-sheet.js"></script>
+    <script src="js/modules/ai-market-data.js"></script>
     <script src="js/modules/charts.js"></script>
     <script src="js/modules/scenario-manager.js"></script>
     <script src="js/modules/pdf-export.js"></script>
@@ -1277,6 +1382,122 @@
         };
         reader.readAsText(file);
         input.value = ""; // Reset file input
+      }
+
+      // AI Control Functions
+      function toggleAIData() {
+        const checkbox = document.getElementById('useAIData');
+        const settings = document.getElementById('ai-settings');
+        const status = document.getElementById('ai-status');
+        
+        if (checkbox.checked) {
+          settings.style.display = 'block';
+          status.textContent = 'AI enabled - Configure location and data sources';
+          console.log("🤖 AI market data enabled");
+        } else {
+          settings.style.display = 'none';
+          status.textContent = 'Static model - Enable AI for real market data';
+          console.log("📊 Using static model data");
+        }
+      }
+
+      async function fetchAIProjections() {
+        const useAI = document.getElementById('useAIData').checked;
+        if (!useAI) return null;
+        
+        const location = {
+          city: document.getElementById('city').value.trim(),
+          state: document.getElementById('state').value,
+          zipCode: document.getElementById('zipCode').value.trim()
+        };
+        
+        const propertyType = document.getElementById('propertyType').value;
+        
+        if (!location.city || !location.state) {
+          alert('Please enter city and state for AI market analysis');
+          return null;
+        }
+        
+        try {
+          // Show loading status
+          const status = document.getElementById('ai-status');
+          const preview = document.getElementById('ai-data-preview');
+          status.innerHTML = '<div class="ai-loading">Fetching AI market data...</div>';
+          
+          // Initialize AI service and get projections
+          await window.aiMarketData.initialize(location, propertyType);
+          const projections = await window.aiMarketData.getMarketProjections(location, propertyType, 15);
+          
+          // Update status
+          status.textContent = `AI active - Last updated: ${new Date().toLocaleTimeString()}`;
+          
+          // Show preview
+          updateAIDataPreview(projections);
+          preview.style.display = 'block';
+          
+          return projections;
+          
+        } catch (error) {
+          console.error('❌ AI data fetch failed:', error);
+          document.getElementById('ai-status').textContent = 'AI error - Using fallback data';
+          return null;
+        }
+      }
+
+      function updateAIDataPreview(projections) {
+        const preview = document.querySelector('.ai-preview-content');
+        if (!preview || !projections) return;
+        
+        const html = `
+          <div><strong>📍 Location:</strong> ${projections.location.city}, ${projections.location.state}</div>
+          <div><strong>🏠 Property Type:</strong> ${projections.propertyType}</div>
+          <div><strong>📈 Avg Property Growth:</strong> ${projections.avgPropertyAppreciation?.toFixed(1)}%/year</div>
+          <div><strong>🏠 Avg Rent Growth:</strong> ${projections.avgRentGrowth?.toFixed(1)}%/year</div>
+          <div><strong>💰 Avg Interest Rate:</strong> ${projections.avgInterestRate?.toFixed(2)}%</div>
+          <div><strong>🎯 Market Conditions:</strong> ${projections.marketConditions}</div>
+          <div><strong>🤖 Confidence:</strong> ${(projections.confidence * 100).toFixed(0)}%</div>
+        `;
+        preview.innerHTML = html;
+      }
+
+      // Apply AI projections to calculation parameters
+      async function applyAIProjections(params, aiProjections) {
+        console.log("🤖 Applying AI projections to parameters...");
+        
+        // Create enhanced parameters object
+        const enhancedParams = { ...params };
+        
+        // Get AI override settings
+        const useAIAppreciation = document.getElementById('useAIAppreciation').checked;
+        const useAIRentGrowth = document.getElementById('useAIRentGrowth').checked;
+        const useAIInterestRates = document.getElementById('useAIInterestRates').checked;
+        
+        if (useAIAppreciation && aiProjections.avgPropertyAppreciation) {
+          enhancedParams.appreciationRate = aiProjections.avgPropertyAppreciation;
+          console.log(`📈 Using AI property appreciation: ${aiProjections.avgPropertyAppreciation.toFixed(1)}%`);
+        }
+        
+        if (useAIRentGrowth && aiProjections.avgRentGrowth) {
+          enhancedParams.rentGrowthRate = aiProjections.avgRentGrowth;
+          console.log(`🏠 Using AI rent growth: ${aiProjections.avgRentGrowth.toFixed(1)}%`);
+        }
+        
+        if (useAIInterestRates && aiProjections.avgInterestRate) {
+          enhancedParams.interestRate = aiProjections.avgInterestRate;
+          console.log(`💰 Using AI interest rate: ${aiProjections.avgInterestRate.toFixed(2)}%`);
+        }
+        
+        // Add AI metadata to parameters
+        enhancedParams.aiData = {
+          enabled: true,
+          projections: aiProjections,
+          lastUpdated: new Date().toISOString(),
+          location: aiProjections.location,
+          propertyType: aiProjections.propertyType
+        };
+        
+        console.log("✅ AI projections applied to parameters");
+        return enhancedParams;
       }
 
       // Initialize enhanced features when page loads
@@ -1345,9 +1566,16 @@
 
 
       // Enhanced calculateAll that updates charts after calculation
-      function calculateAll() {
+      async function calculateAll() {
         try {
-          const params = utils.getInputParameters();
+          let params = utils.getInputParameters();
+          
+          // Fetch AI market projections if enabled
+          const aiProjections = await fetchAIProjections();
+          if (aiProjections) {
+            params = await applyAIProjections(params, aiProjections);
+          }
+          
           const validation = dataModel.validateInvestmentParameters(params);
 
           if (!validation.isValid) {

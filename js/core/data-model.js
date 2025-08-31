@@ -237,6 +237,27 @@ function getDefaultParameters() {
     financedPurchaseYears: 5,
     maxUnitsFinanced: 2,
     maxUnitsFinancedLimitYears: 3,
+    
+    // AI Enhancement Parameters
+    useAIData: false,
+    location: {
+      city: '',
+      state: '',
+      zipCode: ''
+    },
+    propertyType: 'single-family', // single-family, condo, multi-family, townhouse
+    aiDataSources: {
+      propertyPrices: 'zillow',
+      rentTrends: 'rentometer',
+      interestRates: 'fred',
+      marketAnalysis: 'claude'
+    },
+    aiOverrides: {
+      useAIAppreciation: false,
+      useAIRentGrowth: false,
+      useAIInterestRates: false,
+      useAIMarketInsights: true
+    },
     rentGrowthRate: 3,
     vacancyRate: 5,
     managementRate: 8,
