@@ -18,7 +18,13 @@
   </head>
   <body>
     <div class="container">
-      <h1>Advanced Rental Property Investment Model</h1>
+      <div class="app-header">
+        <h1 class="app-title">Advanced Rental Property Investment Model</h1>
+        <div class="app-subtitle" id="app-subtitle" style="display: none;">
+          <span class="location-icon">📍</span>
+          <span id="location-text">Real estate analysis</span>
+        </div>
+      </div>
 
       <div class="tab-navigation">
         <!-- Mobile/Responsive Tab Menu -->
@@ -100,7 +106,7 @@
                 <h3>🤖 AI Market Analysis</h3>
                 <div class="ai-toggle-section">
                   <label class="ai-toggle-label">
-                    <input type="checkbox" id="useAIData" onchange="toggleAIData()">
+                    <input type="checkbox" id="useAIData" onchange="toggleAIDataAndSubtitle()">
                     <span class="ai-toggle-slider"></span>
                     Enable AI-Enhanced Market Projections
                   </label>
@@ -1775,6 +1781,9 @@
                 toggleAIData();
               }
             }
+            
+            // Show location subtitle
+            updateLocationSubtitle(location);
           }
           
           // Auto-calculate after a short delay to let everything initialize
@@ -1794,6 +1803,70 @@
             await calculateAll();
             selectTab('dashboard', '📊 Dashboard');
           }, 1000);
+        }
+      });
+
+      // Update location subtitle
+      function updateLocationSubtitle(location) {
+        const subtitle = document.getElementById('app-subtitle');
+        const locationText = document.getElementById('location-text');
+        const useAICheckbox = document.getElementById('useAIData');
+        
+        if (useAICheckbox && useAICheckbox.checked && location && location.city && location.state) {
+          if (locationText) {
+            locationText.textContent = `${location.city}, ${location.state} Market Analysis`;
+          }
+          if (subtitle) {
+            subtitle.style.display = 'flex';
+          }
+        } else {
+          if (subtitle) {
+            subtitle.style.display = 'none';
+          }
+        }
+      }
+
+      // Function to handle AI toggle (needs to be globally accessible)
+      window.toggleAIDataAndSubtitle = function() {
+        // Call original toggleAIData if it exists
+        if (typeof toggleAIData === 'function') {
+          toggleAIData();
+        }
+        
+        // Update subtitle based on AI state and current location
+        const cityInput = document.getElementById('city');
+        const stateSelect = document.getElementById('state');
+        const location = {
+          city: cityInput ? cityInput.value : '',
+          state: stateSelect ? stateSelect.value : ''
+        };
+        
+        updateLocationSubtitle(location);
+      };
+
+      // Add event listeners to location inputs to update subtitle
+      document.addEventListener('DOMContentLoaded', function() {
+        const cityInput = document.getElementById('city');
+        const stateSelect = document.getElementById('state');
+        
+        if (cityInput) {
+          cityInput.addEventListener('input', function() {
+            const location = {
+              city: cityInput.value,
+              state: stateSelect ? stateSelect.value : ''
+            };
+            updateLocationSubtitle(location);
+          });
+        }
+        
+        if (stateSelect) {
+          stateSelect.addEventListener('change', function() {
+            const location = {
+              city: cityInput ? cityInput.value : '',
+              state: stateSelect.value
+            };
+            updateLocationSubtitle(location);
+          });
         }
       });
 

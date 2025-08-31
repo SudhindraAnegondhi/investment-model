@@ -36,9 +36,19 @@
     margin: 5px;
   }
 
-  h1 {
+  .app-title, h1 {
     font-size: 1.5em;
     margin-bottom: 15px;
+    line-height: 1.1;
+  }
+
+  .app-subtitle {
+    font-size: 0.9em;
+    margin-top: 5px;
+  }
+
+  .app-header {
+    margin-bottom: 20px;
   }
 
   h2 {
@@ -202,8 +212,19 @@
     margin: 2px;
   }
 
-  h1 {
+  .app-title, h1 {
     font-size: 1.3em;
+    line-height: 1.1;
+  }
+
+  .app-subtitle {
+    font-size: 0.85em;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .app-header {
+    margin-bottom: 15px;
   }
 
   .tab {
