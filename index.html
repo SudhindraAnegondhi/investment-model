@@ -147,24 +147,54 @@
                   </div>
                   
                   <div class="control-group">
-                    <h4>📊 AI Data Sources</h4>
+                    <h4>📊 AI Data Sources & Overrides</h4>
                     <div class="ai-overrides">
-                      <label>
-                        <input type="checkbox" id="useAIAppreciation" checked>
-                        Property Price Trends (Zillow + AI)
-                      </label>
-                      <label>
-                        <input type="checkbox" id="useAIRentGrowth" checked>
-                        Rent Growth Projections (Rentometer + AI)
-                      </label>
-                      <label>
-                        <input type="checkbox" id="useAIInterestRates" checked>
-                        Interest Rate Forecasts (Federal Reserve + AI)
-                      </label>
-                      <label>
-                        <input type="checkbox" id="useAIMarketInsights" checked>
-                        Market Insights & Risk Analysis (AI)
-                      </label>
+                      <div class="ai-setting-row">
+                        <label class="ai-checkbox-label">
+                          <input type="checkbox" id="useAIAppreciation" checked>
+                          Property Price Trends (AI)
+                        </label>
+                        <div class="override-input" id="appreciationOverride" style="display: none;">
+                          <label>Override:</label>
+                          <input type="number" id="overrideAppreciation" step="0.1" min="0" max="15" placeholder="3.5">
+                          <span>%/year</span>
+                        </div>
+                      </div>
+                      
+                      <div class="ai-setting-row">
+                        <label class="ai-checkbox-label">
+                          <input type="checkbox" id="useAIRentGrowth" checked>
+                          Rent Growth Projections (AI)
+                        </label>
+                        <div class="override-input" id="rentGrowthOverride" style="display: none;">
+                          <label>Override:</label>
+                          <input type="number" id="overrideRentGrowth" step="0.1" min="0" max="10" placeholder="2.8">
+                          <span>%/year</span>
+                        </div>
+                      </div>
+                      
+                      <div class="ai-setting-row">
+                        <label class="ai-checkbox-label">
+                          <input type="checkbox" id="useAIInterestRates" checked>
+                          Interest Rate Forecasts (AI)
+                        </label>
+                        <div class="override-input" id="interestRateOverride" style="display: none;">
+                          <label>Override:</label>
+                          <input type="number" id="overrideInterestRate" step="0.1" min="1" max="15" placeholder="6.75">
+                          <span>%</span>
+                        </div>
+                      </div>
+                      
+                      <div class="ai-setting-row">
+                        <label class="ai-checkbox-label">
+                          <input type="checkbox" id="useAIMarketInsights" checked>
+                          Market Insights & Risk Analysis (AI)
+                        </label>
+                      </div>
+                    </div>
+                    
+                    <div class="override-help">
+                      <small>💡 Tip: Uncheck AI sources to use your own specific rates while keeping other AI enhancements active</small>
                     </div>
                   </div>
                   
@@ -480,6 +510,14 @@
 
         <!-- Alert System -->
         <div id="alert-container" class="alert-container"></div>
+
+        <!-- Investment Model Synopsis -->
+        <div class="dashboard-section" id="model-synopsis-section">
+          <h3>📋 Investment Model Synopsis</h3>
+          <div id="model-synopsis-content">
+            <!-- Content will be dynamically populated -->
+          </div>
+        </div>
 
         <!-- KPI Overview -->
         <div class="dashboard">
@@ -1806,7 +1844,7 @@
         }
       });
 
-      // Update location subtitle
+      // Update location subtitle with AI settings information
       function updateLocationSubtitle(location) {
         const subtitle = document.getElementById('app-subtitle');
         const locationText = document.getElementById('location-text');
@@ -1814,7 +1852,10 @@
         
         if (useAICheckbox && useAICheckbox.checked && location && location.city && location.state) {
           if (locationText) {
-            locationText.textContent = `${location.city}, ${location.state} Market Analysis`;
+            // Get which AI data sources are enabled
+            const aiSources = getEnabledAISources();
+            const sourcesText = aiSources.length > 0 ? ` • AI: ${aiSources.join(', ')}` : '';
+            locationText.textContent = `${location.city}, ${location.state} Market Analysis${sourcesText}`;
           }
           if (subtitle) {
             subtitle.style.display = 'flex';
@@ -1824,6 +1865,26 @@
             subtitle.style.display = 'none';
           }
         }
+      }
+
+      // Get enabled AI data sources
+      function getEnabledAISources() {
+        const sources = [];
+        
+        if (document.getElementById('useAIAppreciation')?.checked) {
+          sources.push('Property Prices');
+        }
+        if (document.getElementById('useAIRentGrowth')?.checked) {
+          sources.push('Rent Growth');
+        }
+        if (document.getElementById('useAIInterestRates')?.checked) {
+          sources.push('Interest Rates');
+        }
+        if (document.getElementById('useAIMarketInsights')?.checked) {
+          sources.push('Market Insights');
+        }
+        
+        return sources;
       }
 
       // Function to handle AI toggle (needs to be globally accessible)
@@ -1844,31 +1905,125 @@
         updateLocationSubtitle(location);
       };
 
-      // Add event listeners to location inputs to update subtitle
+      // Add event listeners to location inputs and AI checkboxes to update subtitle
       document.addEventListener('DOMContentLoaded', function() {
         const cityInput = document.getElementById('city');
         const stateSelect = document.getElementById('state');
         
+        function updateSubtitleFromInputs() {
+          const location = {
+            city: cityInput ? cityInput.value : '',
+            state: stateSelect ? stateSelect.value : ''
+          };
+          updateLocationSubtitle(location);
+        }
+        
         if (cityInput) {
-          cityInput.addEventListener('input', function() {
-            const location = {
-              city: cityInput.value,
-              state: stateSelect ? stateSelect.value : ''
-            };
-            updateLocationSubtitle(location);
-          });
+          cityInput.addEventListener('input', updateSubtitleFromInputs);
         }
         
         if (stateSelect) {
-          stateSelect.addEventListener('change', function() {
-            const location = {
-              city: cityInput ? cityInput.value : '',
-              state: stateSelect.value
-            };
-            updateLocationSubtitle(location);
-          });
+          stateSelect.addEventListener('change', updateSubtitleFromInputs);
         }
+        
+        // Add listeners to AI data source checkboxes with override functionality
+        setupAIOverrideControls();
+        
+        const aiCheckboxes = [
+          'useAIAppreciation',
+          'useAIRentGrowth', 
+          'useAIInterestRates',
+          'useAIMarketInsights'
+        ];
+        
+        aiCheckboxes.forEach(checkboxId => {
+          const checkbox = document.getElementById(checkboxId);
+          if (checkbox) {
+            checkbox.addEventListener('change', updateSubtitleFromInputs);
+          }
+        });
       });
+
+      // Setup AI override controls
+      function setupAIOverrideControls() {
+        const overrideControls = [
+          {
+            checkbox: 'useAIAppreciation',
+            overrideContainer: 'appreciationOverride',
+            overrideInput: 'overrideAppreciation'
+          },
+          {
+            checkbox: 'useAIRentGrowth',
+            overrideContainer: 'rentGrowthOverride',
+            overrideInput: 'overrideRentGrowth'
+          },
+          {
+            checkbox: 'useAIInterestRates',
+            overrideContainer: 'interestRateOverride',
+            overrideInput: 'overrideInterestRate'
+          }
+        ];
+
+        overrideControls.forEach(control => {
+          const checkbox = document.getElementById(control.checkbox);
+          const container = document.getElementById(control.overrideContainer);
+          
+          if (checkbox && container) {
+            checkbox.addEventListener('change', function() {
+              if (checkbox.checked) {
+                // AI enabled - hide override input
+                container.style.display = 'none';
+              } else {
+                // AI disabled - show override input
+                container.style.display = 'flex';
+                
+                // Focus on the input for immediate user entry
+                const input = document.getElementById(control.overrideInput);
+                if (input) {
+                  setTimeout(() => input.focus(), 100);
+                }
+              }
+              
+              // Update subtitle to reflect changes
+              updateSubtitleFromInputs();
+            });
+          }
+        });
+      }
+
+      // Get user override values for calculations
+      window.getAIOverrides = function() {
+        const overrides = {};
+        
+        // Property appreciation override
+        const useAppreciation = document.getElementById('useAIAppreciation')?.checked;
+        if (!useAppreciation) {
+          const override = document.getElementById('overrideAppreciation')?.value;
+          if (override && !isNaN(parseFloat(override))) {
+            overrides.appreciationRate = parseFloat(override);
+          }
+        }
+        
+        // Rent growth override
+        const useRentGrowth = document.getElementById('useAIRentGrowth')?.checked;
+        if (!useRentGrowth) {
+          const override = document.getElementById('overrideRentGrowth')?.value;
+          if (override && !isNaN(parseFloat(override))) {
+            overrides.rentGrowthRate = parseFloat(override);
+          }
+        }
+        
+        // Interest rate override
+        const useInterestRates = document.getElementById('useAIInterestRates')?.checked;
+        if (!useInterestRates) {
+          const override = document.getElementById('overrideInterestRate')?.value;
+          if (override && !isNaN(parseFloat(override))) {
+            overrides.interestRate = parseFloat(override);
+          }
+        }
+        
+        return overrides;
+      };
 
       // Close dropdown when clicking outside
       document.addEventListener('click', function(event) {

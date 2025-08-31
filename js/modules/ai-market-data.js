@@ -364,7 +364,7 @@ class AIMarketDataService {
         'Limited new supply',
         'Strong rental demand'
       ],
-      confidence: 7.5,
+      confidence: 0.75,
       summary: 'Market conditions are generally favorable for long-term real estate investment with moderate growth expectations.'
     };
   }

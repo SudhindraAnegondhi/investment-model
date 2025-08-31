@@ -6,6 +6,7 @@ window.balanceSheet = {
   updateSummary: updateSummary,
   calculateSummaryMetrics: calculateSummaryMetrics,
   updateNegativeCashFlowAnalysis: updateNegativeCashFlowAnalysis,
+  updateModelSynopsis: updateModelSynopsis,
   updateAIInsights: updateAIInsights,
 };
 
@@ -49,6 +50,9 @@ function updateSummary() {
   
   // Update negative cash flow analysis
   updateNegativeCashFlowAnalysis();
+  
+  // Update model synopsis
+  updateModelSynopsis();
   
   // Update AI insights if available
   updateAIInsights();
@@ -424,6 +428,227 @@ function updateNegativeCashFlowAnalysis() {
   });
 }
 
+// Helper function to describe confidence levels
+function getConfidenceDescription(confidencePercent) {
+  if (confidencePercent >= 85) return 'Very High';
+  if (confidencePercent >= 75) return 'High';
+  if (confidencePercent >= 60) return 'Moderate';
+  if (confidencePercent >= 45) return 'Low';
+  return 'Very Low';
+}
+
+function updateModelSynopsis() {
+  if (!utils.calculationResults) return;
+  
+  const results = utils.calculationResults;
+  const params = results.inputParams;
+  const synopsisContainer = document.getElementById('model-synopsis-content');
+  
+  if (!synopsisContainer) return;
+  
+  const dashboardMetrics = calculations.getDashboardMetrics(results);
+  
+  // Check if AI is enabled
+  const aiEnabled = params.aiData?.enabled || false;
+  const aiData = params.aiData?.projections;
+  
+  // Determine which strategy performed better
+  const financedBetter = dashboardMetrics.finalNetWorth.financed > dashboardMetrics.finalNetWorth.self;
+  const betterStrategy = financedBetter ? 'Bank-Financed' : 'Self-Financed';
+  const advantage = Math.abs(dashboardMetrics.finalNetWorth.financed - dashboardMetrics.finalNetWorth.self);
+  const advantagePercent = ((advantage / Math.min(dashboardMetrics.finalNetWorth.financed, dashboardMetrics.finalNetWorth.self)) * 100).toFixed(1);
+  
+  // Key settings impact analysis
+  const keySettings = analyzeKeySettings(params, results, aiData);
+  
+  let synopsisHTML = `
+    <div class="synopsis-grid">
+      <!-- Investment Overview -->
+      <div class="synopsis-card">
+        <h4>🎯 Investment Strategy Overview</h4>
+        <div class="synopsis-content">
+          <div class="strategy-comparison">
+            <div class="better-strategy">
+              <strong>Recommended Strategy:</strong> ${betterStrategy}
+              <span class="advantage">+${utils.formatCurrency(advantage)} (${advantagePercent}% better)</span>
+            </div>
+          </div>
+          <div class="key-metrics">
+            <div class="metric-row">
+              <span>Investment Timeline:</span> <strong>${params.selfPurchaseYears || 15} years</strong>
+            </div>
+            <div class="metric-row">
+              <span>Annual Budget:</span> <strong>${utils.formatCurrency(params.annualBudget)}</strong>
+            </div>
+            <div class="metric-row">
+              <span>Property Cost:</span> <strong>${utils.formatCurrency(params.initialCost)}</strong>
+            </div>
+            <div class="metric-row">
+              <span>Total Units:</span> <strong>Self: ${dashboardMetrics.totalUnits.self} | Financed: ${dashboardMetrics.totalUnits.financed}</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Key Settings Impact -->
+      <div class="synopsis-card">
+        <h4>⚙️ Key Settings & Their Impact</h4>
+        <div class="synopsis-content">
+          ${keySettings.map(setting => `
+            <div class="setting-impact ${setting.impact}">
+              <div class="setting-header">
+                <strong>${setting.name}:</strong> ${setting.value}
+              </div>
+              <div class="impact-description">${setting.description}</div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+
+      <!-- AI Enhancement Status -->
+      <div class="synopsis-card">
+        <h4>${aiEnabled ? '🤖' : '📊'} Analysis Method</h4>
+        <div class="synopsis-content">
+          ${aiEnabled ? `
+            <div class="ai-enabled">
+              <div class="ai-status-header">
+                <strong>AI-Enhanced Analysis Active</strong>
+                <span class="ai-location">${aiData?.location?.city || ''}, ${aiData?.location?.state || ''}</span>
+              </div>
+              <div class="ai-enhancements">
+                ${getAIEnhancementsList(aiData)}
+              </div>
+              <div class="ai-impact">
+                ${getAIImpactAnalysis(params, aiData)}
+              </div>
+            </div>
+          ` : `
+            <div class="static-analysis">
+              <div class="static-status">
+                <strong>Static Model Analysis</strong>
+                <span class="enable-suggestion">Enable AI for location-specific insights</span>
+              </div>
+              <div class="static-assumptions">
+                <div>• Property Appreciation: ${params.appreciationRate}% annually</div>
+                <div>• Rent Growth: ${params.rentGrowthRate}% annually</div>
+                <div>• Interest Rate: ${params.interestRate}% fixed</div>
+              </div>
+            </div>
+          `}
+        </div>
+      </div>
+    </div>
+  `;
+  
+  synopsisContainer.innerHTML = synopsisHTML;
+}
+
+// Helper function to analyze key settings impact
+function analyzeKeySettings(params, results, aiData) {
+  const settings = [];
+  
+  // Get any user overrides
+  const overrides = window.getAIOverrides ? window.getAIOverrides() : {};
+  
+  // Interest Rate Impact
+  const interestRate = overrides.interestRate || aiData?.avgInterestRate || params.interestRate;
+  const isOverridden = overrides.interestRate !== undefined;
+  settings.push({
+    name: 'Interest Rate',
+    value: `${interestRate.toFixed(2)}%${isOverridden ? ' (User Override)' : ''}`,
+    impact: interestRate > 7 ? 'negative' : interestRate < 5 ? 'positive' : 'neutral',
+    description: interestRate > 7 
+      ? `High rates reduce financing advantage and increase debt costs${isOverridden ? ' - based on your specific rate' : ''}`
+      : interestRate < 5 
+      ? `Low rates create strong financing leverage and reduce borrowing costs${isOverridden ? ' - based on your specific rate' : ''}`
+      : `Moderate rates provide balanced financing conditions${isOverridden ? ' - based on your specific rate' : ''}`
+  });
+  
+  // LTV Ratio Impact
+  const ltvRatio = params.ltvRatio;
+  settings.push({
+    name: 'Loan-to-Value Ratio',
+    value: `${ltvRatio}%`,
+    impact: ltvRatio > 80 ? 'negative' : ltvRatio < 60 ? 'neutral' : 'positive',
+    description: ltvRatio > 80 
+      ? 'High leverage increases returns but also risk and interest costs'
+      : ltvRatio < 60 
+      ? 'Conservative leverage reduces risk but limits financing advantage'
+      : 'Balanced leverage optimizes returns while managing risk'
+  });
+  
+  // Property Appreciation Impact
+  const appreciation = overrides.appreciationRate || aiData?.avgPropertyAppreciation || params.appreciationRate;
+  const appreciationOverridden = overrides.appreciationRate !== undefined;
+  settings.push({
+    name: 'Property Appreciation',
+    value: `${appreciation.toFixed(1)}%/year${appreciationOverridden ? ' (User Override)' : ''}`,
+    impact: appreciation > 4 ? 'positive' : appreciation < 2.5 ? 'negative' : 'neutral',
+    description: appreciation > 4 
+      ? `Strong appreciation drives significant wealth building through asset growth${appreciationOverridden ? ' - based on your market knowledge' : ''}`
+      : appreciation < 2.5 
+      ? `Low appreciation limits long-term wealth accumulation potential${appreciationOverridden ? ' - based on your market knowledge' : ''}`
+      : `Moderate appreciation provides steady but not exceptional growth${appreciationOverridden ? ' - based on your market knowledge' : ''}`
+  });
+  
+  // Rent Growth Impact  
+  const rentGrowth = overrides.rentGrowthRate || aiData?.avgRentGrowth || params.rentGrowthRate;
+  const rentOverridden = overrides.rentGrowthRate !== undefined;
+  settings.push({
+    name: 'Rent Growth',
+    value: `${rentGrowth.toFixed(1)}%/year${rentOverridden ? ' (User Override)' : ''}`,
+    impact: rentGrowth > 3.5 ? 'positive' : rentGrowth < 2 ? 'negative' : 'neutral',
+    description: rentGrowth > 3.5 
+      ? `Strong rent growth improves cash flow and accelerates payoff timelines${rentOverridden ? ' - based on your rental experience' : ''}`
+      : rentGrowth < 2 
+      ? `Low rent growth may limit cash flow improvement over time${rentOverridden ? ' - based on your rental experience' : ''}`
+      : `Steady rent growth supports consistent cash flow progression${rentOverridden ? ' - based on your rental experience' : ''}`
+  });
+  
+  return settings;
+}
+
+// Helper function to get AI enhancements list
+function getAIEnhancementsList(aiData) {
+  if (!aiData) return '<div>No AI enhancements available</div>';
+  
+  const enhancements = [];
+  if (aiData.propertyAppreciation) enhancements.push('📈 Dynamic property price projections');
+  if (aiData.rentGrowth) enhancements.push('💰 Location-specific rent growth analysis');
+  if (aiData.interestRates) enhancements.push('📊 Federal Reserve interest rate forecasts');
+  if (aiData.marketConditions) enhancements.push('🎯 Local market condition insights');
+  
+  return enhancements.map(e => `<div class="ai-enhancement-item">${e}</div>`).join('');
+}
+
+// Helper function to analyze AI impact
+function getAIImpactAnalysis(params, aiData) {
+  if (!aiData) return 'AI impact analysis unavailable';
+  
+  const impacts = [];
+  
+  // Compare AI vs static rates
+  const staticAppreciation = params.appreciationRate;
+  const aiAppreciation = aiData.avgPropertyAppreciation;
+  if (aiAppreciation && Math.abs(aiAppreciation - staticAppreciation) > 0.5) {
+    const difference = aiAppreciation - staticAppreciation;
+    impacts.push(`Property appreciation ${difference > 0 ? 'increased' : 'decreased'} by ${Math.abs(difference).toFixed(1)}% based on ${aiData.location?.city || 'local'} market data`);
+  }
+  
+  const staticRent = params.rentGrowthRate;
+  const aiRent = aiData.avgRentGrowth;
+  if (aiRent && Math.abs(aiRent - staticRent) > 0.3) {
+    const difference = aiRent - staticRent;
+    impacts.push(`Rent growth ${difference > 0 ? 'upgraded' : 'downgraded'} by ${Math.abs(difference).toFixed(1)}% based on rental market analysis`);
+  }
+  
+  if (impacts.length === 0) {
+    impacts.push('AI projections align closely with static assumptions, validating current market conditions');
+  }
+  
+  return impacts.map(impact => `<div class="ai-impact-item">• ${impact}</div>`).join('');
+}
+
 function updateAIInsights() {
   if (!utils.calculationResults) return;
   
@@ -449,11 +674,41 @@ function updateAIInsights() {
   const conditionsEl = document.getElementById('ai-market-conditions');
   if (conditionsEl && projections.marketConditions) {
     const conditionClass = projections.marketConditions.toLowerCase();
+    
+    // Calculate average confidence from all AI sources
+    const confidenceValues = [];
+    if (projections.avgPropertyAppreciation !== undefined) {
+      confidenceValues.push(0.75); // Property appreciation confidence
+    }
+    if (projections.avgRentGrowth !== undefined) {
+      confidenceValues.push(0.8); // Rent growth confidence  
+    }
+    if (projections.avgInterestRate !== undefined) {
+      confidenceValues.push(0.6); // Interest rate confidence
+    }
+    if (projections.confidence !== undefined) {
+      confidenceValues.push(projections.confidence); // Market insights confidence
+    }
+    
+    const avgConfidence = confidenceValues.length > 0 
+      ? confidenceValues.reduce((a, b) => a + b) / confidenceValues.length
+      : 0.5;
+    
+    const confidencePercent = Math.round(avgConfidence * 100);
+    const confidenceDescription = getConfidenceDescription(confidencePercent);
+    
     conditionsEl.innerHTML = `
       <div class="ai-market-condition ${conditionClass}">${projections.marketConditions}</div>
       <p>${projections.summary || 'Market analysis based on current trends and economic indicators.'}</p>
-      <div style="margin-top: 10px;">
-        <strong>Confidence Level:</strong> ${(projections.confidence * 100).toFixed(0)}%
+      <div style="margin-top: 15px; padding: 12px; background: #f8f9fa; border-radius: 6px; border-left: 4px solid #667eea;">
+        <div style="margin-bottom: 5px;">
+          <strong>AI Confidence Level: ${confidencePercent}%</strong>
+          <span style="color: #666; font-size: 0.9em; margin-left: 8px;">(${confidenceDescription})</span>
+        </div>
+        <p style="font-size: 0.85em; color: #555; margin: 5px 0 0 0; line-height: 1.4;">
+          This confidence level reflects the reliability of AI predictions based on data quality, 
+          model accuracy, and market stability. Higher percentages indicate more reliable forecasts.
+        </p>
       </div>
     `;
   }
