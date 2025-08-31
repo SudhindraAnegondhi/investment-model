@@ -26,6 +26,7 @@ class ChartManager {
     this.createCashFlowWaterfall(results);
     this.createNetWorthProgression(results);
     this.createSensitivityTornado(results);
+    this.createLoanTrackingChart(results);
     this.updateKPITiles(results);
   }
 
@@ -503,6 +504,158 @@ class ChartManager {
         <span class="alert-message">${alert.message}</span>
       `;
       alertContainer.appendChild(alertElement);
+    });
+  }
+
+  // Loan Tracking Chart - Shows loan originations, repayments, and balances
+  createLoanTrackingChart(results) {
+    const ctx = document.getElementById("loanTrackingChart");
+    if (!ctx) return;
+
+    // Destroy existing chart
+    if (this.charts.loanTracking) {
+      this.charts.loanTracking.destroy();
+    }
+
+    // Extract loan data from financed strategy
+    const years = Array.from({length: 15}, (_, i) => i + 1);
+    const newLoans = [];
+    const interestPayments = [];
+    const principalPayments = [];
+    const outstandingBalances = [];
+    
+    // Get yearly strategy data for financed approach
+    for (let year = 1; year <= 15; year++) {
+      const strategyData = calculations.getYearlyStrategyData(results, year, 'financed');
+      if (strategyData) {
+        // New loans (calculate from new units and cost per unit)
+        const newUnits = strategyData.newUnits || 0;
+        const costPerUnit = results.yearlyData[year - 1]?.costPerUnit || results.inputParams.initialCost;
+        const ltvRatio = (results.inputParams.ltvRatio || 70) / 100;
+        const newLoanAmount = newUnits * costPerUnit * ltvRatio;
+        newLoans.push(newLoanAmount);
+        
+        // Interest and principal payments
+        interestPayments.push(strategyData.interestExpense || 0);
+        principalPayments.push(strategyData.principalPayment || 0);
+        
+        // Outstanding balance (from loan balance or calculate)
+        outstandingBalances.push(strategyData.loanBalance || 0);
+      } else {
+        newLoans.push(0);
+        interestPayments.push(0);
+        principalPayments.push(0);
+        outstandingBalances.push(0);
+      }
+    }
+
+    this.charts.loanTracking = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: years.map(year => `Year ${year}`),
+        datasets: [
+          {
+            label: 'New Loans',
+            data: newLoans,
+            backgroundColor: 'rgba(33, 150, 243, 0.8)',
+            borderColor: '#2196F3',
+            borderWidth: 1,
+            yAxisID: 'y'
+          },
+          {
+            label: 'Interest Payments',
+            data: interestPayments,
+            backgroundColor: 'rgba(255, 152, 0, 0.8)',
+            borderColor: '#FF9800',
+            borderWidth: 1,
+            yAxisID: 'y'
+          },
+          {
+            label: 'Principal Payments',
+            data: principalPayments,
+            backgroundColor: 'rgba(76, 175, 80, 0.8)',
+            borderColor: '#4CAF50',
+            borderWidth: 1,
+            yAxisID: 'y'
+          },
+          {
+            label: 'Outstanding Balance',
+            data: outstandingBalances,
+            type: 'line',
+            backgroundColor: 'rgba(244, 67, 54, 0.1)',
+            borderColor: '#F44336',
+            borderWidth: 3,
+            fill: false,
+            yAxisID: 'y1',
+            tension: 0.4
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: {
+          mode: 'index',
+          intersect: false,
+        },
+        plugins: {
+          title: {
+            display: true,
+            text: 'Loan Analysis: New Loans, Repayments & Outstanding Balances',
+            font: { size: 16, weight: 'bold' }
+          },
+          legend: {
+            display: true,
+            position: 'top'
+          },
+          tooltip: {
+            callbacks: {
+              label: function(context) {
+                return context.dataset.label + ': $' + context.raw.toLocaleString();
+              }
+            }
+          }
+        },
+        scales: {
+          x: {
+            title: {
+              display: true,
+              text: 'Investment Year'
+            }
+          },
+          y: {
+            type: 'linear',
+            display: true,
+            position: 'left',
+            title: {
+              display: true,
+              text: 'New Loans & Payments ($)'
+            },
+            ticks: {
+              callback: function(value) {
+                return '$' + (value / 1000).toFixed(0) + 'K';
+              }
+            }
+          },
+          y1: {
+            type: 'linear',
+            display: true,
+            position: 'right',
+            title: {
+              display: true,
+              text: 'Outstanding Balance ($)'
+            },
+            ticks: {
+              callback: function(value) {
+                return '$' + (value / 1000).toFixed(0) + 'K';
+              }
+            },
+            grid: {
+              drawOnChartArea: false,
+            }
+          }
+        }
+      }
     });
   }
 
