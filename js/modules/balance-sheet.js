@@ -93,6 +93,16 @@ function updateSummaryDownloadTab(results) {
   if (selfNetWorth) selfNetWorth.textContent = utils.formatCurrency(dashboardMetrics.finalNetWorth.self);
   if (financedNetWorth) financedNetWorth.textContent = utils.formatCurrency(dashboardMetrics.finalNetWorth.financed);
   
+  // Update summary tab ROI values
+  const summarySelfROI = document.getElementById('summarySelfROI');
+  const summaryFinancedROI = document.getElementById('summaryFinancedROI');
+  if (summarySelfROI && dashboardMetrics.roi?.self !== undefined) {
+    summarySelfROI.textContent = `${dashboardMetrics.roi.self.toFixed(1)}%`;
+  }
+  if (summaryFinancedROI && dashboardMetrics.roi?.financed !== undefined) {
+    summaryFinancedROI.textContent = `${dashboardMetrics.roi.financed.toFixed(1)}%`;
+  }
+  
   // Get final year detailed data for cumulative cash flow
   const finalSelfData = calculations.getYearlyStrategyData(results, 15, 'self');
   const finalFinancedData = calculations.getYearlyStrategyData(results, 15, 'financed');
@@ -112,7 +122,9 @@ function updateSummaryDownloadTab(results) {
 
 function generateRecommendation(results) {
   const recommendationDiv = document.getElementById('recommendation');
-  if (!recommendationDiv) return;
+  const dashboardRecommendationDiv = document.getElementById('dashboard-recommendation-content');
+  
+  if (!recommendationDiv && !dashboardRecommendationDiv) return;
   
   // Use centralized recommendation data
   const recommendationData = calculations.getRecommendationData(results);
@@ -172,8 +184,21 @@ function generateRecommendation(results) {
     `;
   }
   
-  recommendationDiv.innerHTML = recommendation;
-  recommendationDiv.className = `recommendation ${recommendationType}`;
+  // Update summary tab recommendation
+  if (recommendationDiv) {
+    recommendationDiv.innerHTML = recommendation;
+    recommendationDiv.className = `recommendation ${recommendationType}`;
+  }
+  
+  // Update dashboard recommendation and show section
+  if (dashboardRecommendationDiv) {
+    dashboardRecommendationDiv.innerHTML = recommendation;
+    const dashboardRecommendationSection = document.getElementById('dashboard-recommendation');
+    if (dashboardRecommendationSection) {
+      dashboardRecommendationSection.style.display = 'block';
+      dashboardRecommendationSection.className = `dashboard-section recommendation-section ${recommendationType}`;
+    }
+  }
 }
 
 function updateInsightsSection(results) {
@@ -209,6 +234,12 @@ function updateInsightsSection(results) {
     const isPositive = cashFlowDiff >= 0;
     cashFlowDifference.textContent = `${isPositive ? '+' : ''}${utils.formatCurrency(cashFlowDiff)}`;
     cashFlowDifference.className = `insight-value ${isPositive ? 'positive' : 'negative'}`;
+  }
+  
+  // Update leverage multiplier in summary section
+  const summaryLeverageMultiplier = document.getElementById('summaryLeverageMultiplier');
+  if (summaryLeverageMultiplier) {
+    summaryLeverageMultiplier.textContent = `${dashboardMetrics.leverageMultiplier.toFixed(2)}x`;
   }
 }
 

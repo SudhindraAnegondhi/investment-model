@@ -8,7 +8,7 @@
     <!-- External Libraries -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://unpkg.com/jspdf@latest/dist/jspdf.umd.min.js"></script>
 
     <!-- CSS Files -->
     <link rel="stylesheet" href="css/main.css" />
@@ -190,6 +190,133 @@
                           <input type="checkbox" id="useAIMarketInsights" checked>
                           Market Insights & Risk Analysis (AI)
                         </label>
+                      </div>
+                    </div>
+                    
+                    <div class="control-group" style="margin-top: 20px;">
+                      <h4>🏦 Financing Profile for Interest Rate Predictions</h4>
+                      
+                      <div class="financing-profile">
+                        <div class="finance-source-section">
+                          <label class="finance-source-label">💰 Financing Source</label>
+                          <div class="finance-source-toggle">
+                            <label class="toggle-option">
+                              <input type="radio" name="financeSource" value="bank" checked>
+                              <span class="toggle-text">🏛️ Traditional Bank</span>
+                            </label>
+                            <label class="toggle-option">
+                              <input type="radio" name="financeSource" value="private">
+                              <span class="toggle-text">🤝 Private Lender</span>
+                            </label>
+                          </div>
+                          <div class="finance-source-description" id="financeSourceDescription">
+                            Lower rates, stricter requirements, longer processing
+                          </div>
+                        </div>
+                        
+                        <div class="modern-slider-card">
+                          <div class="slider-card-header">
+                            <div class="slider-icon">📊</div>
+                            <div class="slider-title">
+                              <h4>Credit Score Range</h4>
+                              <div class="slider-subtitle">Impact on interest rates</div>
+                            </div>
+                          </div>
+                          
+                          <div class="modern-slider-container">
+                            <div class="slider-track-container">
+                              <input type="range" id="creditScore" min="0" max="3" value="2" step="1" class="modern-slider credit-score-slider">
+                              <div class="slider-track-bg">
+                                <div class="track-segment poor"></div>
+                                <div class="track-segment fair"></div>
+                                <div class="track-segment good"></div>
+                                <div class="track-segment excellent"></div>
+                              </div>
+                            </div>
+                            
+                            <div class="slider-options">
+                              <div class="slider-option" data-value="0">
+                                <div class="option-dot poor">⚠️</div>
+                                <div class="option-label">
+                                  <span class="option-title">Poor</span>
+                                  <span class="option-range">300-579</span>
+                                </div>
+                              </div>
+                              <div class="slider-option" data-value="1">
+                                <div class="option-dot fair">⚡</div>
+                                <div class="option-label">
+                                  <span class="option-title">Fair</span>
+                                  <span class="option-range">580-669</span>
+                                </div>
+                              </div>
+                              <div class="slider-option active" data-value="2">
+                                <div class="option-dot good">✅</div>
+                                <div class="option-label">
+                                  <span class="option-title">Good</span>
+                                  <span class="option-range">670-739</span>
+                                </div>
+                              </div>
+                              <div class="slider-option" data-value="3">
+                                <div class="option-dot excellent">⭐</div>
+                                <div class="option-label">
+                                  <span class="option-title">Excellent</span>
+                                  <span class="option-range">740+</span>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          
+                          <div class="slider-feedback">
+                            <div class="feedback-badge" id="creditScoreBadge">Good Credit</div>
+                            <div class="feedback-description" id="creditImpact">
+                              Expect competitive rates with good qualification requirements
+                            </div>
+                          </div>
+                        </div>
+                        
+                        <div class="modern-slider-card">
+                          <div class="slider-card-header">
+                            <div class="slider-icon">🏦</div>
+                            <div class="slider-title">
+                              <h4>Financing Product Type</h4>
+                              <div class="slider-subtitle">Structure and rate characteristics</div>
+                            </div>
+                          </div>
+                          
+                          <div class="modern-slider-container">
+                            <div class="slider-track-container">
+                              <input type="range" id="financingType" min="0" max="1" value="0" step="1" class="modern-slider financing-type-slider">
+                              <div class="slider-track-bg financing-track">
+                                <div class="track-segment mortgage"></div>
+                                <div class="track-segment credit-line"></div>
+                              </div>
+                            </div>
+                            
+                            <div class="slider-options financing-options">
+                              <div class="slider-option active" data-value="0">
+                                <div class="option-dot mortgage">🏠</div>
+                                <div class="option-label">
+                                  <span class="option-title">Traditional Mortgage</span>
+                                  <span class="option-range">Fixed/ARM, 15-30yr terms</span>
+                                </div>
+                              </div>
+                              <div class="slider-option" data-value="1">
+                                <div class="option-dot credit-line">💳</div>
+                                <div class="option-label">
+                                  <span class="option-title">Credit Line</span>
+                                  <span class="option-range">HELOC/LOC, flexible draw</span>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          
+                          <div class="slider-feedback">
+                            <div class="feedback-badge" id="financingTypeBadge">Traditional Mortgage</div>
+                            <div class="feedback-description" id="financingTypeImpact">
+                              Lower rates with structured payments and amortization schedule
+                            </div>
+                          </div>
+                        </div>
                       </div>
                     </div>
                     
@@ -562,40 +689,128 @@
           </div>
         </div>
 
-        <!-- KPI Overview -->
-        <div class="dashboard">
-          <div class="dashboard-section">
-            <h3>Self-Financed Strategy KPIs</h3>
-            <div class="kpi-grid">
-              <div class="kpi-tile">
-                <div class="kpi-label">Final Net Worth</div>
-                <div class="kpi-value" id="self-net-worth">$0</div>
+        <!-- Enhanced Strategy Comparison -->
+        <div class="dashboard-section">
+          <h3>📊 Strategy Performance Overview</h3>
+          <div class="strategy-comparison-grid">
+            <!-- Self-Financed Strategy -->
+            <div class="strategy-card self-financed">
+              <div class="strategy-header">
+                <div class="strategy-icon">🏦</div>
+                <div class="strategy-info">
+                  <h4>Self-Financed Strategy</h4>
+                  <p>Pay cash, own outright</p>
+                </div>
               </div>
-              <div class="kpi-tile">
-                <div class="kpi-label">Cumulative Cash Flow</div>
-                <div class="kpi-value" id="self-cash-flow">$0</div>
+              <div class="strategy-metrics">
+                <div class="metric-card">
+                  <div class="metric-icon">🏘️</div>
+                  <div class="metric-info">
+                    <div class="metric-label">Total Units</div>
+                    <div class="metric-value" id="dash-self-units">0</div>
+                  </div>
+                </div>
+                <div class="metric-card">
+                  <div class="metric-icon">💎</div>
+                  <div class="metric-info">
+                    <div class="metric-label">Final Net Worth</div>
+                    <div class="metric-value" id="self-net-worth">$0</div>
+                  </div>
+                </div>
+                <div class="metric-card">
+                  <div class="metric-icon">💰</div>
+                  <div class="metric-info">
+                    <div class="metric-label">Cumulative Cash Flow</div>
+                    <div class="metric-value" id="self-cash-flow">$0</div>
+                  </div>
+                </div>
+                <div class="metric-card">
+                  <div class="metric-icon">📈</div>
+                  <div class="metric-info">
+                    <div class="metric-label">Total ROI</div>
+                    <div class="metric-value" id="self-roi">0%</div>
+                  </div>
+                </div>
               </div>
-              <div class="kpi-tile">
-                <div class="kpi-label">Total ROI</div>
-                <div class="kpi-value" id="self-roi">0%</div>
+            </div>
+
+            <!-- Bank-Financed Strategy -->
+            <div class="strategy-card bank-financed">
+              <div class="strategy-header">
+                <div class="strategy-icon">🏛️</div>
+                <div class="strategy-info">
+                  <h4>Bank-Financed Strategy</h4>
+                  <p>Leverage with mortgages</p>
+                </div>
+              </div>
+              <div class="strategy-metrics">
+                <div class="metric-card">
+                  <div class="metric-icon">🏘️</div>
+                  <div class="metric-info">
+                    <div class="metric-label">Total Units</div>
+                    <div class="metric-value" id="dash-financed-units">0</div>
+                  </div>
+                </div>
+                <div class="metric-card">
+                  <div class="metric-icon">💎</div>
+                  <div class="metric-info">
+                    <div class="metric-label">Final Net Worth</div>
+                    <div class="metric-value" id="financed-net-worth">$0</div>
+                  </div>
+                </div>
+                <div class="metric-card">
+                  <div class="metric-icon">💰</div>
+                  <div class="metric-info">
+                    <div class="metric-label">Cumulative Cash Flow</div>
+                    <div class="metric-value" id="financed-cash-flow">$0</div>
+                  </div>
+                </div>
+                <div class="metric-card">
+                  <div class="metric-icon">📈</div>
+                  <div class="metric-info">
+                    <div class="metric-label">Total ROI</div>
+                    <div class="metric-value" id="financed-roi">0%</div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
+        </div>
 
-          <div class="dashboard-section">
-            <h3>Bank-Financed Strategy KPIs</h3>
-            <div class="kpi-grid">
-              <div class="kpi-tile">
-                <div class="kpi-label">Final Net Worth</div>
-                <div class="kpi-value" id="financed-net-worth">$0</div>
+        <!-- Enhanced Key Insights -->
+        <div class="dashboard-section">
+          <h3>🔍 Key Performance Indicators</h3>
+          <div class="insights-grid">
+            <div class="insight-card">
+              <div class="insight-icon">⚖️</div>
+              <div class="insight-content">
+                <div class="insight-label">Net Worth Difference</div>
+                <div class="insight-value" id="dash-net-worth-diff">-</div>
+                <div class="insight-description">Advantage to optimal strategy</div>
               </div>
-              <div class="kpi-tile">
-                <div class="kpi-label">Cumulative Cash Flow</div>
-                <div class="kpi-value" id="financed-cash-flow">$0</div>
+            </div>
+            <div class="insight-card">
+              <div class="insight-icon">📈</div>
+              <div class="insight-content">
+                <div class="insight-label">Unit Acquisition</div>
+                <div class="insight-value" id="dash-unit-diff">-</div>
+                <div class="insight-description">Additional units with leverage</div>
               </div>
-              <div class="kpi-tile">
-                <div class="kpi-label">Total ROI</div>
-                <div class="kpi-value" id="financed-roi">0%</div>
+            </div>
+            <div class="insight-card">
+              <div class="insight-icon">💵</div>
+              <div class="insight-content">
+                <div class="insight-label">Cash Flow Impact</div>
+                <div class="insight-value" id="dash-cash-flow-diff">-</div>
+                <div class="insight-description">Difference in total cash flow</div>
+              </div>
+            </div>
+            <div class="insight-card">
+              <div class="insight-icon">🎯</div>
+              <div class="insight-content">
+                <div class="insight-label">Leverage Multiplier</div>
+                <div class="insight-value" id="leverage-multiplier">1.0x</div>
+                <div class="insight-description">Asset control per equity dollar</div>
               </div>
             </div>
           </div>
@@ -727,34 +942,64 @@
           </div>
         </div>
 
-        <!-- Quick Actions -->
+        <!-- Recommendation Section -->
+        <div id="dashboard-recommendation" class="dashboard-section recommendation-section" style="display: none;">
+          <h3>💡 Strategic Recommendations</h3>
+          <div id="dashboard-recommendation-content">
+            <!-- Content will be dynamically populated -->
+          </div>
+        </div>
+
+        <!-- Quick Actions & Export -->
         <div class="dashboard-section">
-          <h3>Quick Actions</h3>
-          <div style="display: flex; gap: 15px; flex-wrap: wrap">
-            <button
-              class="btn btn-primary"
-              onclick="scenarioManager.showSaveDialog()"
-            >
-              💾 Save Scenario
-            </button>
-            <button
-              class="btn btn-secondary"
-              onclick="workerManager.performSensitivityAnalysis(utils.getInputParameters())"
-            >
-              🎯 Sensitivity Analysis
-            </button>
-            <button
-              class="btn btn-secondary"
-              onclick="workerManager.performMonteCarloSimulation(utils.getInputParameters())"
-            >
-              🎲 Monte Carlo Simulation
-            </button>
-            <button
-              class="btn btn-success"
-              onclick="exportCurrentResultsToPDF()"
-            >
-              📄 Export PDF Report
-            </button>
+          <h3>🚀 Quick Actions & Export</h3>
+          <div class="action-buttons-grid">
+            <!-- Analysis Actions -->
+            <div class="action-group">
+              <h4>📊 Analysis Tools</h4>
+              <div style="display: flex; gap: 10px; flex-wrap: wrap">
+                <button
+                  class="btn btn-secondary"
+                  onclick="workerManager.performSensitivityAnalysis(utils.getInputParameters())"
+                >
+                  🎯 Sensitivity Analysis
+                </button>
+                <button
+                  class="btn btn-secondary"
+                  onclick="workerManager.performMonteCarloSimulation(utils.getInputParameters())"
+                >
+                  🎲 Monte Carlo Simulation
+                </button>
+              </div>
+            </div>
+
+            <!-- Save & Export Actions -->
+            <div class="action-group">
+              <h4>💾 Save & Export</h4>
+              <div style="display: flex; gap: 10px; flex-wrap: wrap">
+                <button
+                  class="btn btn-primary"
+                  onclick="scenarioManager.showSaveDialog()"
+                >
+                  💾 Save Scenario
+                </button>
+                <button class="btn btn-success" onclick="downloadExcel()">
+                  📊 Download Excel
+                </button>
+                <button
+                  class="btn btn-success"
+                  onclick="exportCurrentResultsToPDF()"
+                >
+                  📄 Export PDF Report
+                </button>
+                <button class="btn btn-secondary" onclick="window.print()">
+                  🖨️ Print Summary
+                </button>
+                <button class="btn btn-warning" onclick="exportSimpleTestPDF()" style="display: none;" id="debug-pdf-btn">
+                  🔧 Test PDF
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -1081,6 +1326,13 @@
                   <div class="metric-value" id="selfCumulative">$0</div>
                 </div>
               </div>
+              <div class="metric-card">
+                <div class="metric-icon">📈</div>
+                <div class="metric-info">
+                  <div class="metric-label">Total ROI</div>
+                  <div class="metric-value" id="summarySelfROI">0%</div>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -1115,6 +1367,13 @@
                   <div class="metric-value" id="financedCumulative">$0</div>
                 </div>
               </div>
+              <div class="metric-card">
+                <div class="metric-icon">📈</div>
+                <div class="metric-info">
+                  <div class="metric-label">Total ROI</div>
+                  <div class="metric-value" id="summaryFinancedROI">0%</div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -1147,6 +1406,14 @@
                 <div class="insight-label">Cash Flow Impact</div>
                 <div class="insight-value" id="cashFlowDifference">-</div>
                 <div class="insight-description">Difference in total cash flow</div>
+              </div>
+            </div>
+            <div class="insight-card">
+              <div class="insight-icon">🎯</div>
+              <div class="insight-content">
+                <div class="insight-label">Leverage Multiplier</div>
+                <div class="insight-value" id="summaryLeverageMultiplier">1.0x</div>
+                <div class="insight-description">Asset control per equity dollar</div>
               </div>
             </div>
           </div>
@@ -1253,20 +1520,25 @@
           <h3>📖 How to Use This Model</h3>
           <ol style="margin-left: 20px; line-height: 1.8">
             <li>
-              <strong>Input Parameters:</strong> Set your investment parameters
-              in the first tab
+              <strong>Choose Budget Strategy:</strong> Select "Predetermined Annual Budget" for fixed yearly investment or "Needs-Based Investment" for dynamic, opportunity-driven investing
             </li>
             <li>
-              <strong>Calculate:</strong> Click the "Calculate" button to run
-              the analysis
+              <strong>Set Investment Objectives:</strong> For needs-based strategy, choose your primary goal (maximize cash flow, ROI, portfolio size, etc.) and risk tolerance
             </li>
             <li>
-              <strong>Review Results:</strong> Check all tabs for comprehensive
-              analysis
+              <strong>Configure Parameters:</strong> Set property details, financing options, and market assumptions in the Settings tab
             </li>
             <li>
-              <strong>Download:</strong> Export results to Excel for further
-              analysis
+              <strong>Enable AI Enhancement (Optional):</strong> Turn on AI-powered market projections for location-specific insights
+            </li>
+            <li>
+              <strong>Calculate:</strong> Click "Calculate Investment Scenarios" - the system will automatically return you to your previous tab
+            </li>
+            <li>
+              <strong>Review Results:</strong> Navigate through all analysis tabs for comprehensive insights
+            </li>
+            <li>
+              <strong>Save & Compare:</strong> Save scenarios and export results to Excel for further analysis
             </li>
           </ol>
         </div>
@@ -1289,15 +1561,17 @@
             <h3>🏠 Investment Strategies</h3>
             <p>
               <strong>Self-Financed:</strong> Purchase properties with 100%
-              cash, no debt
+              cash, no debt obligations
             </p>
             <p>
-              <strong>Bank-Financed:</strong> Use leverage with 70% LTV
-              mortgages
+              <strong>Bank-Financed:</strong> Use leverage with customizable LTV
+              ratios (default 70%)
             </p>
             <p>
-              <strong>Comparison:</strong> Model compares both strategies over
-              15 years
+              <strong>Budget Modes:</strong> Choose between predetermined annual budget or needs-based dynamic investment
+            </p>
+            <p>
+              <strong>Comparison:</strong> Model compares both financing strategies across multiple investment objectives over 15 years
             </p>
           </div>
 
@@ -1312,10 +1586,13 @@
             <h3>💰 Key Metrics Explained</h3>
             <p><strong>Cash Flow:</strong> Annual income minus expenses</p>
             <p><strong>Net Worth:</strong> Property value + cash - debt</p>
-            <p><strong>ROI:</strong> Annualized return on investment</p>
+            <p><strong>ROI/ROE:</strong> Annualized return on investment/equity</p>
+            <p><strong>Leverage Multiplier:</strong> Asset value relative to equity invested</p>
+            <p><strong>Units per $1K:</strong> Investment efficiency metric</p>
             <p>
               <strong>Break-Even:</strong> Year when strategy becomes profitable
             </p>
+            <p><strong>Dynamic Score:</strong> Investment opportunity rating for needs-based mode</p>
           </div>
 
           <div
@@ -1328,18 +1605,29 @@
           >
             <h3>📊 Analysis Tabs</h3>
             <p>
-              <strong>Strategy Comparison:</strong> Side-by-side year-by-year
-              comparison
+              <strong>📊 Dashboard:</strong> Key performance metrics and Investment Strategy Overview
             </p>
             <p>
-              <strong>Cash Flow Analysis:</strong> Detailed cash flow breakdown
+              <strong>📈 Charts & Analysis:</strong> Visual representations and trend analysis
             </p>
             <p>
-              <strong>Sensitivity Analysis:</strong> Impact of parameter changes
+              <strong>📊 Strategy Comparison:</strong> Side-by-side year-by-year comparison
             </p>
-            <p><strong>Break-Even Analysis:</strong> Profitability timeline</p>
             <p>
-              <strong>ROI Analysis:</strong> Returns vs alternative investments
+              <strong>💰 Cash Flow Analysis:</strong> Detailed cash flow breakdown with yearly projections
+            </p>
+            <p>
+              <strong>🎯 Sensitivity Analysis:</strong> Tornado diagrams showing parameter impact
+            </p>
+            <p><strong>⚖️ Break-Even Analysis:</strong> Profitability timeline and crossover points</p>
+            <p>
+              <strong>📈 ROI Analysis:</strong> Returns vs alternative investments with risk assessment
+            </p>
+            <p>
+              <strong>📋 Summary & Download:</strong> Executive summary with Excel export functionality
+            </p>
+            <p>
+              <strong>💾 Scenarios:</strong> Save, load, and compare different investment scenarios
             </p>
           </div>
 
@@ -1353,16 +1641,23 @@
           >
             <h3>⚙️ Important Parameters</h3>
             <p>
-              <strong>Annual Budget:</strong> Available cash for investments
+              <strong>Budget Strategy:</strong> Predetermined annual budget vs needs-based dynamic investment
+            </p>
+            <p>
+              <strong>Investment Objective:</strong> Maximize cash flow, ROI, portfolio size, or balanced growth
+            </p>
+            <p>
+              <strong>Risk Tolerance:</strong> Conservative, moderate, or aggressive investment approach
             </p>
             <p>
               <strong>Rental Rate:</strong> Monthly rent as % of property cost
             </p>
-            <p><strong>Interest Rate:</strong> Mortgage interest rate</p>
+            <p><strong>Interest Rate:</strong> Mortgage interest rate (AI-enhanced or manual)</p>
             <p><strong>LTV Ratio:</strong> Loan-to-value ratio for financing</p>
             <p>
-              <strong>Appreciation Rate:</strong> Annual property value growth
+              <strong>Appreciation Rate:</strong> Annual property value growth (AI-enhanced or manual)
             </p>
+            <p><strong>Max Investment Limits:</strong> Single investment and total investment caps for needs-based mode</p>
           </div>
         </div>
 
@@ -1378,15 +1673,112 @@
           <h3>💡 Tips for Best Results</h3>
           <ul style="margin-left: 20px; line-height: 1.8">
             <li>
-              Use realistic rental rates (typically 0.8-1.2% of property value)
+              <strong>Budget Strategy:</strong> Use predetermined budget for consistent cash flow planning; use needs-based for opportunity-driven investing
             </li>
-            <li>Consider local market conditions for appreciation rates</li>
-            <li>Account for property management and maintenance costs</li>
-            <li>Factor in tax implications of your investment structure</li>
             <li>
-              Compare results with your investment goals and risk tolerance
+              <strong>Rental Rates:</strong> Use realistic rates (typically 0.8-1.2% of property value monthly)
+            </li>
+            <li>
+              <strong>AI Enhancement:</strong> Enable AI projections for location-specific market insights, or override with your local knowledge
+            </li>
+            <li>
+              <strong>Investment Objectives:</strong> Match your selection to your actual financial goals and timeline
+            </li>
+            <li>
+              <strong>Sensitivity Analysis:</strong> Use the tornado diagram to identify which parameters most impact your returns
+            </li>
+            <li>
+              <strong>Scenario Comparison:</strong> Save multiple scenarios to compare different markets, objectives, or parameters
+            </li>
+            <li>Account for property management, maintenance costs, and vacancy rates in your expense assumptions</li>
+            <li>Factor in tax implications, depreciation benefits, and local regulations</li>
+            <li>
+              Regularly update your assumptions as market conditions change
             </li>
           </ul>
+        </div>
+
+        <!-- New AI Enhancement Section -->
+        <div
+          style="
+            background: #e8f5e8;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            border-left: 4px solid #4caf50;
+          "
+        >
+          <h3>🤖 AI-Enhanced Analysis</h3>
+          <p style="margin-bottom: 15px;">
+            <strong>Location-Specific Insights:</strong> When enabled, the AI system provides:
+          </p>
+          <ul style="margin-left: 20px; line-height: 1.8">
+            <li><strong>Property Appreciation:</strong> Historical trends and future projections for your specific market</li>
+            <li><strong>Rent Growth Analysis:</strong> Local rental market dynamics and growth forecasts</li>
+            <li><strong>Interest Rate Forecasts:</strong> Federal Reserve trends and economic indicators</li>
+            <li><strong>Market Condition Assessment:</strong> Current market status (buyer's/seller's market)</li>
+            <li><strong>Risk & Opportunity Analysis:</strong> Location-specific factors affecting investment success</li>
+          </ul>
+          <p style="margin-top: 15px; font-style: italic;">
+            💡 You can override any AI projection with your own estimates while keeping other enhancements active.
+          </p>
+        </div>
+
+        <!-- Additional Cash Injections Section -->
+        <div
+          style="
+            background: #fff3e0;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            border-left: 4px solid #ff9800;
+          "
+        >
+          <h3>🎯 Needs-Based Investment Strategy</h3>
+          <p style="margin-bottom: 15px;">
+            <strong>Dynamic Investment Approach:</strong> When you select needs-based investment:
+          </p>
+          <ul style="margin-left: 20px; line-height: 1.8">
+            <li><strong>Opportunity Scoring:</strong> System evaluates each year for investment potential based on your objectives</li>
+            <li><strong>Investment Objectives:</strong> Choose from maximize cash flow, ROI, portfolio size, balanced growth, or conservative growth</li>
+            <li><strong>Risk Management:</strong> Set conservative, moderate, or aggressive risk tolerance levels</li>
+            <li><strong>Investment Limits:</strong> Define maximum single investment and total investment caps</li>
+            <li><strong>Cash Injections Analysis:</strong> View detailed breakdown of when and why additional investments are recommended</li>
+            <li><strong>Dynamic Scoring:</strong> Each investment opportunity gets scored against your objectives and thresholds</li>
+          </ul>
+          <p style="margin-top: 15px; font-style: italic;">
+            💡 This mode is ideal for investors who want to optimize investment timing and have flexible capital availability.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay" style="display: none;">
+      <div class="loading-backdrop"></div>
+      <div class="loading-content">
+        <div class="loading-spinner">
+          <div class="spinner-ring">
+            <div class="spinner-segment"></div>
+            <div class="spinner-segment"></div>
+            <div class="spinner-segment"></div>
+            <div class="spinner-segment"></div>
+          </div>
+        </div>
+        <div class="loading-text">
+          <h3>🤖 Calculating Investment Scenarios</h3>
+          <p id="loadingSubtext">Analyzing market conditions and generating projections...</p>
+          <div class="loading-progress">
+            <div class="progress-bar">
+              <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div class="progress-steps">
+              <div class="progress-step active" id="step1">📊 Gathering Parameters</div>
+              <div class="progress-step" id="step2">🤖 AI Market Analysis</div>
+              <div class="progress-step" id="step3">📈 Calculating Scenarios</div>
+              <div class="progress-step" id="step4">✅ Generating Results</div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -1585,9 +1977,12 @@
           const preview = document.getElementById('ai-data-preview');
           status.innerHTML = '<div class="ai-loading">Fetching AI market data...</div>';
           
+          // Get financing profile for better interest rate predictions
+          const financingProfile = getFinancingProfile();
+          
           // Initialize AI service and get projections
           await window.aiMarketData.initialize(location, propertyType);
-          const projections = await window.aiMarketData.getMarketProjections(location, propertyType, 15);
+          const projections = await window.aiMarketData.getMarketProjections(location, propertyType, 15, financingProfile);
           
           // Update status
           status.textContent = `AI active - Last updated: ${new Date().toLocaleTimeString()}`;
@@ -1795,6 +2190,9 @@
       // Enhanced calculateAll that updates charts after calculation
       async function calculateAll() {
         try {
+          // Show loading overlay
+          showLoadingOverlay();
+          
           let params = utils.getInputParameters();
           
           // Fetch AI market projections if enabled
@@ -1849,6 +2247,9 @@
             
             // Navigate back to previous tab after calculations complete
             navigateAfterCalculation();
+            
+            // Hide loading overlay
+            hideLoadingOverlay();
           }
         } catch (error) {
           console.error("Calculation error:", error);
@@ -1858,6 +2259,9 @@
           alert(
             "An error occurred during calculations. Please check the console for details."
           );
+          
+          // Hide loading overlay even on error
+          hideLoadingOverlay();
         }
       }
 
@@ -2570,6 +2974,255 @@
         }
       }
 
+      // Financing profile functions
+      function updateFinanceSourceDescription() {
+        const bankRadio = document.querySelector('input[name="financeSource"][value="bank"]');
+        const description = document.getElementById('financeSourceDescription');
+        
+        if (bankRadio && bankRadio.checked) {
+          description.textContent = 'Lower rates, stricter requirements, longer processing';
+        } else {
+          description.textContent = 'Higher rates, flexible requirements, faster processing';
+        }
+      }
+
+      function updateCreditScoreDisplay() {
+        const slider = document.getElementById('creditScore');
+        const badge = document.getElementById('creditScoreBadge');
+        const impact = document.getElementById('creditImpact');
+        
+        if (!slider || !badge || !impact) {
+          console.log('Credit score elements not found:', { slider: !!slider, badge: !!badge, impact: !!impact });
+          return;
+        }
+        
+        console.log('Updating credit score display:', slider.value);
+        
+        const scoreRanges = {
+          '0': { 
+            badge: 'Poor Credit', 
+            impact: 'Expect higher rates and stricter down payment requirements',
+            badgeColor: '#f44336'
+          },
+          '1': { 
+            badge: 'Fair Credit', 
+            impact: 'Moderate rates available with standard qualification terms',
+            badgeColor: '#ff9800'
+          },
+          '2': { 
+            badge: 'Good Credit', 
+            impact: 'Expect competitive rates with good qualification requirements',
+            badgeColor: '#4caf50'
+          },
+          '3': { 
+            badge: 'Excellent Credit', 
+            impact: 'Access to best rates with favorable terms and conditions',
+            badgeColor: '#2196f3'
+          }
+        };
+        
+        const currentScore = slider.value;
+        const scoreData = scoreRanges[currentScore];
+        
+        // Update badge and impact
+        badge.textContent = scoreData.badge;
+        impact.textContent = scoreData.impact;
+        
+        // Update badge color
+        badge.style.background = `rgba(${scoreData.badgeColor === '#f44336' ? '244, 67, 54' : 
+                                          scoreData.badgeColor === '#ff9800' ? '255, 152, 0' :
+                                          scoreData.badgeColor === '#4caf50' ? '76, 175, 80' : '33, 150, 243'}, 0.2)`;
+        badge.style.color = scoreData.badgeColor;
+        badge.style.borderColor = `${scoreData.badgeColor}40`;
+        
+        // Update feedback border
+        const feedback = badge.closest('.slider-feedback');
+        if (feedback) {
+          feedback.style.borderLeftColor = scoreData.badgeColor;
+        }
+        
+        // Update active option
+        document.querySelectorAll('.slider-option').forEach(option => {
+          option.classList.remove('active');
+          if (option.dataset.value === currentScore) {
+            option.classList.add('active');
+          }
+        });
+        
+        // Update slider color dynamically
+        slider.setAttribute('value', currentScore);
+      }
+
+      function updateFinancingTypeDisplay() {
+        const slider = document.getElementById('financingType');
+        const badge = document.getElementById('financingTypeBadge');
+        const impact = document.getElementById('financingTypeImpact');
+        
+        if (!slider || !badge || !impact) {
+          console.log('Financing type elements not found:', { slider: !!slider, badge: !!badge, impact: !!impact });
+          return;
+        }
+        
+        console.log('Updating financing type display:', slider.value);
+        
+        const financingTypes = {
+          '0': { 
+            badge: 'Traditional Mortgage',
+            impact: 'Lower rates with structured payments and amortization schedule',
+            badgeColor: '#4caf50'
+          },
+          '1': { 
+            badge: 'Credit Line',
+            impact: 'Higher variable rates but flexible draw and payment options',
+            badgeColor: '#ff9800'
+          }
+        };
+        
+        const currentType = slider.value;
+        const typeData = financingTypes[currentType];
+        
+        // Update badge and impact
+        badge.textContent = typeData.badge;
+        impact.textContent = typeData.impact;
+        
+        // Update badge color
+        badge.style.background = `rgba(${typeData.badgeColor === '#4caf50' ? '76, 175, 80' : '255, 152, 0'}, 0.2)`;
+        badge.style.color = typeData.badgeColor;
+        badge.style.borderColor = `${typeData.badgeColor}40`;
+        
+        // Update feedback border
+        const feedback = badge.closest('.slider-feedback');
+        if (feedback) {
+          feedback.style.borderLeftColor = typeData.badgeColor;
+        }
+        
+        // Update active option in financing options
+        document.querySelectorAll('.financing-options .slider-option').forEach(option => {
+          option.classList.remove('active');
+          if (option.dataset.value === currentType) {
+            option.classList.add('active');
+          }
+        });
+        
+        // Update slider color dynamically
+        slider.setAttribute('value', currentType);
+      }
+
+      function getFinancingProfile() {
+        const financeSource = document.querySelector('input[name="financeSource"]:checked')?.value || 'bank';
+        const creditScoreSlider = parseInt(document.getElementById('creditScore')?.value || '2');
+        const financingTypeSlider = parseInt(document.getElementById('financingType')?.value || '0');
+        
+        // Map slider values back to original 1-4 and 1-2 ranges for AI calculations
+        const creditScore = creditScoreSlider + 1; // 0-3 becomes 1-4
+        const financingType = financingTypeSlider + 1; // 0-1 becomes 1-2
+        
+        return {
+          financeSource: financeSource,
+          creditScore: creditScore, // 1 = poor, 2 = fair, 3 = good, 4 = excellent
+          financingType: financingType  // 1 = mortgage, 2 = credit line
+        };
+      }
+
+      // Loading overlay functions
+      function showLoadingOverlay() {
+        const overlay = document.getElementById('loadingOverlay');
+        const progressFill = document.getElementById('progressFill');
+        const loadingSubtext = document.getElementById('loadingSubtext');
+        
+        if (!overlay) return;
+        
+        // Reset progress
+        progressFill.style.width = '0%';
+        
+        // Show overlay
+        overlay.style.display = 'flex';
+        
+        // Disable tab navigation
+        const tabOptions = document.querySelectorAll('.tab-option');
+        tabOptions.forEach(tab => {
+          tab.style.pointerEvents = 'none';
+          tab.style.opacity = '0.5';
+        });
+        
+        // Start progress animation
+        animateLoadingProgress();
+      }
+
+      function hideLoadingOverlay() {
+        const overlay = document.getElementById('loadingOverlay');
+        if (!overlay) return;
+        
+        // Re-enable tab navigation
+        const tabOptions = document.querySelectorAll('.tab-option');
+        tabOptions.forEach(tab => {
+          tab.style.pointerEvents = 'auto';
+          tab.style.opacity = '1';
+        });
+        
+        // Hide overlay with fade effect
+        overlay.style.opacity = '0';
+        setTimeout(() => {
+          overlay.style.display = 'none';
+          overlay.style.opacity = '1';
+        }, 300);
+      }
+
+      function animateLoadingProgress() {
+        const progressFill = document.getElementById('progressFill');
+        const loadingSubtext = document.getElementById('loadingSubtext');
+        const steps = ['step1', 'step2', 'step3', 'step4'];
+        const subtexts = [
+          'Gathering investment parameters and preferences...',
+          'Analyzing market conditions with AI models...',
+          'Running financial projections and scenarios...',
+          'Generating comprehensive analysis reports...'
+        ];
+        
+        let currentStep = 0;
+        
+        const updateProgress = () => {
+          if (currentStep < steps.length) {
+            // Update progress bar
+            const progress = ((currentStep + 1) / steps.length) * 100;
+            progressFill.style.width = progress + '%';
+            
+            // Update subtext
+            if (loadingSubtext) {
+              loadingSubtext.textContent = subtexts[currentStep];
+            }
+            
+            // Mark current step as active, previous as completed
+            steps.forEach((stepId, index) => {
+              const stepElement = document.getElementById(stepId);
+              if (!stepElement) return;
+              
+              stepElement.classList.remove('active', 'completed');
+              
+              if (index < currentStep) {
+                stepElement.classList.add('completed');
+              } else if (index === currentStep) {
+                stepElement.classList.add('active');
+              }
+            });
+            
+            currentStep++;
+          }
+        };
+        
+        // Initial step
+        updateProgress();
+        
+        // Animate through steps
+        const interval = setInterval(() => {
+          if (currentStep < steps.length) {
+            updateProgress();
+          } else {
+            clearInterval(interval);
+          }
+        }, 800); // 800ms between steps for realistic timing
+      }
+
       // Initialize budget mode event listeners
       document.addEventListener('DOMContentLoaded', function() {
         const budgetModeRadios = document.querySelectorAll('input[name="budgetMode"]');
@@ -2598,6 +3251,63 @@
             }
           });
         }
+        
+        // Add event listeners for financing profile controls
+        const financeSourceRadios = document.querySelectorAll('input[name="financeSource"]');
+        financeSourceRadios.forEach(radio => {
+          radio.addEventListener('change', updateFinanceSourceDescription);
+        });
+        
+        const creditScoreSlider = document.getElementById('creditScore');
+        if (creditScoreSlider) {
+          creditScoreSlider.addEventListener('input', updateCreditScoreDisplay);
+          creditScoreSlider.addEventListener('change', updateCreditScoreDisplay);
+          creditScoreSlider.addEventListener('click', function() {
+            console.log('Credit score slider clicked');
+          });
+          console.log('Credit score slider events attached');
+        } else {
+          console.log('Credit score slider not found during event attachment');
+        }
+        
+        const financingTypeSlider = document.getElementById('financingType');
+        if (financingTypeSlider) {
+          financingTypeSlider.addEventListener('input', updateFinancingTypeDisplay);
+          financingTypeSlider.addEventListener('change', updateFinancingTypeDisplay);
+          financingTypeSlider.addEventListener('click', function() {
+            console.log('Financing type slider clicked');
+          });
+          console.log('Financing type slider events attached');
+        } else {
+          console.log('Financing type slider not found during event attachment');
+        }
+        
+        // Add click handlers for slider option cards
+        document.querySelectorAll('.slider-option').forEach(option => {
+          option.addEventListener('click', function() {
+            const value = this.dataset.value;
+            const isFinancingType = this.closest('.financing-options') !== null;
+            
+            if (isFinancingType) {
+              const slider = document.getElementById('financingType');
+              if (slider) {
+                slider.value = value;
+                updateFinancingTypeDisplay();
+              }
+            } else {
+              const slider = document.getElementById('creditScore');
+              if (slider) {
+                slider.value = value;
+                updateCreditScoreDisplay();
+              }
+            }
+          });
+        });
+        
+        // Initialize financing profile displays
+        updateFinanceSourceDescription();
+        updateCreditScoreDisplay();
+        updateFinancingTypeDisplay();
         
         // Initialize with default state
         toggleBudgetMode();

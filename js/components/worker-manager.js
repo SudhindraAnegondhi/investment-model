@@ -86,11 +86,21 @@ class WorkerManager {
           if (typeof navigateAfterCalculation === "function") {
             navigateAfterCalculation();
           }
+          
+          // Hide loading overlay
+          if (typeof hideLoadingOverlay === "function") {
+            hideLoadingOverlay();
+          }
         } catch (error) {
           this.isCalculating = false;
           this.hideLoadingIndicator();
           console.error("Calculation error:", error);
           this.showError("Calculation error: " + error.message);
+          
+          // Hide loading overlay on error
+          if (typeof hideLoadingOverlay === "function") {
+            hideLoadingOverlay();
+          }
         }
       }, 100);
     } catch (error) {
@@ -98,6 +108,11 @@ class WorkerManager {
       this.hideLoadingIndicator();
       console.error("Calculation setup error:", error);
       this.showError("Calculation setup error: " + error.message);
+      
+      // Hide loading overlay on setup error
+      if (typeof hideLoadingOverlay === "function") {
+        hideLoadingOverlay();
+      }
     }
   }
 

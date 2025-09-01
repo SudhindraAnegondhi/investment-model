@@ -181,7 +181,7 @@
 
 .insights-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: 25px;
 }
 
@@ -368,7 +368,7 @@
   }
 
   .insights-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, 1fr);
     gap: 20px;
   }
 
@@ -434,5 +434,10 @@
 
   .recommendation-section .recommendation {
     padding: 25px 20px;
+  }
+  
+  .insights-grid {
+    grid-template-columns: 1fr;
+    gap: 15px;
   }
 }

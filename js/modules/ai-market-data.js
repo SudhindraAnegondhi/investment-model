@@ -26,25 +26,28 @@ class AIMarketDataService {
   }
 
   // Main function to get comprehensive market projections
-  async getMarketProjections(location, propertyType, investmentYears = 15) {
+  async getMarketProjections(location, propertyType, investmentYears = 15, financingProfile = null) {
     if (!this.isEnabled) {
       return this.getStaticFallbackData();
     }
 
-    // Return cached data if still valid
-    if (this.isCacheValid()) {
+    // Return cached data if still valid (but consider financing profile changes)
+    if (this.isCacheValid() && (!financingProfile || this.cachedFinancingProfile === JSON.stringify(financingProfile))) {
       console.log("📊 Using cached AI market data");
       return this.cachedData;
     }
 
     console.log("🔄 Fetching fresh AI market data...");
+    if (financingProfile) {
+      console.log("🏦 Including financing profile:", financingProfile);
+    }
     
     try {
       // Fetch data from multiple sources in parallel
       const [propertyData, rentData, interestData, marketInsights] = await Promise.all([
         this.getPropertyPriceTrends(location, propertyType, investmentYears),
         this.getRentProjections(location, propertyType, investmentYears),
-        this.getInterestRateForecasts(investmentYears),
+        this.getInterestRateForecasts(investmentYears, financingProfile),
         this.getMarketInsights(location, propertyType)
       ]);
 
@@ -73,8 +76,9 @@ class AIMarketDataService {
         confidence: marketInsights.confidence
       };
 
-      // Cache the results
+      // Cache the results and financing profile for proper cache invalidation
       this.cachedData = projections;
+      this.cachedFinancingProfile = JSON.stringify(financingProfile);
       this.lastFetchTime = new Date().getTime();
       
       console.log("✅ AI market data fetched and cached");
@@ -130,24 +134,27 @@ class AIMarketDataService {
     }
   }
 
-  // Get interest rate forecasts
-  async getInterestRateForecasts(years) {
+  // Get interest rate forecasts with financing profile consideration
+  async getInterestRateForecasts(years, financingProfile = null) {
     try {
       // Fetch from FRED API (Federal Reserve Economic Data)
       const fredData = await this.fetchFREDData();
       
-      // AI analysis of interest rate trends
-      const aiRateAnalysis = await this.analyzeInterestTrends(fredData, years);
+      // AI analysis of interest rate trends with financing profile
+      const aiRateAnalysis = await this.analyzeInterestTrends(fredData, years, financingProfile);
       
       return {
         yearlyRates: aiRateAnalysis.projectedRates,
         averageRate: aiRateAnalysis.averageRate,
         confidence: aiRateAnalysis.confidence,
-        dataSource: 'Federal Reserve + AI Analysis'
+        dataSource: 'Federal Reserve + AI Analysis + Financing Profile',
+        creditScoreAdjustment: aiRateAnalysis.creditScoreAdjustment,
+        financeSourceAdjustment: aiRateAnalysis.financeSourceAdjustment,
+        financingTypeAdjustment: aiRateAnalysis.financingTypeAdjustment
       };
     } catch (error) {
       console.warn("Interest rate API failed, using current rates");
-      return this.getCurrentRateDefaults();
+      return this.getCurrentRateDefaults(financingProfile);
     }
   }
 
@@ -315,12 +322,37 @@ class AIMarketDataService {
     };
   }
 
-  // AI analysis of interest rate trends
-  async analyzeInterestTrends(data, years) {
+  // AI analysis of interest rate trends with financing profile
+  async analyzeInterestTrends(data, years, financingProfile = null) {
     await new Promise(resolve => setTimeout(resolve, 900));
     
     const currentRate = data.currentRate;
     const projectedRates = [];
+    
+    // Calculate financing profile adjustments
+    let creditScoreAdjustment = 0;
+    let financeSourceAdjustment = 0;
+    let financingTypeAdjustment = 0;
+    
+    if (financingProfile) {
+      // Credit score impact on rates
+      const creditAdjustments = {
+        1: 2.5,    // Poor (300-579): +2.5%
+        2: 1.2,    // Fair (580-669): +1.2%
+        3: 0.0,    // Good (670-739): baseline
+        4: -0.3    // Excellent (740+): -0.3%
+      };
+      creditScoreAdjustment = creditAdjustments[financingProfile.creditScore] || 0;
+      
+      // Finance source impact
+      financeSourceAdjustment = financingProfile.financeSource === 'private' ? 1.5 : 0;
+      
+      // Financing type impact
+      // 1 = Traditional Mortgage, 2 = Credit Line (HELOC/LOC)
+      financingTypeAdjustment = financingProfile.financingType === 2 ? 0.8 : 0; // Credit lines typically +0.8%
+    }
+    
+    const totalAdjustment = creditScoreAdjustment + financeSourceAdjustment + financingTypeAdjustment;
     
     for (let year = 1; year <= years; year++) {
       // Interest rate projection based on Fed policy and economic cycles
@@ -337,13 +369,19 @@ class AIMarketDataService {
         yearlyRate = 4.5; // Long-term historical average
       }
       
-      projectedRates.push(Math.max(2.0, Math.min(8.0, yearlyRate)));
+      // Apply financing profile adjustments
+      yearlyRate += totalAdjustment;
+      
+      projectedRates.push(Math.max(2.0, Math.min(12.0, yearlyRate)));
     }
     
     return {
       projectedRates: projectedRates,
       averageRate: projectedRates.reduce((a, b) => a + b) / projectedRates.length,
-      confidence: 0.6 // Interest rates are harder to predict
+      confidence: 0.6, // Interest rates are harder to predict
+      creditScoreAdjustment: creditScoreAdjustment,
+      financeSourceAdjustment: financeSourceAdjustment,
+      financingTypeAdjustment: financingTypeAdjustment
     };
   }
 
@@ -432,11 +470,38 @@ class AIMarketDataService {
     };
   }
 
-  getCurrentRateDefaults() {
+  getCurrentRateDefaults(financingProfile = null) {
+    let baseRate = 6.75;
+    let creditScoreAdjustment = 0;
+    let financeSourceAdjustment = 0;
+    let financingTypeAdjustment = 0;
+    
+    if (financingProfile) {
+      // Credit score impact on rates
+      const creditAdjustments = {
+        1: 2.5,    // Poor (300-579): +2.5%
+        2: 1.2,    // Fair (580-669): +1.2%
+        3: 0.0,    // Good (670-739): baseline
+        4: -0.3    // Excellent (740+): -0.3%
+      };
+      creditScoreAdjustment = creditAdjustments[financingProfile.creditScore] || 0;
+      
+      // Finance source impact
+      financeSourceAdjustment = financingProfile.financeSource === 'private' ? 1.5 : 0;
+      
+      // Financing type impact
+      financingTypeAdjustment = financingProfile.financingType === 2 ? 0.8 : 0; // Credit lines typically +0.8%
+    }
+    
+    const adjustedRate = Math.max(2.0, Math.min(12.0, baseRate + creditScoreAdjustment + financeSourceAdjustment + financingTypeAdjustment));
+    
     return {
-      yearlyRates: Array(15).fill(6.75),
-      averageRate: 6.75,
-      confidence: 0.5
+      yearlyRates: Array(15).fill(adjustedRate),
+      averageRate: adjustedRate,
+      confidence: 0.5,
+      creditScoreAdjustment: creditScoreAdjustment,
+      financeSourceAdjustment: financeSourceAdjustment,
+      financingTypeAdjustment: financingTypeAdjustment
     };
   }
 
