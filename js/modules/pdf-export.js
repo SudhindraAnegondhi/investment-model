@@ -914,38 +914,46 @@ class ComprehensiveReportExporter extends PDFExporter {
       return;
     }
     
-    // Calculate metrics directly from results data (bypassing faulty getDashboardMetrics)
-    const selfFinal = results.selfFinanced[14] || {};
-    const financedFinal = results.financed[14] || {};
-    const totalInvested = (params?.annualBudget || 170000) * 15;
+    // Use the same hybrid approach as balance-sheet.js which fixes the 0s issue
+    const dashboardMetrics = calculations.getDashboardMetrics(results);
+    const directMetrics = results.summaryMetrics;
     
-    // Calculate ROI properly with null checks
-    const selfNetWorth = selfFinal.netWorth || 0;
-    const financedNetWorth = financedFinal.netWorth || 0;
-    const selfROI = selfNetWorth && totalInvested ? ((selfNetWorth - totalInvested) / totalInvested * 100) : 0;
-    const financedROI = financedNetWorth && totalInvested ? ((financedNetWorth - totalInvested) / totalInvested * 100) : 0;
+    // Get final year data as additional fallback
+    const selfFinal = results.selfFinanced?.[14] || {};
+    const financedFinal = results.financed?.[14] || {};
     
+    console.log("🔍 PDF Debug - getDashboardMetrics result:", dashboardMetrics);
+    console.log("🔍 PDF Debug - Direct summaryMetrics:", directMetrics);
+    console.log("🔍 PDF Debug - Final year data - selfFinal:", selfFinal);
+    console.log("🔍 PDF Debug - Final year data - financedFinal:", financedFinal);
+    
+    // Use hybrid metrics like balance-sheet.js does with additional fallbacks from yearly data
     const safeMetrics = {
+      // Use direct summaryMetrics values for the problematic fields with fallbacks
+      leverageMultiplier: directMetrics?.leverageMultiplier || 1.0,
       totalUnits: {
-        self: selfFinal.units || 0,
-        financed: financedFinal.units || 0
+        self: directMetrics?.totalUnits?.self || selfFinal?.units || 0,
+        financed: directMetrics?.totalUnits?.financed || financedFinal?.units || 0
       },
-      finalNetWorth: {
-        self: selfNetWorth,
-        financed: financedNetWorth
+      // Use dashboardMetrics first, then directMetrics, then calculate from yearly data
+      finalNetWorth: dashboardMetrics?.finalNetWorth || directMetrics?.finalNetWorth || {
+        self: selfFinal?.netWorth || 0,
+        financed: financedFinal?.netWorth || 0
       },
-      cumulativeCashFlow: {
-        self: selfFinal.cumulativeCashFlow || 0,
-        financed: financedFinal.cumulativeCashFlow || 0
+      totalReturn: dashboardMetrics?.totalReturn || directMetrics?.totalReturn || { self: 0, financed: 0 },
+      roi: dashboardMetrics?.roi || directMetrics?.roi || { self: 0, financed: 0 },
+      totalCashInvested: dashboardMetrics?.totalCashInvested || directMetrics?.totalCashInvested || { self: 0, financed: 0 },
+      cumulativeCashFlow: dashboardMetrics?.cumulativeCashFlow || directMetrics?.cumulativeCashFlow || {
+        self: selfFinal?.cumulativeCashFlow || 0,
+        financed: financedFinal?.cumulativeCashFlow || 0
       },
-      roi: {
-        self: selfROI,
-        financed: financedROI
-      },
-      netWorthDifference: financedNetWorth - selfNetWorth,
-      leverageMultiplier: results?.summaryMetrics?.leverageMultiplier || 
-                          (financedNetWorth && selfNetWorth && selfNetWorth > 0 ? financedNetWorth / selfNetWorth : 1.0)
+      netWorthDifference: null // will calculate after getting final values
     };
+    
+    // Calculate net worth difference after getting final values
+    safeMetrics.netWorthDifference = safeMetrics.finalNetWorth.financed - safeMetrics.finalNetWorth.self;
+    
+    console.log("🔧 PDF Using enhanced hybrid metrics with fallbacks:", safeMetrics);
     
     const synopsisData = [
       ['Strategy', 'Total Units', 'Final Net Worth', 'Cumulative Cash Flow', 'Total ROI'],
@@ -1674,35 +1682,45 @@ class ComprehensiveReportExporter extends PDFExporter {
       return [['Error', 'Insufficient data', 'for comparison', 'table', 'generation']];
     }
     
-    const selfFinal = results.selfFinanced[14] || {};
-    const financedFinal = results.financed[14] || {};
-    const totalInvested = params?.annualBudget ? params.annualBudget * 15 : 2500000; // Default fallback
+    // Use the same hybrid approach as the dashboard section for consistency
+    const dashboardMetrics = calculations.getDashboardMetrics(results);
+    const directMetrics = results.summaryMetrics;
     
-    // Calculate metrics directly from data with null safety
-    const selfNetWorth = selfFinal.netWorth || 0;
-    const financedNetWorth = financedFinal.netWorth || 0;
-    const selfCashFlow = selfFinal.cumulativeCashFlow || 0;
-    const financedCashFlow = financedFinal.cumulativeCashFlow || 0;
+    // Get final year data as additional fallback
+    const selfFinal = results.selfFinanced?.[14] || {};
+    const financedFinal = results.financed?.[14] || {};
     
+    console.log("🔍 Comparison Table Debug - getDashboardMetrics:", dashboardMetrics);
+    console.log("🔍 Comparison Table Debug - directMetrics:", directMetrics);
+    console.log("🔍 Comparison Table Debug - selfFinal:", selfFinal);
+    console.log("🔍 Comparison Table Debug - financedFinal:", financedFinal);
+    
+    // Use enhanced hybrid metrics with multiple fallbacks
     const safeMetrics = {
       totalUnits: {
-        self: selfFinal.units || 0,
-        financed: financedFinal.units || 0
+        self: directMetrics?.totalUnits?.self || selfFinal?.units || 0,
+        financed: directMetrics?.totalUnits?.financed || financedFinal?.units || 0
       },
       finalNetWorth: {
-        self: selfNetWorth,
-        financed: financedNetWorth
+        self: dashboardMetrics?.finalNetWorth?.self || directMetrics?.finalNetWorth?.self || selfFinal?.netWorth || 0,
+        financed: dashboardMetrics?.finalNetWorth?.financed || directMetrics?.finalNetWorth?.financed || financedFinal?.netWorth || 0
       },
       cumulativeCashFlow: {
-        self: selfCashFlow,
-        financed: financedCashFlow
-      },
-      roi: {
-        self: selfNetWorth && totalInvested ? ((selfNetWorth - totalInvested) / totalInvested * 100) : 0,
-        financed: financedNetWorth && totalInvested ? ((financedNetWorth - totalInvested) / totalInvested * 100) : 0
-      },
-      netWorthDifference: financedNetWorth - selfNetWorth
+        self: dashboardMetrics?.cumulativeCashFlow?.self || directMetrics?.cumulativeCashFlow?.self || selfFinal?.cumulativeCashFlow || 0,
+        financed: dashboardMetrics?.cumulativeCashFlow?.financed || directMetrics?.cumulativeCashFlow?.financed || financedFinal?.cumulativeCashFlow || 0
+      }
     };
+    
+    const totalInvested = params?.annualBudget ? params.annualBudget * 15 : 2500000; // Default fallback
+    
+    // Add calculated ROI and differences
+    safeMetrics.roi = {
+      self: safeMetrics.finalNetWorth.self && totalInvested ? ((safeMetrics.finalNetWorth.self - totalInvested) / totalInvested * 100) : 0,
+      financed: safeMetrics.finalNetWorth.financed && totalInvested ? ((safeMetrics.finalNetWorth.financed - totalInvested) / totalInvested * 100) : 0
+    };
+    safeMetrics.netWorthDifference = safeMetrics.finalNetWorth.financed - safeMetrics.finalNetWorth.self;
+    
+    console.log("🔧 Comparison Table using enhanced hybrid metrics:", safeMetrics);
     
     return [
       [

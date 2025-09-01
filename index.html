@@ -13,7 +13,6 @@
     <!-- CSS Files -->
     <link rel="stylesheet" href="css/main.css" />
     <link rel="stylesheet" href="css/components.css" />
-    <link rel="stylesheet" href="css/summary.css" />
     <link rel="stylesheet" href="css/responsive.css" />
   </head>
   <body>
@@ -62,9 +61,6 @@
             <button class="tab-option" data-tab="roi" onclick="selectTab('roi', 'ROI Analysis')">
               📈 ROI Analysis
             </button>
-            <button class="tab-option" data-tab="summary" onclick="selectTab('summary', 'Summary & Download')">
-              📋 Summary & Download
-            </button>
             <button class="tab-option" data-tab="help" onclick="selectTab('help', 'Help')">
               ❓ Help
             </button>
@@ -89,7 +85,6 @@
               <button onclick="selectTab('sensitivity', '🎯 Sensitivity Analysis')">🎯 Sensitivity Analysis</button>
               <button onclick="selectTab('breakeven', '⚖️ Break-Even Analysis')">⚖️ Break-Even Analysis</button>
               <button onclick="selectTab('roi', '📈 ROI Analysis')">📈 ROI Analysis</button>
-              <button onclick="selectTab('summary', '📋 Summary & Download')">📋 Summary & Download</button>
               <button onclick="selectTab('help', '❓ Help')">❓ Help</button>
             </div>
           </div>
@@ -1278,174 +1273,6 @@
         </div>
       </div>
 
-      <div id="summary" class="tab-content">
-        <!-- Header Section -->
-        <div class="summary-header">
-          <div class="summary-title">
-            <h2>📋 Investment Analysis Summary</h2>
-            <p>15-Year Investment Strategy Comparison</p>
-          </div>
-          <div class="summary-period">
-            <div class="period-badge">
-              <span class="period-label">Analysis Period</span>
-              <span class="period-value">15 Years</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Strategy Comparison Section -->
-        <div class="strategy-comparison-grid">
-          <!-- Self-Financed Strategy -->
-          <div class="strategy-section self-financed">
-            <div class="strategy-header">
-              <div class="strategy-icon">🏦</div>
-              <div class="strategy-info">
-                <h3>Self-Financed Strategy</h3>
-                <p>Pay cash, own outright</p>
-              </div>
-            </div>
-            <div class="strategy-metrics">
-              <div class="metric-card">
-                <div class="metric-icon">🏘️</div>
-                <div class="metric-info">
-                  <div class="metric-label">Total Units</div>
-                  <div class="metric-value" id="totalSelfUnits">0</div>
-                </div>
-              </div>
-              <div class="metric-card">
-                <div class="metric-icon">💎</div>
-                <div class="metric-info">
-                  <div class="metric-label">Final Net Worth</div>
-                  <div class="metric-value" id="selfNetWorth">$0</div>
-                </div>
-              </div>
-              <div class="metric-card">
-                <div class="metric-icon">💰</div>
-                <div class="metric-info">
-                  <div class="metric-label">Total Cash Flow</div>
-                  <div class="metric-value" id="selfCumulative">$0</div>
-                </div>
-              </div>
-              <div class="metric-card">
-                <div class="metric-icon">📈</div>
-                <div class="metric-info">
-                  <div class="metric-label">Total ROI</div>
-                  <div class="metric-value" id="summarySelfROI">0%</div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Bank-Financed Strategy -->
-          <div class="strategy-section bank-financed">
-            <div class="strategy-header">
-              <div class="strategy-icon">🏛️</div>
-              <div class="strategy-info">
-                <h3>Bank-Financed Strategy</h3>
-                <p>Leverage with mortgages</p>
-              </div>
-            </div>
-            <div class="strategy-metrics">
-              <div class="metric-card">
-                <div class="metric-icon">🏘️</div>
-                <div class="metric-info">
-                  <div class="metric-label">Total Units</div>
-                  <div class="metric-value" id="totalFinancedUnits">0</div>
-                </div>
-              </div>
-              <div class="metric-card">
-                <div class="metric-icon">💎</div>
-                <div class="metric-info">
-                  <div class="metric-label">Final Net Worth</div>
-                  <div class="metric-value" id="financedNetWorth">$0</div>
-                </div>
-              </div>
-              <div class="metric-card">
-                <div class="metric-icon">💰</div>
-                <div class="metric-info">
-                  <div class="metric-label">Total Cash Flow</div>
-                  <div class="metric-value" id="financedCumulative">$0</div>
-                </div>
-              </div>
-              <div class="metric-card">
-                <div class="metric-icon">📈</div>
-                <div class="metric-info">
-                  <div class="metric-label">Total ROI</div>
-                  <div class="metric-value" id="summaryFinancedROI">0%</div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Key Insights Section -->
-        <div class="insights-section">
-          <div class="insights-header">
-            <h3>📊 Key Performance Indicators</h3>
-          </div>
-          <div class="insights-grid">
-            <div class="insight-card">
-              <div class="insight-icon">⚖️</div>
-              <div class="insight-content">
-                <div class="insight-label">Net Worth Difference</div>
-                <div class="insight-value" id="netWorthDifference">-</div>
-                <div class="insight-description">Advantage to bank financing</div>
-              </div>
-            </div>
-            <div class="insight-card">
-              <div class="insight-icon">📈</div>
-              <div class="insight-content">
-                <div class="insight-label">Unit Acquisition</div>
-                <div class="insight-value" id="unitDifference">-</div>
-                <div class="insight-description">Additional units with leverage</div>
-              </div>
-            </div>
-            <div class="insight-card">
-              <div class="insight-icon">💵</div>
-              <div class="insight-content">
-                <div class="insight-label">Cash Flow Impact</div>
-                <div class="insight-value" id="cashFlowDifference">-</div>
-                <div class="insight-description">Difference in total cash flow</div>
-              </div>
-            </div>
-            <div class="insight-card">
-              <div class="insight-icon">🎯</div>
-              <div class="insight-content">
-                <div class="insight-label">Leverage Multiplier</div>
-                <div class="insight-value" id="summaryLeverageMultiplier">1.0x</div>
-                <div class="insight-description">Asset control per equity dollar</div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Recommendation Section -->
-        <div id="recommendation" class="recommendation-section"></div>
-
-        <!-- Action Section -->
-        <div class="action-section">
-          <div class="action-header">
-            <h3>📄 Export & Share</h3>
-            <p>Download detailed reports for further analysis</p>
-          </div>
-          <div class="action-buttons">
-            <button class="download-btn primary" onclick="downloadExcel()">
-              <span class="btn-icon">📊</span>
-              <span class="btn-text">
-                <span class="btn-label">Download Excel</span>
-                <span class="btn-description">Complete analysis report</span>
-              </span>
-            </button>
-            <button class="download-btn secondary" onclick="window.print()">
-              <span class="btn-icon">🖨️</span>
-              <span class="btn-text">
-                <span class="btn-label">Print Summary</span>
-                <span class="btn-description">Quick reference sheet</span>
-              </span>
-            </button>
-          </div>
-        </div>
-      </div>
 
       <!-- ROI Analysis Tab -->
       <div id="roi" class="tab-content">
@@ -1622,9 +1449,6 @@
             <p><strong>⚖️ Break-Even Analysis:</strong> Profitability timeline and crossover points</p>
             <p>
               <strong>📈 ROI Analysis:</strong> Returns vs alternative investments with risk assessment
-            </p>
-            <p>
-              <strong>📋 Summary & Download:</strong> Executive summary with Excel export functionality
             </p>
             <p>
               <strong>💾 Scenarios:</strong> Save, load, and compare different investment scenarios
@@ -2101,7 +1925,6 @@
           'sensitivity': '🎯 Sensitivity Analysis',
           'breakeven': '⚖️ Break-Even Analysis',
           'roi': '📈 ROI Analysis',
-          'summary': '📋 Summary & Download',
           'help': '❓ Help'
         };
         

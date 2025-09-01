@@ -43,10 +43,10 @@ function updateSummary() {
   if (metricsToUse) {
     // Update dashboard cards with hybrid metrics
     updateSummaryCards(metricsToUse);
+    // Update dashboard Strategy Performance Overview
+    updateDashboardStrategyOverview(metricsToUse);
   }
   
-  // Update Summary & Download tab with centralized data
-  updateSummaryDownloadTab(results);
   
   // Update negative cash flow analysis
   updateNegativeCashFlowAnalysis();
@@ -76,55 +76,11 @@ function updateSummary() {
   }
 }
 
-function updateSummaryDownloadTab(results) {
-  // Use centralized dashboard metrics for consistent data
-  const dashboardMetrics = calculations.getDashboardMetrics(results);
-  if (!dashboardMetrics) return;
-  
-  // Update total units
-  const totalSelfUnits = document.getElementById('totalSelfUnits');
-  const totalFinancedUnits = document.getElementById('totalFinancedUnits');
-  if (totalSelfUnits) totalSelfUnits.textContent = dashboardMetrics.totalUnits.self;
-  if (totalFinancedUnits) totalFinancedUnits.textContent = dashboardMetrics.totalUnits.financed;
-  
-  // Update net worth
-  const selfNetWorth = document.getElementById('selfNetWorth');
-  const financedNetWorth = document.getElementById('financedNetWorth');
-  if (selfNetWorth) selfNetWorth.textContent = utils.formatCurrency(dashboardMetrics.finalNetWorth.self);
-  if (financedNetWorth) financedNetWorth.textContent = utils.formatCurrency(dashboardMetrics.finalNetWorth.financed);
-  
-  // Update summary tab ROI values
-  const summarySelfROI = document.getElementById('summarySelfROI');
-  const summaryFinancedROI = document.getElementById('summaryFinancedROI');
-  if (summarySelfROI && dashboardMetrics.roi?.self !== undefined) {
-    summarySelfROI.textContent = `${dashboardMetrics.roi.self.toFixed(1)}%`;
-  }
-  if (summaryFinancedROI && dashboardMetrics.roi?.financed !== undefined) {
-    summaryFinancedROI.textContent = `${dashboardMetrics.roi.financed.toFixed(1)}%`;
-  }
-  
-  // Get final year detailed data for cumulative cash flow
-  const finalSelfData = calculations.getYearlyStrategyData(results, 15, 'self');
-  const finalFinancedData = calculations.getYearlyStrategyData(results, 15, 'financed');
-  
-  // Update cumulative cash flow
-  const selfCumulative = document.getElementById('selfCumulative');
-  const financedCumulative = document.getElementById('financedCumulative');
-  if (selfCumulative && finalSelfData) selfCumulative.textContent = utils.formatCurrency(finalSelfData.cumulativeCashFlow);
-  if (financedCumulative && finalFinancedData) financedCumulative.textContent = utils.formatCurrency(finalFinancedData.cumulativeCashFlow);
-  
-  // Update KPI insights
-  updateInsightsSection(results);
-  
-  // Generate and display recommendation
-  generateRecommendation(results);
-}
 
 function generateRecommendation(results) {
-  const recommendationDiv = document.getElementById('recommendation');
   const dashboardRecommendationDiv = document.getElementById('dashboard-recommendation-content');
   
-  if (!recommendationDiv && !dashboardRecommendationDiv) return;
+  if (!dashboardRecommendationDiv) return;
   
   // Use centralized recommendation data
   const recommendationData = calculations.getRecommendationData(results);
@@ -184,12 +140,6 @@ function generateRecommendation(results) {
     `;
   }
   
-  // Update summary tab recommendation
-  if (recommendationDiv) {
-    recommendationDiv.innerHTML = recommendation;
-    recommendationDiv.className = `recommendation ${recommendationType}`;
-  }
-  
   // Update dashboard recommendation and show section
   if (dashboardRecommendationDiv) {
     dashboardRecommendationDiv.innerHTML = recommendation;
@@ -201,47 +151,6 @@ function generateRecommendation(results) {
   }
 }
 
-function updateInsightsSection(results) {
-  // Use centralized data for consistent metrics
-  const dashboardMetrics = calculations.getDashboardMetrics(results);
-  if (!dashboardMetrics) return;
-  
-  // Get detailed data for cash flow difference
-  const finalSelfData = calculations.getYearlyStrategyData(results, 15, 'self');
-  const finalFinancedData = calculations.getYearlyStrategyData(results, 15, 'financed');
-  
-  const netWorthDiff = dashboardMetrics.finalNetWorth.financed - dashboardMetrics.finalNetWorth.self;
-  const cashFlowDiff = finalFinancedData.cumulativeCashFlow - finalSelfData.cumulativeCashFlow;
-  const unitsDiff = dashboardMetrics.totalUnits.financed - dashboardMetrics.totalUnits.self;
-  
-  // Update net worth difference
-  const netWorthDifference = document.getElementById('netWorthDifference');
-  if (netWorthDifference) {
-    netWorthDifference.textContent = utils.formatCurrency(Math.abs(netWorthDiff));
-    netWorthDifference.className = `insight-value ${netWorthDiff >= 0 ? 'positive' : 'negative'}`;
-  }
-  
-  // Update unit difference
-  const unitDifference = document.getElementById('unitDifference');
-  if (unitDifference) {
-    unitDifference.textContent = `+${unitsDiff} units`;
-    unitDifference.className = `insight-value ${unitsDiff >= 0 ? 'positive' : 'negative'}`;
-  }
-  
-  // Update cash flow difference
-  const cashFlowDifference = document.getElementById('cashFlowDifference');
-  if (cashFlowDifference) {
-    const isPositive = cashFlowDiff >= 0;
-    cashFlowDifference.textContent = `${isPositive ? '+' : ''}${utils.formatCurrency(cashFlowDiff)}`;
-    cashFlowDifference.className = `insight-value ${isPositive ? 'positive' : 'negative'}`;
-  }
-  
-  // Update leverage multiplier in summary section
-  const summaryLeverageMultiplier = document.getElementById('summaryLeverageMultiplier');
-  if (summaryLeverageMultiplier) {
-    summaryLeverageMultiplier.textContent = `${dashboardMetrics.leverageMultiplier.toFixed(2)}x`;
-  }
-}
 
 function calculateSummaryMetrics(results) {
   const year15 = results.selfFinanced[14];
@@ -833,4 +742,47 @@ function updateAIInsights() {
   }
   
   console.log("🤖 AI insights updated for", aiData.location);
+}
+
+function updateDashboardStrategyOverview(metrics) {
+  if (!metrics) return;
+  
+  console.log("📊 Updating Dashboard Strategy Performance Overview with:", metrics);
+  
+  // Update Self-Financed Strategy total units
+  const dashSelfUnitsEl = document.getElementById('dash-self-units');
+  if (dashSelfUnitsEl && metrics.totalUnits?.self !== undefined) {
+    dashSelfUnitsEl.textContent = metrics.totalUnits.self.toString();
+    console.log("🏘️ Updated dash-self-units to:", metrics.totalUnits.self);
+  }
+  
+  // Update Bank-Financed Strategy total units
+  const dashFinancedUnitsEl = document.getElementById('dash-financed-units');
+  if (dashFinancedUnitsEl && metrics.totalUnits?.financed !== undefined) {
+    dashFinancedUnitsEl.textContent = metrics.totalUnits.financed.toString();
+    console.log("🏘️ Updated dash-financed-units to:", metrics.totalUnits.financed);
+  }
+  
+  // Update Dashboard KPI elements
+  const netWorthDiff = (metrics.finalNetWorth?.financed || 0) - (metrics.finalNetWorth?.self || 0);
+  const unitDiff = (metrics.totalUnits?.financed || 0) - (metrics.totalUnits?.self || 0);
+  const cashFlowDiff = (metrics.totalReturn?.financed || 0) - (metrics.totalReturn?.self || 0);
+  
+  const dashNetWorthDiffEl = document.getElementById('dash-net-worth-diff');
+  if (dashNetWorthDiffEl) {
+    dashNetWorthDiffEl.textContent = formatCurrency(Math.abs(netWorthDiff));
+    console.log("⚖️ Updated dash-net-worth-diff to:", Math.abs(netWorthDiff));
+  }
+  
+  const dashUnitDiffEl = document.getElementById('dash-unit-diff');
+  if (dashUnitDiffEl) {
+    dashUnitDiffEl.textContent = `${Math.abs(unitDiff)} units`;
+    console.log("📈 Updated dash-unit-diff to:", Math.abs(unitDiff));
+  }
+  
+  const dashCashFlowDiffEl = document.getElementById('dash-cash-flow-diff');
+  if (dashCashFlowDiffEl) {
+    dashCashFlowDiffEl.textContent = formatCurrency(Math.abs(cashFlowDiff));
+    console.log("💵 Updated dash-cash-flow-diff to:", Math.abs(cashFlowDiff));
+  }
 }
