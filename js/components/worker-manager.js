@@ -23,8 +23,10 @@ class WorkerManager {
       return;
     }
 
+    // Set global calculation lock
     this.isCalculating = true;
-    this.showLoadingIndicator("Calculating investment scenarios...");
+    window.calculationsInProgress = true;
+    // Loading indicator is now handled by the main calculation flow
 
     console.log("🔍 USING MAIN THREAD calculations");
     this.calculateScenariosMainThread(params);
@@ -39,34 +41,24 @@ class WorkerManager {
           console.log("Running calculations with params:", params);
           const results = calculations.performCalculations(params);
           console.log("Calculation results:", results);
-          
-          // Ensure summary metrics are calculated
-          if (results && !results.summaryMetrics?.leverageMultiplier) {
-            console.log("⚠️ Summary metrics incomplete in worker, manually calling calculateSummaryMetrics...");
-            try {
-              calculations.calculateSummaryMetrics(results);
-              console.log("✅ Manual calculateSummaryMetrics completed in worker");
-            } catch (error) {
-              console.error("❌ calculateSummaryMetrics failed in worker:", error);
-            }
-          }
+
+          // Summary metrics are already calculated in performCalculations
+          // No need to call calculateSummaryMetrics again to avoid recursion
 
           this.isCalculating = false;
-          this.hideLoadingIndicator();
+          // Use main loading overlay instead
+          if (typeof hideLoadingOverlay === "function") {
+            hideLoadingOverlay();
+          }
           utils.calculationResults = results;
 
-          // Update UI components
-          try {
-            if (
-              window.uiManager &&
-              typeof uiManager.updateAllTables === "function"
-            ) {
-              uiManager.updateAllTables();
-            } else if (typeof updateAllTables === "function") {
-              updateAllTables();
-            }
-          } catch (uiError) {
-            console.error("Error updating tables:", uiError);
+          // TEMPORARILY DISABLE UI updates to isolate the infinite loop source
+          console.log("🚫 UI updates temporarily disabled for debugging");
+          
+          // Store results globally so we can see if calculation completed
+          if (window.utils) {
+            window.utils.calculationResults = results;
+            console.log("✅ Results stored in utils.calculationResults");
           }
 
           try {
@@ -81,22 +73,38 @@ class WorkerManager {
           }
 
           this.showSuccess("Calculations completed successfully");
-          
+
+          // Reset AI analysis flag
+          if (typeof window !== "undefined") {
+            window.calculationsInProgress = false;
+
+            // Re-enable AI checkbox after calculations
+            const aiCheckbox = document.getElementById("useAIMarketInsights");
+            if (aiCheckbox) {
+              aiCheckbox.disabled = false;
+            }
+          }
+
           // Navigate back to previous tab after calculations complete
           if (typeof navigateAfterCalculation === "function") {
             navigateAfterCalculation();
           }
-          
+
           // Hide loading overlay
           if (typeof hideLoadingOverlay === "function") {
             hideLoadingOverlay();
           }
         } catch (error) {
           this.isCalculating = false;
-          this.hideLoadingIndicator();
+          window.calculationsInProgress = false; // Reset global flag on error
+          
+          // Use main loading overlay instead
+          if (typeof hideLoadingOverlay === "function") {
+            hideLoadingOverlay();
+          }
           console.error("Calculation error:", error);
           this.showError("Calculation error: " + error.message);
-          
+
           // Hide loading overlay on error
           if (typeof hideLoadingOverlay === "function") {
             hideLoadingOverlay();
@@ -105,10 +113,15 @@ class WorkerManager {
       }, 100);
     } catch (error) {
       this.isCalculating = false;
-      this.hideLoadingIndicator();
+      window.calculationsInProgress = false; // Reset global flag on setup error
+      
+      // Use main loading overlay instead
+      if (typeof hideLoadingOverlay === "function") {
+        hideLoadingOverlay();
+      }
       console.error("Calculation setup error:", error);
       this.showError("Calculation setup error: " + error.message);
-      
+
       // Hide loading overlay on setup error
       if (typeof hideLoadingOverlay === "function") {
         hideLoadingOverlay();
@@ -135,7 +148,10 @@ class WorkerManager {
     ];
 
     this.isCalculating = true;
-    this.showLoadingIndicator("Performing sensitivity analysis...");
+    // Use main loading overlay instead of simple indicator
+    if (typeof showLoadingOverlay === "function") {
+      showLoadingOverlay();
+    }
 
     if (this.worker) {
       this.worker.postMessage({
@@ -157,11 +173,17 @@ class WorkerManager {
           parameters
         );
         this.isCalculating = false;
-        this.hideLoadingIndicator();
+        // Use main loading overlay instead
+        if (typeof hideLoadingOverlay === "function") {
+          hideLoadingOverlay();
+        }
         this.handleSensitivityResults(results);
       } catch (error) {
         this.isCalculating = false;
-        this.hideLoadingIndicator();
+        // Use main loading overlay instead
+        if (typeof hideLoadingOverlay === "function") {
+          hideLoadingOverlay();
+        }
         console.error("Sensitivity analysis error:", error);
         this.showError("Sensitivity analysis error: " + error.message);
       }
@@ -232,10 +254,10 @@ class WorkerManager {
     ];
 
     this.isCalculating = true;
-    this.showLoadingIndicator(
-      `Running Monte Carlo simulation (${numSimulations} runs)...`,
-      true
-    );
+    // Use main loading overlay instead of simple indicator
+    if (typeof showLoadingOverlay === "function") {
+      showLoadingOverlay();
+    }
 
     if (this.worker) {
       this.worker.postMessage({
@@ -262,11 +284,17 @@ class WorkerManager {
           variableParams
         );
         this.isCalculating = false;
-        this.hideLoadingIndicator();
+        // Use main loading overlay instead
+        if (typeof hideLoadingOverlay === "function") {
+          hideLoadingOverlay();
+        }
         this.handleMonteCarloResults(results);
       } catch (error) {
         this.isCalculating = false;
-        this.hideLoadingIndicator();
+        // Use main loading overlay instead
+        if (typeof hideLoadingOverlay === "function") {
+          hideLoadingOverlay();
+        }
         console.error("Monte Carlo simulation error:", error);
         this.showError("Monte Carlo simulation error: " + error.message);
       }
@@ -306,7 +334,6 @@ class WorkerManager {
 
       // Update progress periodically
       if (i % 10 === 0) {
-        this.updateProgressIndicator((i / numSimulations) * 100);
       }
     }
 
@@ -498,45 +525,6 @@ class WorkerManager {
       "Distribution charts would be created here",
       results.statistics
     );
-  }
-
-  // UI Helper Methods
-  showLoadingIndicator(message = "Calculating...", showProgress = false) {
-    let indicator = document.getElementById("loading-indicator");
-    if (!indicator) {
-      indicator = document.createElement("div");
-      indicator.id = "loading-indicator";
-      indicator.className = "loading-indicator";
-      document.body.appendChild(indicator);
-    }
-
-    indicator.innerHTML = `
-      <div class="loading-content">
-        <div class="loading-spinner"></div>
-        <div class="loading-message">${message}</div>
-        ${
-          showProgress
-            ? '<div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>'
-            : ""
-        }
-      </div>
-    `;
-
-    indicator.style.display = "flex";
-  }
-
-  hideLoadingIndicator() {
-    const indicator = document.getElementById("loading-indicator");
-    if (indicator) {
-      indicator.style.display = "none";
-    }
-  }
-
-  updateProgressIndicator(progress) {
-    const progressFill = document.getElementById("progress-fill");
-    if (progressFill) {
-      progressFill.style.width = `${progress}%`;
-    }
   }
 
   showSuccess(message) {

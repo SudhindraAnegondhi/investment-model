@@ -14,7 +14,11 @@ class AIMarketDataService {
     this.isEnabled = true;
     this.location = location;
     this.propertyType = propertyType;
-    console.log("🤖 AI Market Data Service initialized for:", location, propertyType);
+    console.log(
+      "🤖 AI Market Data Service initialized for:",
+      location,
+      propertyType
+    );
   }
 
   // Check if cached data is still valid
@@ -26,13 +30,33 @@ class AIMarketDataService {
   }
 
   // Main function to get comprehensive market projections
-  async getMarketProjections(location, propertyType, investmentYears = 15, financingProfile = null) {
+  async getMarketProjections(
+    location,
+    propertyType,
+    investmentYears = 15,
+    financingProfile = null
+  ) {
+    // Safety check: disable AI during calculations to prevent hanging
+    if (window.calculationsInProgress) {
+      console.warn("⚠️ AI market analysis disabled during calculations");
+      return this.getStaticFallbackData();
+    }
+
     if (!this.isEnabled) {
       return this.getStaticFallbackData();
     }
 
+    // Add timeout safety to prevent hanging
+    const timeoutPromise = new Promise((_, reject) => {
+      setTimeout(() => reject(new Error("AI market analysis timeout")), 10000); // 10 second timeout
+    });
+
     // Return cached data if still valid (but consider financing profile changes)
-    if (this.isCacheValid() && (!financingProfile || this.cachedFinancingProfile === JSON.stringify(financingProfile))) {
+    if (
+      this.isCacheValid() &&
+      (!financingProfile ||
+        this.cachedFinancingProfile === JSON.stringify(financingProfile))
+    ) {
       console.log("📊 Using cached AI market data");
       return this.cachedData;
     }
@@ -41,49 +65,51 @@ class AIMarketDataService {
     if (financingProfile) {
       console.log("🏦 Including financing profile:", financingProfile);
     }
-    
+
     try {
-      // Fetch data from multiple sources in parallel
-      const [propertyData, rentData, interestData, marketInsights] = await Promise.all([
+      // Fetch data from multiple sources in parallel with timeout protection
+      const analysisPromise = Promise.all([
         this.getPropertyPriceTrends(location, propertyType, investmentYears),
         this.getRentProjections(location, propertyType, investmentYears),
         this.getInterestRateForecasts(investmentYears, financingProfile),
-        this.getMarketInsights(location, propertyType)
+        this.getMarketInsights(location, propertyType),
       ]);
+
+      const [propertyData, rentData, interestData, marketInsights] =
+        await Promise.race([analysisPromise, timeoutPromise]);
 
       const projections = {
         location: location,
         propertyType: propertyType,
         lastUpdated: new Date().toISOString(),
-        
+
         // Property appreciation projections (yearly percentages)
         propertyAppreciation: propertyData.yearlyGrowthRates,
         avgPropertyAppreciation: propertyData.averageRate,
-        
+
         // Rent growth projections (yearly percentages)
         rentGrowth: rentData.yearlyGrowthRates,
         avgRentGrowth: rentData.averageRate,
         currentRentPerSqft: rentData.currentRentPerSqft,
-        
+
         // Interest rate forecasts
         interestRates: interestData.yearlyRates,
         avgInterestRate: interestData.averageRate,
-        
+
         // AI market insights
         marketConditions: marketInsights.conditions,
         riskFactors: marketInsights.riskFactors,
         opportunities: marketInsights.opportunities,
-        confidence: marketInsights.confidence
+        confidence: marketInsights.confidence,
       };
 
       // Cache the results and financing profile for proper cache invalidation
       this.cachedData = projections;
       this.cachedFinancingProfile = JSON.stringify(financingProfile);
       this.lastFetchTime = new Date().getTime();
-      
+
       console.log("✅ AI market data fetched and cached");
       return projections;
-      
     } catch (error) {
       console.error("❌ AI market data fetch failed:", error);
       // Fall back to enhanced static projections
@@ -95,16 +121,22 @@ class AIMarketDataService {
   async getPropertyPriceTrends(location, propertyType, years) {
     try {
       // Simulate API call to Zillow/RealtyMole/similar service
-      const mockApiResponse = await this.simulatePropertyAPI(location, propertyType);
-      
+      const mockApiResponse = await this.simulatePropertyAPI(
+        location,
+        propertyType
+      );
+
       // Use AI to analyze historical trends and project future
-      const aiAnalysis = await this.analyzePropertyTrends(mockApiResponse, years);
-      
+      const aiAnalysis = await this.analyzePropertyTrends(
+        mockApiResponse,
+        years
+      );
+
       return {
         yearlyGrowthRates: aiAnalysis.projectedRates,
         averageRate: aiAnalysis.averageRate,
         confidence: aiAnalysis.confidence,
-        dataSource: 'Zillow + AI Analysis'
+        dataSource: "Zillow + AI Analysis",
       };
     } catch (error) {
       console.warn("Property price API failed, using regional averages");
@@ -117,16 +149,16 @@ class AIMarketDataService {
     try {
       // Simulate rent data API
       const rentData = await this.simulateRentAPI(location, propertyType);
-      
+
       // AI analysis of rent trends
       const aiRentAnalysis = await this.analyzeRentTrends(rentData, years);
-      
+
       return {
         yearlyGrowthRates: aiRentAnalysis.projectedRates,
         averageRate: aiRentAnalysis.averageRate,
         currentRentPerSqft: rentData.currentRentPerSqft,
         confidence: aiRentAnalysis.confidence,
-        dataSource: 'Rentometer + AI Analysis'
+        dataSource: "Rentometer + AI Analysis",
       };
     } catch (error) {
       console.warn("Rent API failed, using market averages");
@@ -139,18 +171,22 @@ class AIMarketDataService {
     try {
       // Fetch from FRED API (Federal Reserve Economic Data)
       const fredData = await this.fetchFREDData();
-      
+
       // AI analysis of interest rate trends with financing profile
-      const aiRateAnalysis = await this.analyzeInterestTrends(fredData, years, financingProfile);
-      
+      const aiRateAnalysis = await this.analyzeInterestTrends(
+        fredData,
+        years,
+        financingProfile
+      );
+
       return {
         yearlyRates: aiRateAnalysis.projectedRates,
         averageRate: aiRateAnalysis.averageRate,
         confidence: aiRateAnalysis.confidence,
-        dataSource: 'Federal Reserve + AI Analysis + Financing Profile',
+        dataSource: "Federal Reserve + AI Analysis + Financing Profile",
         creditScoreAdjustment: aiRateAnalysis.creditScoreAdjustment,
         financeSourceAdjustment: aiRateAnalysis.financeSourceAdjustment,
-        financingTypeAdjustment: aiRateAnalysis.financingTypeAdjustment
+        financingTypeAdjustment: aiRateAnalysis.financingTypeAdjustment,
       };
     } catch (error) {
       console.warn("Interest rate API failed, using current rates");
@@ -180,13 +216,13 @@ class AIMarketDataService {
 
       // Simulate AI API call
       const aiInsights = await this.callAIService(prompt);
-      
+
       return {
         conditions: aiInsights.marketConditions,
         riskFactors: aiInsights.risks,
         opportunities: aiInsights.opportunities,
         confidence: aiInsights.confidence,
-        summary: aiInsights.summary
+        summary: aiInsights.summary,
       };
     } catch (error) {
       console.warn("AI insights failed, using general market data");
@@ -196,83 +232,86 @@ class AIMarketDataService {
 
   // Simulate property data API (replace with real API calls)
   async simulatePropertyAPI(location, propertyType) {
-    // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
+    // Simulate API delay (reduced to prevent hanging)
+    await new Promise((resolve) => setTimeout(resolve, 100));
+
     // Mock realistic property data based on location
     const locationMultipliers = {
-      'California': 1.4,
-      'Texas': 1.1,
-      'Florida': 1.2,
-      'New York': 1.5,
-      'Illinois': 1.2,
-      'default': 1.0
+      California: 1.4,
+      Texas: 1.1,
+      Florida: 1.2,
+      "New York": 1.5,
+      Illinois: 1.2,
+      default: 1.0,
     };
-    
+
     const baseGrowth = 3.5; // Base property appreciation %
-    const multiplier = locationMultipliers[location.state] || locationMultipliers.default;
-    
+    const multiplier =
+      locationMultipliers[location.state] || locationMultipliers.default;
+
     return {
       historicalGrowth: baseGrowth * multiplier,
       currentMedianPrice: 450000 * multiplier,
-      marketTrend: multiplier > 1.2 ? 'appreciating' : 'stable',
-      dataPoints: Array.from({length: 5}, (_, i) => ({
+      marketTrend: multiplier > 1.2 ? "appreciating" : "stable",
+      dataPoints: Array.from({ length: 5 }, (_, i) => ({
         year: 2024 - i,
-        growth: (baseGrowth * multiplier) + (Math.random() - 0.5) * 2
-      }))
+        growth: baseGrowth * multiplier + (Math.random() - 0.5) * 2,
+      })),
     };
   }
 
   // Simulate rent data API
   async simulateRentAPI(location, propertyType) {
-    await new Promise(resolve => setTimeout(resolve, 800));
-    
+    await new Promise((resolve) => setTimeout(resolve, 50));
+
     const locationRentMultipliers = {
-      'California': 1.6,
-      'New York': 1.7,
-      'Texas': 1.0,
-      'Florida': 1.1,
-      'Illinois': 1.3,
-      'default': 0.9
+      California: 1.6,
+      "New York": 1.7,
+      Texas: 1.0,
+      Florida: 1.1,
+      Illinois: 1.3,
+      default: 0.9,
     };
-    
+
     const baseRent = 1.8; // Base rent per sq ft
-    const multiplier = locationRentMultipliers[location.state] || locationRentMultipliers.default;
-    
+    const multiplier =
+      locationRentMultipliers[location.state] ||
+      locationRentMultipliers.default;
+
     return {
       currentRentPerSqft: baseRent * multiplier,
       historicalGrowth: 2.8 * multiplier,
-      marketCondition: multiplier > 1.3 ? 'tight' : 'balanced'
+      marketCondition: multiplier > 1.3 ? "tight" : "balanced",
     };
   }
 
   // Fetch real FRED data (simplified simulation)
   async fetchFREDData() {
-    await new Promise(resolve => setTimeout(resolve, 600));
-    
+    await new Promise((resolve) => setTimeout(resolve, 50));
+
     // Current federal funds rate + spreads
     const federalFundsRate = 5.25;
     const mortgageSpread = 1.5;
     const currentMortgageRate = federalFundsRate + mortgageSpread;
-    
+
     return {
       currentRate: currentMortgageRate,
-      trend: 'declining', // Based on Fed policy
-      volatility: 'moderate'
+      trend: "declining", // Based on Fed policy
+      volatility: "moderate",
     };
   }
 
   // AI analysis of property trends (simulated)
   async analyzePropertyTrends(data, years) {
-    await new Promise(resolve => setTimeout(resolve, 1200));
-    
+    await new Promise((resolve) => setTimeout(resolve, 100));
+
     const baseRate = data.historicalGrowth;
     const projectedRates = [];
-    
+
     for (let year = 1; year <= years; year++) {
       // AI-enhanced projection: gradual normalization toward long-term average
       let yearlyRate = baseRate;
-      
+
       if (year <= 3) {
         // Near-term: current trends continue
         yearlyRate = baseRate;
@@ -283,190 +322,197 @@ class AIMarketDataService {
         // Long-term: revert to historical average
         yearlyRate = Math.max(2.5, baseRate * 0.7);
       }
-      
+
       projectedRates.push(Math.max(0, yearlyRate));
     }
-    
+
     return {
       projectedRates: projectedRates,
-      averageRate: projectedRates.reduce((a, b) => a + b) / projectedRates.length,
-      confidence: 0.75
+      averageRate:
+        projectedRates.reduce((a, b) => a + b) / projectedRates.length,
+      confidence: 0.75,
     };
   }
 
   // AI analysis of rent trends
   async analyzeRentTrends(data, years) {
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
+    await new Promise((resolve) => setTimeout(resolve, 50));
+
     const baseGrowth = data.historicalGrowth;
     const projectedRates = [];
-    
+
     for (let year = 1; year <= years; year++) {
       // Rent growth typically more stable than property prices
       let yearlyRate = baseGrowth;
-      
+
       if (year <= 5) {
         yearlyRate = baseGrowth;
       } else {
         // Long-term convergence to inflation + 1%
         yearlyRate = Math.max(2.0, baseGrowth * 0.8);
       }
-      
+
       projectedRates.push(yearlyRate);
     }
-    
+
     return {
       projectedRates: projectedRates,
-      averageRate: projectedRates.reduce((a, b) => a + b) / projectedRates.length,
-      confidence: 0.8
+      averageRate:
+        projectedRates.reduce((a, b) => a + b) / projectedRates.length,
+      confidence: 0.8,
     };
   }
 
   // AI analysis of interest rate trends with financing profile
   async analyzeInterestTrends(data, years, financingProfile = null) {
-    await new Promise(resolve => setTimeout(resolve, 900));
-    
+    await new Promise((resolve) => setTimeout(resolve, 50));
+
     const currentRate = data.currentRate;
     const projectedRates = [];
-    
+
     // Calculate financing profile adjustments
     let creditScoreAdjustment = 0;
     let financeSourceAdjustment = 0;
     let financingTypeAdjustment = 0;
-    
+
     if (financingProfile) {
       // Credit score impact on rates
       const creditAdjustments = {
-        1: 2.5,    // Poor (300-579): +2.5%
-        2: 1.2,    // Fair (580-669): +1.2%
-        3: 0.0,    // Good (670-739): baseline
-        4: -0.3    // Excellent (740+): -0.3%
+        1: 2.5, // Poor (300-579): +2.5%
+        2: 1.2, // Fair (580-669): +1.2%
+        3: 0.0, // Good (670-739): baseline
+        4: -0.3, // Excellent (740+): -0.3%
       };
-      creditScoreAdjustment = creditAdjustments[financingProfile.creditScore] || 0;
-      
+      creditScoreAdjustment =
+        creditAdjustments[financingProfile.creditScore] || 0;
+
       // Finance source impact
-      financeSourceAdjustment = financingProfile.financeSource === 'private' ? 1.5 : 0;
-      
+      financeSourceAdjustment =
+        financingProfile.financeSource === "private" ? 1.5 : 0;
+
       // Financing type impact
       // 1 = Traditional Mortgage, 2 = Credit Line (HELOC/LOC)
       financingTypeAdjustment = financingProfile.financingType === 2 ? 0.8 : 0; // Credit lines typically +0.8%
     }
-    
-    const totalAdjustment = creditScoreAdjustment + financeSourceAdjustment + financingTypeAdjustment;
-    
+
+    const totalAdjustment =
+      creditScoreAdjustment + financeSourceAdjustment + financingTypeAdjustment;
+
     for (let year = 1; year <= years; year++) {
       // Interest rate projection based on Fed policy and economic cycles
       let yearlyRate = currentRate;
-      
+
       if (year <= 2) {
         // Near-term: slight decline expected
-        yearlyRate = currentRate - (year * 0.25);
+        yearlyRate = currentRate - year * 0.25;
       } else if (year <= 7) {
         // Medium-term: gradual increase
-        yearlyRate = currentRate - 0.5 + ((year - 2) * 0.15);
+        yearlyRate = currentRate - 0.5 + (year - 2) * 0.15;
       } else {
         // Long-term: revert to historical average
         yearlyRate = 4.5; // Long-term historical average
       }
-      
+
       // Apply financing profile adjustments
       yearlyRate += totalAdjustment;
-      
+
       projectedRates.push(Math.max(2.0, Math.min(12.0, yearlyRate)));
     }
-    
+
     return {
       projectedRates: projectedRates,
-      averageRate: projectedRates.reduce((a, b) => a + b) / projectedRates.length,
+      averageRate:
+        projectedRates.reduce((a, b) => a + b) / projectedRates.length,
       confidence: 0.6, // Interest rates are harder to predict
       creditScoreAdjustment: creditScoreAdjustment,
       financeSourceAdjustment: financeSourceAdjustment,
-      financingTypeAdjustment: financingTypeAdjustment
+      financingTypeAdjustment: financingTypeAdjustment,
     };
   }
 
   // Call AI service for market insights (simulated)
   async callAIService(prompt) {
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    
+    await new Promise((resolve) => setTimeout(resolve, 100));
+
     // Simulate AI analysis response
     return {
-      marketConditions: 'balanced',
+      marketConditions: "balanced",
       risks: [
-        'Interest rate volatility',
-        'Economic uncertainty',
-        'Local regulation changes'
+        "Interest rate volatility",
+        "Economic uncertainty",
+        "Local regulation changes",
       ],
       opportunities: [
-        'Population growth in target area',
-        'Limited new supply',
-        'Strong rental demand'
+        "Population growth in target area",
+        "Limited new supply",
+        "Strong rental demand",
       ],
       confidence: 0.75,
-      summary: 'Market conditions are generally favorable for long-term real estate investment with moderate growth expectations.'
+      summary:
+        "Market conditions are generally favorable for long-term real estate investment with moderate growth expectations.",
     };
   }
 
   // Fallback data when AI is disabled or APIs fail
   getStaticFallbackData() {
     return {
-      location: { city: 'Generic', state: 'US', zipCode: '00000' },
-      propertyType: 'single-family',
+      location: { city: "Generic", state: "US", zipCode: "00000" },
+      propertyType: "single-family",
       lastUpdated: new Date().toISOString(),
-      
+
       propertyAppreciation: Array(15).fill(3.5), // Static 3.5% annually
       avgPropertyAppreciation: 3.5,
-      
+
       rentGrowth: Array(15).fill(2.8), // Static 2.8% annually
       avgRentGrowth: 2.8,
       currentRentPerSqft: 1.8,
-      
+
       interestRates: Array(15).fill(6.75), // Static current rate
       avgInterestRate: 6.75,
-      
-      marketConditions: 'static_model',
-      riskFactors: ['Static assumptions may not reflect market reality'],
-      opportunities: ['Enable AI for dynamic market analysis'],
-      confidence: 0.5
+
+      marketConditions: "static_model",
+      riskFactors: ["Static assumptions may not reflect market reality"],
+      opportunities: ["Enable AI for dynamic market analysis"],
+      confidence: 0.5,
     };
   }
 
   // Regional defaults when APIs fail but location is known
   getRegionalPropertyDefaults(location) {
     const regionalData = {
-      'California': { growth: 4.2, confidence: 0.7 },
-      'Texas': { growth: 3.8, confidence: 0.8 },
-      'Florida': { growth: 4.0, confidence: 0.75 },
-      'New York': { growth: 3.2, confidence: 0.7 },
-      'Illinois': { growth: 3.6, confidence: 0.75 },
-      'default': { growth: 3.5, confidence: 0.6 }
+      California: { growth: 4.2, confidence: 0.7 },
+      Texas: { growth: 3.8, confidence: 0.8 },
+      Florida: { growth: 4.0, confidence: 0.75 },
+      "New York": { growth: 3.2, confidence: 0.7 },
+      Illinois: { growth: 3.6, confidence: 0.75 },
+      default: { growth: 3.5, confidence: 0.6 },
     };
-    
+
     const data = regionalData[location.state] || regionalData.default;
-    
+
     return {
       yearlyGrowthRates: Array(15).fill(data.growth),
       averageRate: data.growth,
-      confidence: data.confidence
+      confidence: data.confidence,
     };
   }
 
   getRegionalRentDefaults(location) {
     const regionalRent = {
-      'California': { growth: 3.2, rent: 2.8 },
-      'Texas': { growth: 2.5, rent: 1.4 },
-      'Florida': { growth: 2.8, rent: 1.9 },
-      'New York': { growth: 2.2, rent: 3.2 },
-      'Illinois': { growth: 2.6, rent: 2.1 },
-      'default': { growth: 2.8, rent: 1.8 }
+      California: { growth: 3.2, rent: 2.8 },
+      Texas: { growth: 2.5, rent: 1.4 },
+      Florida: { growth: 2.8, rent: 1.9 },
+      "New York": { growth: 2.2, rent: 3.2 },
+      Illinois: { growth: 2.6, rent: 2.1 },
+      default: { growth: 2.8, rent: 1.8 },
     };
-    
+
     const data = regionalRent[location.state] || regionalRent.default;
-    
+
     return {
       yearlyGrowthRates: Array(15).fill(data.growth),
       averageRate: data.growth,
-      currentRentPerSqft: data.rent
+      currentRentPerSqft: data.rent,
     };
   }
 
@@ -475,60 +521,76 @@ class AIMarketDataService {
     let creditScoreAdjustment = 0;
     let financeSourceAdjustment = 0;
     let financingTypeAdjustment = 0;
-    
+
     if (financingProfile) {
       // Credit score impact on rates
       const creditAdjustments = {
-        1: 2.5,    // Poor (300-579): +2.5%
-        2: 1.2,    // Fair (580-669): +1.2%
-        3: 0.0,    // Good (670-739): baseline
-        4: -0.3    // Excellent (740+): -0.3%
+        1: 2.5, // Poor (300-579): +2.5%
+        2: 1.2, // Fair (580-669): +1.2%
+        3: 0.0, // Good (670-739): baseline
+        4: -0.3, // Excellent (740+): -0.3%
       };
-      creditScoreAdjustment = creditAdjustments[financingProfile.creditScore] || 0;
-      
+      creditScoreAdjustment =
+        creditAdjustments[financingProfile.creditScore] || 0;
+
       // Finance source impact
-      financeSourceAdjustment = financingProfile.financeSource === 'private' ? 1.5 : 0;
-      
+      financeSourceAdjustment =
+        financingProfile.financeSource === "private" ? 1.5 : 0;
+
       // Financing type impact
       financingTypeAdjustment = financingProfile.financingType === 2 ? 0.8 : 0; // Credit lines typically +0.8%
     }
-    
-    const adjustedRate = Math.max(2.0, Math.min(12.0, baseRate + creditScoreAdjustment + financeSourceAdjustment + financingTypeAdjustment));
-    
+
+    const adjustedRate = Math.max(
+      2.0,
+      Math.min(
+        12.0,
+        baseRate +
+          creditScoreAdjustment +
+          financeSourceAdjustment +
+          financingTypeAdjustment
+      )
+    );
+
     return {
       yearlyRates: Array(15).fill(adjustedRate),
       averageRate: adjustedRate,
       confidence: 0.5,
       creditScoreAdjustment: creditScoreAdjustment,
       financeSourceAdjustment: financeSourceAdjustment,
-      financingTypeAdjustment: financingTypeAdjustment
+      financingTypeAdjustment: financingTypeAdjustment,
     };
   }
 
   getGeneralMarketInsights() {
     return {
-      conditions: 'unknown',
-      riskFactors: ['Market data unavailable'],
-      opportunities: ['Enable AI for market insights'],
+      conditions: "unknown",
+      riskFactors: ["Market data unavailable"],
+      opportunities: ["Enable AI for market insights"],
       confidence: 0.3,
-      summary: 'Enable AI market analysis for location-specific insights.'
+      summary: "Enable AI market analysis for location-specific insights.",
     };
   }
 
   // Utility function to validate location data
   isValidLocation(location) {
-    return location && 
-           location.city && 
-           location.state && 
-           location.city.trim() !== '' && 
-           location.state.trim() !== '';
+    return (
+      location &&
+      location.city &&
+      location.state &&
+      location.city.trim() !== "" &&
+      location.state.trim() !== ""
+    );
   }
 
   // Get human-readable status
   getStatus() {
-    if (!this.isEnabled) return 'AI Disabled - Using Static Data';
-    if (this.isCacheValid()) return `AI Active - Data Cached (${Math.round((new Date().getTime() - this.lastFetchTime) / 60000)} min ago)`;
-    return 'AI Active - Data Needs Refresh';
+    if (!this.isEnabled) return "AI Disabled - Using Static Data";
+    if (this.isCacheValid())
+      return `AI Active - Data Cached (${Math.round(
+        (new Date().getTime() - this.lastFetchTime) / 60000
+      )} min ago)`;
+    return "AI Active - Data Needs Refresh";
   }
 }
 
@@ -537,8 +599,10 @@ window.aiMarketData = new AIMarketDataService();
 
 // Make functions globally available
 window.aiMarketData.service = {
-  initialize: (location, propertyType) => window.aiMarketData.initialize(location, propertyType),
-  getProjections: (location, propertyType, years) => window.aiMarketData.getMarketProjections(location, propertyType, years),
+  initialize: (location, propertyType) =>
+    window.aiMarketData.initialize(location, propertyType),
+  getProjections: (location, propertyType, years) =>
+    window.aiMarketData.getMarketProjections(location, propertyType, years),
   getStatus: () => window.aiMarketData.getStatus(),
-  isEnabled: () => window.aiMarketData.isEnabled
+  isEnabled: () => window.aiMarketData.isEnabled,
 };

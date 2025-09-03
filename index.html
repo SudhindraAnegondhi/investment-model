@@ -603,6 +603,74 @@
                   <option value="aggressive">🚀 Aggressive</option>
                 </select>
               </div>
+
+              <!-- Auto-Sale Settings -->
+              <div
+                class="control-group highlighted-control"
+                style="
+                  border: 2px solid #f59e0b;
+                  border-radius: 4px;
+                  padding: 8px;
+                "
+              >
+                <label style="color: #f59e0b; font-weight: bold"
+                  >🎯 Auto-Sale Strategy</label
+                >
+                <div class="auto-sale-settings">
+                  <div class="setting-row">
+                    <label for="autoSaleEnabled">
+                      <input type="checkbox" id="autoSaleEnabled" checked />
+                      Enable Automatic Unit Sales
+                    </label>
+                    <small
+                      >Automatically sell units when they reach target
+                      appreciation</small
+                    >
+                  </div>
+                  <div
+                    class="setting-row"
+                    id="autoSaleThresholdRow"
+                    style="display: block !important"
+                  >
+                    <label for="autoSaleThreshold"
+                      >Sale Trigger Threshold (%)</label
+                    >
+                    <input
+                      type="number"
+                      id="autoSaleThreshold"
+                      value="25"
+                      min="5"
+                      max="100"
+                      step="5"
+                    />
+                    <small
+                      >Units will be sold when they appreciate by this
+                      percentage</small
+                    >
+                  </div>
+                  <div
+                    class="setting-row"
+                    id="autoSaleStrategyRow"
+                    style="display: block !important"
+                  >
+                    <label for="autoSaleStrategy">Sale Strategy</label>
+                    <select id="autoSaleStrategy">
+                      <option value="highestAppreciation">
+                        Sell Highest Appreciation First
+                      </option>
+                      <option value="oldestUnits">
+                        Sell Oldest Units First
+                      </option>
+                      <option value="lowestROI">
+                        Sell Lowest ROI Units First
+                      </option>
+                    </select>
+                    <small
+                      >Priority order for selecting which units to sell</small
+                    >
+                  </div>
+                </div>
+              </div>
               <div
                 class="control-group highlighted-control"
                 style="
@@ -627,13 +695,14 @@
                 <input type="number" id="initialCost" value="160000" min="0" />
               </div>
               <div class="control-group">
-                <label>Monthly Rent as % of Purchase Price (%)</label>
+                <label>Monthly Rent as % of Purchase Price</label>
                 <input
                   type="number"
                   id="rentalRate"
-                  value="1.9"
+                  value="1.0"
                   step="0.1"
                   min="0"
+                  max="20"
                 />
               </div>
               <div class="control-group">
@@ -663,6 +732,28 @@
               <div class="control-group">
                 <label>Insurance per Unit per Year ($)</label>
                 <input type="number" id="insurance" value="1300" min="0" />
+              </div>
+              <div class="control-group">
+                <label>Closing Costs (%)</label>
+                <input
+                  type="number"
+                  id="closingCostPercent"
+                  value="2"
+                  step="0.1"
+                  min="0"
+                  max="10"
+                />
+              </div>
+              <div class="control-group">
+                <label>Cash Reserve (%)</label>
+                <input
+                  type="number"
+                  id="cashReservePercent"
+                  value="20"
+                  step="1"
+                  min="0"
+                  max="100"
+                />
               </div>
               <div class="control-group">
                 <label>Land Value (% of cost)</label>
@@ -746,7 +837,7 @@
                 <input
                   type="number"
                   id="appreciationRate"
-                  value="3"
+                  value="3.4"
                   step="0.1"
                   min="0"
                 />
@@ -873,17 +964,7 @@
                   max="100"
                 />
               </div>
-              <div class="control-group">
-                <label>Closing Costs (% of Purchase Price)</label>
-                <input
-                  type="number"
-                  id="closingCostPercent"
-                  value="2"
-                  step="0.1"
-                  min="0"
-                  max="100"
-                />
-              </div>
+              <!-- Removed duplicate closingCostPercent field - already exists in main settings above -->
               <div class="control-group">
                 <label>Loan Origination Fee (% of Loan)</label>
                 <input
@@ -2112,9 +2193,9 @@
     </div>
 
     <!-- JavaScript Files -->
-    <script src="js/core/utils.js"></script>
-    <script src="js/core/data-model.js"></script>
-    <script src="js/core/calculations.js"></script>
+    <script src="js/core/utils.js?v=1725332400"></script>
+    <script src="js/core/data-model.js?v=1725332400"></script>
+    <script src="js/core/calculations.js?v=1725332400"></script>
     <script src="js/components/ui-manager.js"></script>
     <script src="test-modal-debug.js"></script>
     <script src="js/components/export.js"></script>
@@ -2194,6 +2275,12 @@
       }
 
       async function fetchAIProjections() {
+        // Safety check: disable AI during calculations to prevent hanging
+        if (window.calculationsInProgress) {
+          console.warn("⚠️ AI projections disabled during calculations");
+          return null;
+        }
+
         const useAI = document.getElementById("useAIData").checked;
         if (!useAI) return null;
 
@@ -2277,6 +2364,12 @@
 
       // Apply AI projections to calculation parameters
       async function applyAIProjections(params, aiProjections) {
+        // Skip AI projections if calculations are in progress to prevent hanging
+        if (window.calculationsInProgress) {
+          console.warn("⚠️ Skipping AI projections - calculations in progress");
+          return params;
+        }
+
         console.log("🤖 Applying AI projections to parameters...");
 
         // Create enhanced parameters object
@@ -2465,88 +2558,53 @@
         }
       });
 
-      // Enhanced calculateAll that updates charts after calculation
-      async function calculateAll() {
+      // Simplified calculateAll that delegates to the main app.js function
+      function calculateAll() {
+        // Check if calculations are already in progress
+        if (window.calculationsInProgress) {
+          console.warn("🔒 Calculations already in progress, skipping HTML calculateAll");
+          return;
+        }
+
+        // Disable AI checkbox during calculations to prevent hanging
+        const aiCheckbox = document.getElementById("useAIMarketInsights");
+        if (aiCheckbox) {
+          aiCheckbox.disabled = true;
+          aiCheckbox.checked = false;
+        }
+
+        // Show loading overlay
+        showLoadingOverlay();
+
         try {
-          // Show loading overlay
-          showLoadingOverlay();
-
-          let params = utils.getInputParameters();
-
-          // Fetch AI market projections if enabled
-          const aiProjections = await fetchAIProjections();
-          if (aiProjections) {
-            params = await applyAIProjections(params, aiProjections);
-          }
-
-          const validation = dataModel.validateInvestmentParameters(params);
-
-          if (!validation.isValid) {
-            alert(
-              "Please fix the following errors:\n" +
-                validation.errors.join("\n")
-            );
-            return;
-          }
-
-          console.log(
-            "🔍 CALCULATE ALL: Using worker manager for calculations"
-          );
-
-          // Use worker manager for calculations (which will use worker or fall back to main thread)
-          if (
-            window.workerManager &&
-            typeof workerManager.calculateScenarios === "function"
-          ) {
+          // Use worker manager for calculations if available, otherwise delegate to app.js
+          if (window.workerManager && typeof workerManager.calculateScenarios === "function") {
+            const params = utils.getInputParameters();
+            // Let the worker manager handle the global lock
             workerManager.calculateScenarios(params);
           } else {
-            console.warn(
-              "🔍 WORKER MANAGER NOT AVAILABLE, using direct calculation"
-            );
-            // Fallback to direct calculation
-            const results = calculations.performCalculations(params);
-
-            // Ensure summary metrics are calculated
-            if (results && !results.summaryMetrics?.leverageMultiplier) {
-              console.log(
-                "⚠️ Summary metrics incomplete, manually calling calculateSummaryMetrics..."
-              );
-              try {
-                calculations.calculateSummaryMetrics(results);
-                console.log(
-                  "✅ Manual calculateSummaryMetrics completed in calculateAll"
-                );
-              } catch (error) {
-                console.error(
-                  "❌ calculateSummaryMetrics failed in calculateAll:",
-                  error
-                );
-              }
+            // Fallback to main app.js calculateAll function
+            if (window.calculateAllMain && typeof window.calculateAllMain === "function") {
+              window.calculateAllMain();
+            } else {
+              console.error("Main calculateAll function not found");
+              alert("Calculation system not properly initialized");
             }
-
-            utils.calculationResults = results;
-
-            if (typeof updateAllTables === "function") {
-              updateAllTables();
-            }
-
-            // Navigate back to previous tab after calculations complete
-            navigateAfterCalculation();
-
-            // Hide loading overlay
             hideLoadingOverlay();
           }
         } catch (error) {
           console.error("Calculation error:", error);
-          if (typeof utils.handleError === "function") {
-            utils.handleError(error, "calculateAll");
-          }
-          alert(
-            "An error occurred during calculations. Please check the console for details."
-          );
-
-          // Hide loading overlay even on error
+          alert("An error occurred during calculations. Please check the console for details.");
           hideLoadingOverlay();
+          // Reset flag on error
+          window.calculationsInProgress = false;
+        } finally {
+          // Re-enable AI checkbox after calculations (worker manager will handle the flag)
+          setTimeout(() => {
+            if (aiCheckbox) {
+              aiCheckbox.disabled = false;
+            }
+          }, 1000);
         }
       }
 
@@ -2943,10 +3001,15 @@
       }
 
       function getBudgetMode() {
-        const budgetModeRadio = document.querySelector(
-          'input[name="budgetMode"]:checked'
-        );
-        return budgetModeRadio ? budgetModeRadio.value : "predetermined";
+        try {
+          const budgetModeRadio = document.querySelector(
+            'input[name="budgetMode"]:checked'
+          );
+          return budgetModeRadio ? budgetModeRadio.value : "predetermined";
+        } catch (error) {
+          console.warn("⚠️ getBudgetMode() failed, using predetermined mode:", error);
+          return "predetermined";
+        }
       }
 
       function getBudgetSettings() {
@@ -3157,7 +3220,7 @@
               parseFloat(document.getElementById("initialCost").value) ||
               160000;
             const rentalRate =
-              parseFloat(document.getElementById("rentalRate").value) || 1.9;
+              parseFloat(document.getElementById("rentalRate").value) || 1.0;
             const annualRent = initialCost * (rentalRate / 100) * 12;
             const estimatedNOI = annualRent * 0.7; // Assume 30% expenses
             predeterminedAverageROI = (estimatedNOI / initialCost) * 100;
@@ -3619,11 +3682,18 @@
 
       // Loading overlay functions
       function showLoadingOverlay() {
+        console.log("🔥 LOADING: showLoadingOverlay() called");
         const overlay = document.getElementById("loadingOverlay");
+        console.log("🔥 LOADING: overlay element:", overlay);
         const progressFill = document.getElementById("progressFill");
+        console.log("🔥 LOADING: progressFill element:", progressFill);
         const loadingSubtext = document.getElementById("loadingSubtext");
+        console.log("🔥 LOADING: loadingSubtext element:", loadingSubtext);
 
-        if (!overlay) return;
+        if (!overlay) {
+          console.error("❌ LOADING: overlay not found!");
+          return;
+        }
 
         // Reset progress
         progressFill.style.width = "0%";
@@ -3642,9 +3712,20 @@
         animateLoadingProgress();
       }
 
+      // Make showLoadingOverlay globally accessible
+      window.showLoadingOverlay = showLoadingOverlay;
+
       function hideLoadingOverlay() {
+        console.log("🔥 LOADING: hideLoadingOverlay() called");
         const overlay = document.getElementById("loadingOverlay");
         if (!overlay) return;
+
+        // Clear any running animation intervals to prevent hanging
+        if (window.loadingAnimationInterval) {
+          clearInterval(window.loadingAnimationInterval);
+          window.loadingAnimationInterval = null;
+          console.log("🔥 LOADING: Cleared loading animation interval");
+        }
 
         // Re-enable tab navigation
         const tabOptions = document.querySelectorAll(".tab-option");
@@ -3658,8 +3739,12 @@
         setTimeout(() => {
           overlay.style.display = "none";
           overlay.style.opacity = "1";
+          console.log("🔥 LOADING: Loading overlay hidden");
         }, 300);
       }
+
+      // Make hideLoadingOverlay globally accessible for worker-manager
+      window.hideLoadingOverlay = hideLoadingOverlay;
 
       function animateLoadingProgress() {
         const progressFill = document.getElementById("progressFill");
@@ -3707,11 +3792,13 @@
         updateProgress();
 
         // Animate through steps
-        const interval = setInterval(() => {
+        window.loadingAnimationInterval = setInterval(() => {
           if (currentStep < steps.length) {
             updateProgress();
           } else {
-            clearInterval(interval);
+            clearInterval(window.loadingAnimationInterval);
+            window.loadingAnimationInterval = null;
+            console.log("🔥 LOADING: Animation completed, interval cleared");
           }
         }, 800); // 800ms between steps for realistic timing
       }
@@ -3724,6 +3811,22 @@
         budgetModeRadios.forEach((radio) => {
           radio.addEventListener("change", toggleBudgetMode);
         });
+
+        // Initialize auto-sale settings
+        console.log("🚀 Initializing auto-sale settings...");
+        initializeAutoSaleSettings();
+
+        // Double-check visibility after a short delay
+        setTimeout(() => {
+          console.log("🔍 Double-checking auto-sale settings visibility...");
+          const thresholdRow = document.getElementById("autoSaleThresholdRow");
+          const strategyRow = document.getElementById("autoSaleStrategyRow");
+          if (thresholdRow && strategyRow) {
+            thresholdRow.style.setProperty("display", "block", "important");
+            strategyRow.style.setProperty("display", "block", "important");
+            console.log("✅ Forced auto-sale settings visibility");
+          }
+        }, 100);
 
         // Add event listener for investment objective changes
         const investmentObjectiveSelect = document.getElementById(
@@ -3845,6 +3948,89 @@
           menuDropdown.classList.remove("open");
         }
       });
+
+      // Auto-Sale Functions
+      function initializeAutoSaleSettings() {
+        console.log("🔍 Initializing auto-sale settings...");
+
+        const autoSaleEnabled = document.getElementById("autoSaleEnabled");
+        const autoSaleThresholdRow = document.getElementById(
+          "autoSaleThresholdRow"
+        );
+        const autoSaleStrategyRow = document.getElementById(
+          "autoSaleStrategyRow"
+        );
+
+        console.log("🔍 Found elements:", {
+          enabled: !!autoSaleEnabled,
+          threshold: !!autoSaleThresholdRow,
+          strategy: !!autoSaleStrategyRow,
+        });
+
+        if (autoSaleEnabled && autoSaleThresholdRow && autoSaleStrategyRow) {
+          // Force visibility with !important
+          autoSaleThresholdRow.style.setProperty(
+            "display",
+            "block",
+            "important"
+          );
+          autoSaleStrategyRow.style.setProperty(
+            "display",
+            "block",
+            "important"
+          );
+
+          // Also set inline styles as backup
+          autoSaleThresholdRow.style.display = "block";
+          autoSaleStrategyRow.style.display = "block";
+
+          autoSaleEnabled.addEventListener("change", function () {
+            const isEnabled = this.checked;
+            const displayValue = isEnabled ? "block" : "none";
+            autoSaleThresholdRow.style.setProperty(
+              "display",
+              displayValue,
+              "important"
+            );
+            autoSaleStrategyRow.style.setProperty(
+              "display",
+              displayValue,
+              "important"
+            );
+          });
+
+          console.log("✅ Auto-sale settings initialized successfully");
+          console.log("🔍 Current display values:", {
+            threshold: window.getComputedStyle(autoSaleThresholdRow).display,
+            strategy: window.getComputedStyle(autoSaleStrategyRow).display,
+          });
+        } else {
+          console.warn("⚠️ Some auto-sale elements not found:", {
+            enabled: !!autoSaleEnabled,
+            threshold: !!autoSaleThresholdRow,
+            strategy: !!autoSaleStrategyRow,
+          });
+        }
+      }
+
+      function getAutoSaleSettings() {
+        const enabled =
+          document.getElementById("autoSaleEnabled")?.checked || false;
+        const threshold =
+          parseFloat(document.getElementById("autoSaleThreshold")?.value) || 25;
+        const strategy =
+          document.getElementById("autoSaleStrategy")?.value ||
+          "highestAppreciation";
+
+        return {
+          enabled: enabled,
+          threshold: threshold,
+          strategy: strategy,
+        };
+      }
+
+      // Make function globally accessible
+      window.getAutoSaleSettings = getAutoSaleSettings;
     </script>
   </body>
 </html>

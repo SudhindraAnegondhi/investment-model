@@ -1,91 +1,76 @@
 // Core Calculations
 // Main calculation engine for the rental investment model
 
-// Main calculation function
-function calculateAll() {
-  try {
-    const params = utils.getInputParameters();
-    const validation = dataModel.validateInvestmentParameters(params);
-
-    if (!validation.isValid) {
-      alert(
-        "Please fix the following errors:\n" + validation.errors.join("\n")
-      );
-      return;
-    }
-
-    // Perform calculations
-    const results = performCalculations(params);
-
-    // Store results globally
-    utils.calculationResults = results;
-
-    // Update all UI components
-    updateAllTables();
-
-  } catch (error) {
-    utils.handleError(error, "calculateAll");
-    alert(
-      "An error occurred during calculations. Please check the console for details."
-    );
-  }
-}
+// This calculateAll function is removed to prevent conflicts
+// The main calculateAll function is in app.js
 
 // Calculate investment score based on objective
-function calculateInvestmentScore(params, year, propertyCost, netOperatingIncome, projectedROI) {
+function calculateInvestmentScore(
+  params,
+  year,
+  propertyCost,
+  netOperatingIncome,
+  projectedROI
+) {
   const objective = params.investmentObjective;
   const riskTolerance = params.riskTolerance;
   let score = 0;
   let weight = 1.0;
-  
+
   // Risk adjustment multiplier
-  const riskMultiplier = riskTolerance === 'conservative' ? 0.8 : 
-                       riskTolerance === 'aggressive' ? 1.2 : 1.0;
-  
+  const riskMultiplier =
+    riskTolerance === "conservative"
+      ? 0.8
+      : riskTolerance === "aggressive"
+      ? 1.2
+      : 1.0;
+
   switch (objective) {
-    case 'maxCashFlow':
+    case "maxCashFlow":
       // Prioritize net operating income (cash flow)
       score = netOperatingIncome;
       weight = riskMultiplier;
       break;
-      
-    case 'maxTotalReturn':
+
+    case "maxTotalReturn":
       // Combine cash flow with projected appreciation
       const appreciation = propertyCost * (params.appreciationRate / 100);
-      score = (netOperatingIncome + appreciation) / propertyCost * 100;
+      score = ((netOperatingIncome + appreciation) / propertyCost) * 100;
       weight = riskMultiplier;
       break;
-      
-    case 'maxROI':
+
+    case "maxROI":
       // Pure ROI focus
       score = projectedROI;
       weight = riskMultiplier * 1.1; // Slight bonus for efficiency
       break;
-      
-    case 'maxPortfolioSize':
+
+    case "maxPortfolioSize":
       // Favor lower cost properties (more units possible)
       score = 1000000 / propertyCost; // Inverse relationship to cost
       weight = riskMultiplier * 1.1;
       break;
-      
-    case 'conservative':
+
+    case "conservative":
       // Favor stability over returns
       score = Math.min(projectedROI, 15); // Cap at 15% to avoid risky high-return deals
       weight = riskMultiplier * 0.9;
       break;
-      
-    case 'balanced':
+
+    case "balanced":
     default:
       // Balance cash flow, ROI, and appreciation
       const cashFlowScore = netOperatingIncome / 10000; // Normalize to 0-10 scale
       const roiScore = Math.min(projectedROI, 25) / 2.5; // Normalize to 0-10 scale
-      const balancedAppreciation = propertyCost * (params.appreciationRate / 100);
-      const appreciationScore = (balancedAppreciation / propertyCost * 100) / 1.0; // Normalize
-      score = (cashFlowScore * 0.4) + (roiScore * 0.4) + (appreciationScore * 0.2);
+      const balancedAppreciation =
+        propertyCost * (params.appreciationRate / 100);
+      const appreciationScore =
+        ((balancedAppreciation / propertyCost) * 100) / 1.0; // Normalize
+      score = cashFlowScore * 0.4 + roiScore * 0.4 + appreciationScore * 0.2;
       weight = riskMultiplier;
       break;
   }
-  
+
   return score * weight;
 }
 
@@ -94,46 +79,57 @@ function getObjectiveThreshold(params) {
   const baseThreshold = params.minROIThreshold;
   const riskTolerance = params.riskTolerance;
   const objective = params.investmentObjective;
-  
+
   let adjustment = 0;
-  
+
   // Risk-based adjustment
-  if (riskTolerance === 'conservative') adjustment += 1;
-  if (riskTolerance === 'aggressive') adjustment -= 1;
-  
+  if (riskTolerance === "conservative") adjustment += 1;
+  if (riskTolerance === "aggressive") adjustment -= 1;
+
   // Objective-based adjustment
   switch (objective) {
-    case 'maxPortfolioSize':
+    case "maxPortfolioSize":
       adjustment -= 2; // Lower threshold to acquire more units
       break;
-    case 'conservative':
+    case "conservative":
       adjustment += 2; // Higher threshold for quality
       break;
-    case 'maxROI':
+    case "maxROI":
       adjustment += 1; // Slightly higher threshold for efficiency
       break;
-    case 'maxCashFlow':
+    case "maxCashFlow":
       adjustment -= 1; // Slightly lower ROI acceptable if cash flow is good
       break;
   }
-  
+
   return Math.max(3, baseThreshold + adjustment); // Minimum 3% threshold
 }
 
 // Calculate dynamic annual budget based on budget mode and investment objectives
-function calculateDynamicAnnualBudget(params, year, previousResults, propertyCost, strategy = 'self') {
-  const purchaseYears = strategy === 'financed' ? params.financedPurchaseYears : params.selfPurchaseYears;
-  
+function calculateDynamicAnnualBudget(
+  params,
+  year,
+  previousResults,
+  propertyCost,
+  strategy = "self"
+) {
+  const purchaseYears =
+    strategy === "financed"
+      ? params.financedPurchaseYears
+      : params.selfPurchaseYears;
+
   // Debug: Show what budget mode we're in
-  if (year === 1 && strategy === 'self') {
-    console.log(`🔍 Budget Mode: ${params.budgetMode}, Objective: ${params.investmentObjective}, Risk: ${params.riskTolerance}`);
+  if (year === 1 && strategy === "self") {
+    console.log(
+      `🔍 Budget Mode: ${params.budgetMode}, Objective: ${params.investmentObjective}, Risk: ${params.riskTolerance}`
+    );
   }
-  
-  if (params.budgetMode !== 'needsBased' || year > purchaseYears) {
+
+  if (params.budgetMode !== "needsBased" || year > purchaseYears) {
     // Use predetermined budget for predetermined mode or after purchase years
     return year <= purchaseYears ? params.annualBudget : 0;
   }
-  
+
   // Needs-based logic
   let totalInvestedSoFar = 0;
   let totalCashFlowGenerated = 0;
@@ -142,74 +138,108 @@ function calculateDynamicAnnualBudget(params, year, previousResults, propertyCos
     totalInvestedSoFar += invested;
     totalCashFlowGenerated += previousResults[i].selfStrategy?.noi || 0;
   }
-  
+
   // Check if we've reached investment limits
   if (totalInvestedSoFar >= params.totalInvestmentLimit) {
-    console.log(`🎯 Year ${year}: Investment limit reached ($${totalInvestedSoFar.toLocaleString()})`);
+    console.log(
+      `🎯 Year ${year}: Investment limit reached ($${totalInvestedSoFar.toLocaleString()})`
+    );
     return 0;
   }
-  
+
   // Check if we've reached target cash flow (for cash flow objective)
-  if (params.investmentObjective === 'maxCashFlow' && totalCashFlowGenerated >= params.targetAnnualCashFlow) {
-    console.log(`🎯 Year ${year}: Target cash flow reached ($${totalCashFlowGenerated.toLocaleString()})`);
+  if (
+    params.investmentObjective === "maxCashFlow" &&
+    totalCashFlowGenerated >= params.targetAnnualCashFlow
+  ) {
+    console.log(
+      `🎯 Year ${year}: Target cash flow reached ($${totalCashFlowGenerated.toLocaleString()})`
+    );
     return 0;
   }
-  
+
   // Calculate projected financials for this year's investment
-  const currentRentalRate = params.rentalRate * (1 + params.rentGrowthRate / 100) ** (year - 1);
-  const annualRent = propertyCost * (currentRentalRate / 100) * 12;
-  
+  const currentRentalRate =
+    params.rentalRate * (1 + params.rentGrowthRate / 100) ** (year - 1);
+  // Fix: Handle rental rate correctly - if it's already a decimal, don't divide by 100
+  const rentalRateDecimal =
+    currentRentalRate >= 1 ? currentRentalRate / 100 : currentRentalRate;
+  const annualRent = propertyCost * rentalRateDecimal * 12;
+
   // Calculate operating expenses
   const vacancyCost = annualRent * (params.vacancyRate / 100);
   const managementCost = annualRent * (params.managementRate / 100);
   const capexCost = annualRent * (params.capexRate / 100);
   const maintenanceCost = annualRent * (params.maintenanceRate / 100);
-  const insuranceCost = params.insurance || (propertyCost * 0.005);
-  
-  const totalOperatingExpenses = vacancyCost + managementCost + capexCost + maintenanceCost + insuranceCost;
+  const insuranceCost =
+    params.insurance || propertyCost * ((params.insuranceRate || 0.5) / 100);
+
+  const totalOperatingExpenses =
+    vacancyCost + managementCost + capexCost + maintenanceCost + insuranceCost;
   const netOperatingIncome = annualRent - totalOperatingExpenses;
   const projectedROI = (netOperatingIncome / propertyCost) * 100;
-  
+
   // Get objective-adjusted threshold
   const effectiveThreshold = getObjectiveThreshold(params);
-  
+
   // Calculate investment score
-  const investmentScore = calculateInvestmentScore(params, year, propertyCost, netOperatingIncome, projectedROI);
-  
+  const investmentScore = calculateInvestmentScore(
+    params,
+    year,
+    propertyCost,
+    netOperatingIncome,
+    projectedROI
+  );
+
   // Only invest if meets threshold and has good score
   if (projectedROI < effectiveThreshold) {
-    console.log(`🎯 Year ${year}: ROI ${projectedROI.toFixed(1)}% below ${params.investmentObjective} threshold ${effectiveThreshold.toFixed(1)}%`);
+    console.log(
+      `🎯 Year ${year}: ROI ${projectedROI.toFixed(1)}% below ${
+        params.investmentObjective
+      } threshold ${effectiveThreshold.toFixed(1)}%`
+    );
     return 0;
   }
-  
+
   // Calculate optimal investment amount within limits
   const remainingLimit = params.totalInvestmentLimit - totalInvestedSoFar;
   let optimalInvestment = Math.min(
     params.maxSingleInvestment,
     remainingLimit,
-    propertyCost * 1.02 // Include closing costs
+    propertyCost * (1 + (params.closingCostPercent || 2) / 100) // Include closing costs
   );
-  
+
   // Adjust investment amount based on objective and score
-  if (params.investmentObjective === 'maxPortfolioSize' && investmentScore > 50) {
+  if (
+    params.investmentObjective === "maxPortfolioSize" &&
+    investmentScore > 50
+  ) {
     // For portfolio maximization, prefer smaller amounts to buy more units
     optimalInvestment = Math.min(optimalInvestment, propertyCost * 0.25); // Down payment only
   }
-  
-  console.log(`✅ Year ${year}: ${params.investmentObjective} investment approved $${optimalInvestment.toLocaleString()} (ROI: ${projectedROI.toFixed(1)}%, Score: ${investmentScore.toFixed(1)})`);
+
+  console.log(
+    `✅ Year ${year}: ${
+      params.investmentObjective
+    } investment approved $${optimalInvestment.toLocaleString()} (ROI: ${projectedROI.toFixed(
+      1
+    )}%, Score: ${investmentScore.toFixed(1)})`
+  );
   return optimalInvestment;
 }
 
 // Enhanced calculation function with centralized data generation
 function performCalculations(params) {
+  console.log("🔥 performCalculations STARTING - budget:", params.annualBudget);
   
-  const results = new dataModel.CalculationResults();
-  results.inputParams = params;
-  
-  // Initialize enhanced data structures
-  results.yearlyData = [];
-  results.summaryMetrics = new dataModel.SummaryMetrics();
-  results.cashFlowData = new dataModel.CashFlowAnalysisData();
+  try {
+    const results = new dataModel.CalculationResults();
+    results.inputParams = params;
+
+    // Initialize enhanced data structures
+    results.yearlyData = [];
+    results.summaryMetrics = new dataModel.SummaryMetrics();
+    results.cashFlowData = new dataModel.CashFlowAnalysisData();
 
   // Initialize arrays for 15 years
   for (let year = 1; year <= 15; year++) {
@@ -220,10 +250,12 @@ function performCalculations(params) {
       selfCumulativeCapEx: 0,
       financedCumulativeCapEx: 0,
     });
-    
+
     // Initialize enhanced yearly data
     results.yearlyData.push(new dataModel.YearlyData(year));
-    results.cashFlowData.yearlyBreakdown.push(new dataModel.YearlyCashFlowBreakdown(year));
+    results.cashFlowData.yearlyBreakdown.push(
+      new dataModel.YearlyCashFlowBreakdown(year)
+    );
   }
 
   // Track cohorts for each strategy
@@ -236,7 +268,7 @@ function performCalculations(params) {
   let financedCumulativeCapEx = 0;
   let selfAvailableCash = 0;
   let financedAvailableCash = 0;
-  
+
   // Track running cash balance for cash flow statements
   let selfRunningCash = 0;
   let financedRunningCash = 0;
@@ -247,7 +279,8 @@ function performCalculations(params) {
     const financedMetrics = results.financed[year - 1];
 
     // Calculate property cost for this year
-    const propertyCost = params.initialCost * Math.pow(1 + params.costIncrease / 100, year - 1);
+    const propertyCost =
+      params.initialCost * Math.pow(1 + params.costIncrease / 100, year - 1);
 
     // Note: Annual budget is added in cash flow calculation, not here
     // This prevents double-counting in the unit purchase logic
@@ -256,33 +289,61 @@ function performCalculations(params) {
     let selfNewUnits = 0;
     // Track annual budget separately to avoid double-counting
     // Use dynamic budget calculation for needs-based mode
-    const selfAnnualBudget = calculateDynamicAnnualBudget(params, year, results.yearlyData, propertyCost, 'self');
+    const selfAnnualBudget = calculateDynamicAnnualBudget(
+      params,
+      year,
+      results.yearlyData,
+      propertyCost,
+      "self"
+    );
 
     // Self-financed purchases with reasonable cash flow constraint
-    const selfCostPerUnit = propertyCost * 1.02; // Including 2% closing costs
+    const selfCostPerUnit =
+      propertyCost * (1 + (params.closingCostPercent || 2) / 100); // Including closing costs
     const selfTotalCashForPurchases = selfAvailableCash + selfAnnualBudget;
-    
+
     if (selfTotalCashForPurchases >= selfCostPerUnit) {
       // Calculate how many units we can afford with current cash plus annual budget
-      const maxAffordableSelfUnits = Math.floor(selfTotalCashForPurchases / selfCostPerUnit);
-      
-      // Keep a reasonable cash reserve: 20% of total available cash or $50k, whichever is higher
-      const cashReserve = Math.max(selfTotalCashForPurchases * 0.2, 50000);
-      const availableForPurchase = Math.max(0, selfTotalCashForPurchases - cashReserve);
-      const conservativeUnits = Math.floor(availableForPurchase / selfCostPerUnit);
-      
+      const maxAffordableSelfUnits = Math.floor(
+        selfTotalCashForPurchases / selfCostPerUnit
+      );
+
+      // Keep a reasonable cash reserve: use setting parameter or default to 20%
+      const cashReservePercent = params.cashReservePercent || 20;
+      const cashReserve = Math.max(
+        selfTotalCashForPurchases * (cashReservePercent / 100),
+        50000
+      );
+      const availableForPurchase = Math.max(
+        0,
+        selfTotalCashForPurchases - cashReserve
+      );
+      const conservativeUnits = Math.floor(
+        availableForPurchase / selfCostPerUnit
+      );
+
       // Buy the conservative amount, but at least 1 if we can afford it
-      selfNewUnits = Math.max(0, Math.min(conservativeUnits, maxAffordableSelfUnits));
-      
+      selfNewUnits = Math.max(
+        0,
+        Math.min(conservativeUnits, maxAffordableSelfUnits)
+      );
+
       // If during investment years and we have substantial cash, buy at least 1 unit
-      if (year <= params.selfPurchaseYears && selfNewUnits === 0 && maxAffordableSelfUnits >= 1) {
+      if (
+        year <= params.selfPurchaseYears &&
+        selfNewUnits === 0 &&
+        maxAffordableSelfUnits >= 1
+      ) {
         selfNewUnits = 1;
       }
 
       if (selfNewUnits > 0) {
         const totalCost = selfNewUnits * selfCostPerUnit;
         // Deduct purchase cost from available cash (annual budget will be added in cash flow)
-        selfAvailableCash = Math.max(0, selfAvailableCash + selfAnnualBudget - totalCost);
+        selfAvailableCash = Math.max(
+          0,
+          selfAvailableCash + selfAnnualBudget - totalCost
+        );
 
         selfCohorts.push({
           yearOriginated: year,
@@ -296,23 +357,28 @@ function performCalculations(params) {
       }
     }
 
-
     // BANK-FINANCED STRATEGY
     let financedNewUnits = 0;
     let financedCashFlowBalance = 0;
-    
+
     // Track annual budget separately to avoid double-counting
     // Use dynamic budget calculation for financed strategy as well (for equity portion)
-    const financedAnnualBudget = calculateDynamicAnnualBudget(params, year, results.yearlyData, propertyCost, 'financed');
+    const financedAnnualBudget = calculateDynamicAnnualBudget(
+      params,
+      year,
+      results.yearlyData,
+      propertyCost,
+      "financed"
+    );
 
     const downPaymentPerUnit = propertyCost * (1 - params.ltvRatio / 100); // Down payment without closing costs
-    const financedTotalCashForPurchases = financedAvailableCash + financedAnnualBudget;
+    const financedTotalCashForPurchases =
+      financedAvailableCash + financedAnnualBudget;
 
     if (financedTotalCashForPurchases >= downPaymentPerUnit) {
       const maxAffordableUnits = Math.floor(
         financedTotalCashForPurchases / downPaymentPerUnit
       );
-
 
       // Find sustainable number of units to purchase
       const sustainableResult = calculateSustainableUnits(
@@ -324,14 +390,17 @@ function performCalculations(params) {
         propertyCost,
         financedAvailableCash
       );
-      
+
       financedNewUnits = sustainableResult.units;
       financedCashFlowBalance = sustainableResult.cashFlowBalance;
 
       if (financedNewUnits > 0) {
         const totalDownPayment = financedNewUnits * downPaymentPerUnit;
         // Deduct down payment from available cash (annual budget will be added in cash flow)
-        financedAvailableCash = Math.max(0, financedAvailableCash + financedAnnualBudget - totalDownPayment);
+        financedAvailableCash = Math.max(
+          0,
+          financedAvailableCash + financedAnnualBudget - totalDownPayment
+        );
 
         financedCohorts.push({
           yearOriginated: year,
@@ -383,6 +452,26 @@ function performCalculations(params) {
       financedLoans
     );
 
+    // Calculate auto-sale impact for this year
+    const autoSaleSettings = {
+      enabled: params.autoSaleEnabled || false,
+      threshold: params.autoSaleThreshold || 25,
+      strategy: params.autoSaleStrategy || "highestAppreciation",
+    };
+
+    const selfAutoSaleImpact = calculateAutoSaleImpact(
+      year,
+      "self",
+      results,
+      autoSaleSettings
+    );
+    const financedAutoSaleImpact = calculateAutoSaleImpact(
+      year,
+      "financed",
+      results,
+      autoSaleSettings
+    );
+
     // Calculate cash flows using proper cash flow accounting principles
     // Use the budget variables we already calculated to avoid inconsistency
 
@@ -391,23 +480,44 @@ function performCalculations(params) {
       .filter((c) => c.yearOriginated === year)
       .reduce((sum, c) => sum + c.units, 0);
     const selfCostPerUnitForCashFlow =
-      params.initialCost * Math.pow(1 + params.costIncrease / 100, year - 1) * 1.02; // Including closing costs
-    const selfPropertyAcquisitions = selfNewUnitsForCashFlow * selfCostPerUnitForCashFlow;
+      params.initialCost *
+      Math.pow(1 + params.costIncrease / 100, year - 1) *
+      (1 + (params.closingCostPercent || 2) / 100); // Including closing costs
+    const selfPropertyAcquisitions =
+      selfNewUnitsForCashFlow * selfCostPerUnitForCashFlow;
 
     const financedNewUnitsForCashFlow = financedCohorts
       .filter((c) => c.yearOriginated === year)
       .reduce((sum, c) => sum + c.units, 0);
     const financedCostPerUnitForCashFlow =
-      params.initialCost * Math.pow(1 + params.costIncrease / 100, year - 1) * 1.02; // Including closing costs
+      params.initialCost *
+      Math.pow(1 + params.costIncrease / 100, year - 1) *
+      (1 + (params.closingCostPercent || 2) / 100); // Including closing costs
     const downPaymentPercent = 1 - params.ltvRatio / 100;
-    const financedDownPayments = financedNewUnitsForCashFlow * financedCostPerUnitForCashFlow * downPaymentPercent;
+    const financedDownPayments =
+      financedNewUnitsForCashFlow *
+      financedCostPerUnitForCashFlow *
+      downPaymentPercent;
 
-    // CORRECT CASH FLOW CALCULATION
-    // For self-financed: Annual Budget + NOI - Property Purchases - CapEx - Taxes
-    const selfCashFlow = selfAnnualBudget + selfDetailed.noi - selfPropertyAcquisitions - selfDetailed.capex - selfDetailed.taxes;
+    // CORRECT CASH FLOW CALCULATION (including auto-sale)
+    // For self-financed: Annual Budget + NOI + Auto-Sale Proceeds - Property Purchases - CapEx - Taxes
+    const selfCashFlow =
+      selfAnnualBudget +
+      selfDetailed.noi +
+      selfAutoSaleImpact.impactOnCashFlow -
+      selfPropertyAcquisitions -
+      selfDetailed.capex -
+      selfDetailed.taxes;
 
-    // For financed: Annual Budget + NOI - Down Payments - Debt Service - CapEx - Taxes  
-    const financedCashFlow = financedAnnualBudget + financedDetailed.noi - financedDownPayments - financedDetailed.debtService - financedDetailed.capex - financedDetailed.taxes;
+    // For financed: Annual Budget + NOI + Auto-Sale Proceeds - Down Payments - Debt Service - CapEx - Taxes
+    const financedCashFlow =
+      financedAnnualBudget +
+      financedDetailed.noi +
+      financedAutoSaleImpact.impactOnCashFlow -
+      financedDownPayments -
+      financedDetailed.debtService -
+      financedDetailed.capex -
+      financedDetailed.taxes;
 
     // Update cumulative CapEx
     selfCumulativeCapEx += selfDetailed.capex;
@@ -421,13 +531,15 @@ function performCalculations(params) {
     }
 
     // Available cash balances are already updated correctly in purchase logic above
-    // We've already: 1) Added annual budget, 2) Deducted purchases, 3) Added NOI from operations
-    // Adding the full cash flow here would double-count these items
-    
-    // Only add the operational cash flows (NOI - expenses) that weren't handled in purchase logic
-    const selfOperationalCashFlow = selfDetailed.noi - selfDetailed.capex - selfDetailed.taxes;
-    const financedOperationalCashFlow = financedDetailed.noi - financedDetailed.debtService - financedDetailed.capex - financedDetailed.taxes;
-    
+    // We've already: 1) Added annual budget, 2) Deducted purchases
+    // Now we need to add the operational cash flows (NOI - expenses) that weren't handled in purchase logic
+
+    // For self-financed: Add NOI (which includes rental income minus operating expenses)
+    // For financed: Add NOI minus debt service (since debt service is already accounted for in purchase logic)
+    const selfOperationalCashFlow = selfDetailed.noi;
+    const financedOperationalCashFlow =
+      financedDetailed.noi - financedDetailed.debtService;
+
     selfAvailableCash += selfOperationalCashFlow;
     financedAvailableCash += financedOperationalCashFlow;
 
@@ -472,6 +584,11 @@ function performCalculations(params) {
       taxes: selfDetailed.taxes,
       netIncome: selfDetailed.netIncome,
       capex: selfDetailed.capex,
+      // Auto-sale data
+      autoSaleUnits: selfAutoSaleImpact.unitsSold,
+      autoSaleProceeds: selfAutoSaleImpact.saleProceeds,
+      autoSaleLoansClosed: selfAutoSaleImpact.loansClosed,
+      autoSaleNetProceeds: selfAutoSaleImpact.netProceeds,
     });
 
     Object.assign(financedMetrics, {
@@ -480,7 +597,7 @@ function performCalculations(params) {
       cumulativeCashFlow: financedCumulativeCash,
       assetValue: financedAssetValue,
       loanBalance: loanBalance,
-      netEquity: financedAssetValue - loanBalance,  // Add the missing netEquity calculation
+      netEquity: financedAssetValue - loanBalance, // Add the missing netEquity calculation
       netWorth: financedAssetValue - loanBalance + financedCumulativeCash,
       gpr: financedDetailed.gpr,
       egi: financedDetailed.egi,
@@ -492,6 +609,11 @@ function performCalculations(params) {
       taxes: financedDetailed.taxes,
       netIncome: financedDetailed.netIncome,
       capex: financedDetailed.capex,
+      // Auto-sale data
+      autoSaleUnits: financedAutoSaleImpact.unitsSold,
+      autoSaleProceeds: financedAutoSaleImpact.saleProceeds,
+      autoSaleLoansClosed: financedAutoSaleImpact.loansClosed,
+      autoSaleNetProceeds: financedAutoSaleImpact.netProceeds,
     });
 
     // Store cumulative CapEx and available cash
@@ -505,10 +627,10 @@ function performCalculations(params) {
     // POPULATE CENTRALIZED DATA STRUCTURES
     const yearlyData = results.yearlyData[year - 1];
     const cashFlowBreakdown = results.cashFlowData.yearlyBreakdown[year - 1];
-    
+
     // Set cost per unit for this year
     yearlyData.costPerUnit = propertyCost;
-    
+
     // Populate self-financed strategy data
     const selfStrategy = yearlyData.selfStrategy;
     selfStrategy.units = selfTotalUnits;
@@ -519,14 +641,14 @@ function performCalculations(params) {
     selfStrategy.netEquity = selfAssetValue;
     selfStrategy.availableCash = selfAvailableCash;
     selfStrategy.cumulativeCapEx = selfCumulativeCapEx;
-    
-    // Cash flow components for self-financed  
+
+    // Cash flow components for self-financed
     // The cash flow statement should reflect what actually happened to available cash
     selfStrategy.openingCash = selfRunningCash;
-    
+
     // Calculate the actual cash change from operations and purchases
     const selfActualCashChange = selfAvailableCash - selfRunningCash;
-    
+
     selfStrategy.closingCash = selfAvailableCash; // Use actual available cash as closing balance
     selfStrategy.netCashFlow = selfActualCashChange; // Actual change in cash position
     selfRunningCash = selfStrategy.closingCash; // Update running balance for next year
@@ -540,19 +662,20 @@ function performCalculations(params) {
     selfStrategy.principalPayment = 0;
     selfStrategy.netCashFlow = selfCashFlow;
     selfStrategy.cumulativeCashFlow = selfCumulativeCash;
-    
+
     // Purchase calculations for self-financed
     selfStrategy.purchaseCost = selfPropertyAcquisitions;
     selfStrategy.downPayment = selfPropertyAcquisitions;
     selfStrategy.loanAmount = 0;
-    selfStrategy.closingCosts = selfPropertyAcquisitions * 0.02; // 2% closing costs
-    
+    selfStrategy.closingCosts =
+      selfPropertyAcquisitions * ((params.closingCostPercent || 2) / 100); // Use setting parameter
+
     // Tax calculations for self-financed
     selfStrategy.depreciation = selfDetailed.depreciation;
     selfStrategy.taxableIncome = selfDetailed.taxableIncome;
     selfStrategy.taxes = selfDetailed.taxes;
     selfStrategy.netIncome = selfDetailed.netIncome;
-    
+
     // Populate financed strategy data
     const financedStrategy = yearlyData.financedStrategy;
     financedStrategy.units = financedTotalUnits;
@@ -563,14 +686,15 @@ function performCalculations(params) {
     financedStrategy.netEquity = financedAssetValue - loanBalance;
     financedStrategy.availableCash = financedAvailableCash;
     financedStrategy.cumulativeCapEx = financedCumulativeCapEx;
-    
+
     // Cash flow components for financed
     // The cash flow statement should reflect what actually happened to available cash
     financedStrategy.openingCash = financedRunningCash;
-    
+
     // Calculate the actual cash change from operations and purchases
-    const financedActualCashChange = financedAvailableCash - financedRunningCash;
-    
+    const financedActualCashChange =
+      financedAvailableCash - financedRunningCash;
+
     financedStrategy.closingCash = financedAvailableCash; // Use actual available cash as closing balance
     financedStrategy.netCashFlow = financedActualCashChange; // Actual change in cash position
     financedRunningCash = financedStrategy.closingCash; // Update running balance for next year
@@ -581,25 +705,36 @@ function performCalculations(params) {
     financedStrategy.capex = financedDetailed.capex;
     financedStrategy.debtService = financedDetailed.debtService;
     financedStrategy.interestExpense = financedDetailed.interestExpense;
-    financedStrategy.principalPayment = financedDetailed.debtService - financedDetailed.interestExpense;
+    financedStrategy.principalPayment =
+      financedDetailed.debtService - financedDetailed.interestExpense;
     financedStrategy.netCashFlow = financedCashFlow;
     financedStrategy.cumulativeCashFlow = financedCumulativeCash;
-    
+
     // Purchase calculations for financed
-    financedStrategy.purchaseCost = financedNewUnitsForCashFlow * financedCostPerUnitForCashFlow;
+    financedStrategy.purchaseCost =
+      financedNewUnitsForCashFlow * financedCostPerUnitForCashFlow;
     financedStrategy.downPayment = financedDownPayments;
-    financedStrategy.loanAmount = financedStrategy.purchaseCost - financedStrategy.downPayment;
-    financedStrategy.closingCosts = financedStrategy.purchaseCost * 0.02; // 2% closing costs
-    
+    financedStrategy.loanAmount =
+      financedStrategy.purchaseCost - financedStrategy.downPayment;
+    financedStrategy.closingCosts =
+      financedStrategy.purchaseCost * ((params.closingCostPercent || 2) / 100); // Use setting parameter
+
     // Tax calculations for financed
     financedStrategy.depreciation = financedDetailed.depreciation;
     financedStrategy.taxableIncome = financedDetailed.taxableIncome;
     financedStrategy.taxes = financedDetailed.taxes;
     financedStrategy.netIncome = financedDetailed.netIncome;
-    
+
     // Populate cash flow breakdown for detailed analysis
-    populateCashFlowBreakdown(cashFlowBreakdown, year, results, params, 
-                              selfStrategy, financedStrategy, loanBalance);
+    populateCashFlowBreakdown(
+      cashFlowBreakdown,
+      year,
+      results,
+      params,
+      selfStrategy,
+      financedStrategy,
+      loanBalance
+    );
 
     // Update comparison data
     results.comparison[year - 1] = {
@@ -620,170 +755,240 @@ function performCalculations(params) {
 
   // Calculate summary metrics after all years are processed
   console.log("🔄 About to call calculateSummaryMetrics...");
-  console.trace("📍 Call stack for calculateSummaryMetrics");
   calculateSummaryMetrics(results);
   console.log("✅ calculateSummaryMetrics completed");
-  
-  // Validate cash flow continuity
-  validateCashFlowContinuity(results.cashFlowData);
-  
-  return results;
+
+    // Validate cash flow continuity
+    validateCashFlowContinuity(results.cashFlowData);
+
+    console.log("🔥 performCalculations COMPLETED successfully");
+    return results;
+  } catch (error) {
+    console.error("💥 ERROR in performCalculations:", error);
+    console.error("💥 Stack trace:", error.stack);
+    throw error;
+  }
 }
 
 // Function to populate detailed cash flow breakdown
-function populateCashFlowBreakdown(breakdown, year, results, params, selfStrategy, financedStrategy, totalLoanBalance) {
+function populateCashFlowBreakdown(
+  breakdown,
+  year,
+  results,
+  params,
+  selfStrategy,
+  financedStrategy,
+  totalLoanBalance
+) {
   // Self-financed cash flow breakdown
   const selfBreakdown = breakdown.self;
   selfBreakdown.openingCash = selfStrategy.openingCash;
   selfBreakdown.openingLoan = 0;
-  
+
   // Inflows
   selfBreakdown.annualBudget = selfStrategy.annualBudget;
   selfBreakdown.rentalIncome = selfStrategy.egi;
   selfBreakdown.loanProceeds = 0;
-  selfBreakdown.totalInflows = selfBreakdown.annualBudget + selfBreakdown.rentalIncome;
-  
+  selfBreakdown.totalInflows =
+    selfBreakdown.annualBudget + selfBreakdown.rentalIncome;
+
   // Outflows
   selfBreakdown.propertyPurchases = selfStrategy.purchaseCost;
   selfBreakdown.operatingExpenses = selfStrategy.egi - selfStrategy.noi; // Operating expenses
   selfBreakdown.debtService = 0;
   selfBreakdown.capex = selfStrategy.capex;
   selfBreakdown.taxes = selfStrategy.taxes;
-  selfBreakdown.totalOutflows = selfBreakdown.propertyPurchases + selfBreakdown.operatingExpenses + selfBreakdown.capex + selfBreakdown.taxes;
-  
+  selfBreakdown.totalOutflows =
+    selfBreakdown.propertyPurchases +
+    selfBreakdown.operatingExpenses +
+    selfBreakdown.capex +
+    selfBreakdown.taxes;
+
   // Use the actual net cash flow from the main calculation
   selfBreakdown.netCashFlow = selfStrategy.netCashFlow;
-  selfBreakdown.closingCash = selfBreakdown.openingCash + selfBreakdown.netCashFlow;
+  selfBreakdown.closingCash =
+    selfBreakdown.openingCash + selfBreakdown.netCashFlow;
   selfBreakdown.closingLoan = 0;
-  
+
   // Financed cash flow breakdown
   const financedBreakdown = breakdown.financed;
   financedBreakdown.openingCash = financedStrategy.openingCash;
-  financedBreakdown.openingLoan = year === 1 ? 0 : 
-    (results.cashFlowData.yearlyBreakdown[year - 2] ? results.cashFlowData.yearlyBreakdown[year - 2].financed.closingLoan : 0);
-  
+  financedBreakdown.openingLoan =
+    year === 1
+      ? 0
+      : results.cashFlowData.yearlyBreakdown[year - 2]
+      ? results.cashFlowData.yearlyBreakdown[year - 2].financed.closingLoan
+      : 0;
+
   // Inflows
   financedBreakdown.annualBudget = financedStrategy.annualBudget;
   financedBreakdown.rentalIncome = financedStrategy.egi;
   financedBreakdown.loanProceeds = financedStrategy.loanAmount;
-  financedBreakdown.totalInflows = financedBreakdown.annualBudget + financedBreakdown.rentalIncome + financedBreakdown.loanProceeds;
-  
-  // Outflows  
+  financedBreakdown.totalInflows =
+    financedBreakdown.annualBudget +
+    financedBreakdown.rentalIncome +
+    financedBreakdown.loanProceeds;
+
+  // Outflows
   financedBreakdown.propertyPurchases = financedStrategy.purchaseCost;
-  financedBreakdown.operatingExpenses = financedStrategy.egi - financedStrategy.noi;
+  financedBreakdown.operatingExpenses =
+    financedStrategy.egi - financedStrategy.noi;
   financedBreakdown.debtService = financedStrategy.debtService;
   financedBreakdown.capex = financedStrategy.capex;
   financedBreakdown.taxes = financedStrategy.taxes;
-  financedBreakdown.totalOutflows = financedBreakdown.propertyPurchases + financedBreakdown.operatingExpenses + 
-                                   financedBreakdown.debtService + financedBreakdown.capex + financedBreakdown.taxes;
-  
+  financedBreakdown.totalOutflows =
+    financedBreakdown.propertyPurchases +
+    financedBreakdown.operatingExpenses +
+    financedBreakdown.debtService +
+    financedBreakdown.capex +
+    financedBreakdown.taxes;
+
   // Use the actual net cash flow from the main calculation
   financedBreakdown.netCashFlow = financedStrategy.netCashFlow;
-  financedBreakdown.closingCash = financedBreakdown.openingCash + financedBreakdown.netCashFlow;
+  financedBreakdown.closingCash =
+    financedBreakdown.openingCash + financedBreakdown.netCashFlow;
   financedBreakdown.closingLoan = totalLoanBalance;
 }
 
 // Function to calculate comprehensive summary metrics
 function calculateSummaryMetrics(results) {
+  // Prevent recursion with a simple flag
+  if (calculateSummaryMetrics._isRunning) {
+    console.warn("🔍 calculateSummaryMetrics already running, preventing recursion");
+    return;
+  }
+  
+  calculateSummaryMetrics._isRunning = true;
+  
   try {
     console.log("🔍 calculateSummaryMetrics ENTRY");
-    
+
     const finalYear = 15;
     // Use the correct data arrays - the old structure with YearlyMetrics objects
     const selfFinal = results.selfFinanced[finalYear - 1];
     const financedFinal = results.financed[finalYear - 1];
     const params = results.inputParams;
-    
-    console.log("🔍 calculateSummaryMetrics - Final year data:", {
-      selfFinal: selfFinal,
-      financedFinal: financedFinal,
-      yearlyDataLength: results.yearlyData.length,
-      selfFinancedLength: results.selfFinanced.length,
-      financedLength: results.financed.length
-    });
-    
+
     if (!selfFinal) {
       console.error("❌ selfFinal is null/undefined!");
       return;
     }
-    
+
     if (!financedFinal) {
       console.error("❌ financedFinal is null/undefined!");
       return;
     }
-  
-  const summary = results.summaryMetrics;
-  
-  // Total return calculations - using correct property names from YearlyMetrics
-  summary.selfTotalReturn = selfFinal.assetValue + selfFinal.cumulativeCashFlow;
-  summary.financedTotalReturn = financedFinal.assetValue + financedFinal.cumulativeCashFlow;
-  
-  // Calculate total cash invested
-  let selfInvested = 0;
-  let financedInvested = 0;
-  
-  for (let i = 0; i < finalYear; i++) {
-    const yearData = results.yearlyData[i];
-    if (i < params.selfPurchaseYears) {
-      selfInvested += params.annualBudget;
+
+    if (!results.summaryMetrics) {
+      console.error("❌ results.summaryMetrics is null/undefined!");
+      return;
     }
-    if (i < params.financedPurchaseYears) {
-      financedInvested += params.annualBudget;
+
+    const summary = results.summaryMetrics;
+
+    // Total return calculations - using correct property names from YearlyMetrics
+    summary.selfTotalReturn =
+      selfFinal.assetValue + selfFinal.cumulativeCashFlow;
+    summary.financedTotalReturn =
+      financedFinal.assetValue + financedFinal.cumulativeCashFlow;
+
+    // Calculate total cash invested
+    let selfInvested = 0;
+    let financedInvested = 0;
+
+    for (let i = 0; i < finalYear; i++) {
+      const yearData = results.yearlyData[i];
+      if (i < params.selfPurchaseYears) {
+        selfInvested += params.annualBudget;
+      }
+      if (i < params.financedPurchaseYears) {
+        financedInvested += params.annualBudget;
+      }
     }
-  }
-  
-  summary.totalCashInvested.self = selfInvested;
-  summary.totalCashInvested.financed = financedInvested;
-  
-  // ROE calculations
-  summary.selfROE = selfInvested > 0 ? (summary.selfTotalReturn / selfInvested - 1) * 100 : 0;
-  summary.financedROE = financedInvested > 0 ? (summary.financedTotalReturn / financedInvested - 1) * 100 : 0;
-  
-  // Risk metrics - using correct property names from YearlyMetrics
-  console.log("🔍 Debug Leverage Multiplier Calculation:", {
-    assetValue: financedFinal.assetValue,
-    loanBalance: financedFinal.loanBalance,
-    netEquity: financedFinal.netEquity,
-    leverageCalc: financedFinal.netEquity > 0 ? financedFinal.assetValue / financedFinal.netEquity : 0
-  });
-  
-  console.log("🔍 Debug Units Per Dollar Calculation:", {
-    selfTotalUnits: selfFinal.units,  // Changed from totalUnits to units
-    financedTotalUnits: financedFinal.units,  // Changed from totalUnits to units
-    selfInvested: selfInvested,
-    financedInvested: financedInvested,
-    selfUnitsPerDollar: selfInvested > 0 ? selfFinal.units / selfInvested * 1000 : 0,
-    financedUnitsPerDollar: financedInvested > 0 ? financedFinal.units / financedInvested * 1000 : 0
-  });
-  
-  summary.leverageMultiplier = financedFinal.netEquity > 0 ? financedFinal.assetValue / financedFinal.netEquity : 0;
-  summary.unitsPerDollar.self = selfInvested > 0 ? selfFinal.units / selfInvested * 1000 : 0; // Units per thousand dollars ($1K)
-  summary.unitsPerDollar.financed = financedInvested > 0 ? financedFinal.units / financedInvested * 1000 : 0;
-  summary.debtServiceCoverage = financedFinal.debtService > 0 ? financedFinal.noi / financedFinal.debtService : 0;
-  
-  console.log("✅ Final calculated metrics:", {
-    leverageMultiplier: summary.leverageMultiplier,
-    unitsPerDollarSelf: summary.unitsPerDollar.self,
-    unitsPerDollarFinanced: summary.unitsPerDollar.financed
-  });
-  
-  // Final metrics - using correct property names from YearlyMetrics
-  summary.totalUnits.self = selfFinal.units;  // Changed from totalUnits to units
-  summary.totalUnits.financed = financedFinal.units;  // Changed from totalUnits to units
-  summary.finalAssetValue.self = selfFinal.assetValue;
-  summary.finalAssetValue.financed = financedFinal.assetValue;
-  summary.finalNetWorth.self = selfFinal.assetValue + selfFinal.cumulativeCashFlow;
-  summary.finalNetWorth.financed = financedFinal.netEquity + financedFinal.cumulativeCashFlow;
-  
-  // Break-even analysis (simplified)
-  summary.breakEvenYear.self = findBreakEvenYear(results.yearlyData, 'selfStrategy');
-  summary.breakEvenYear.financed = findBreakEvenYear(results.yearlyData, 'financedStrategy');
-  
-  console.log("🔍 calculateSummaryMetrics EXIT - SUCCESS");
-  
+
+    summary.totalCashInvested.self = selfInvested;
+    summary.totalCashInvested.financed = financedInvested;
+
+    // ROE calculations
+    summary.selfROE =
+      selfInvested > 0 ? (summary.selfTotalReturn / selfInvested - 1) * 100 : 0;
+    summary.financedROE =
+      financedInvested > 0
+        ? (summary.financedTotalReturn / financedInvested - 1) * 100
+        : 0;
+
+    // Risk metrics - using correct property names from YearlyMetrics
+    console.log("🔍 Debug Leverage Multiplier Calculation:", {
+      assetValue: financedFinal.assetValue,
+      loanBalance: financedFinal.loanBalance,
+      netEquity: financedFinal.netEquity,
+      leverageCalc:
+        financedFinal.netEquity > 0
+          ? financedFinal.assetValue / financedFinal.netEquity
+          : 0,
+    });
+
+    console.log("🔍 Debug Units Per Dollar Calculation:", {
+      selfTotalUnits: selfFinal.units, // Changed from totalUnits to units
+      financedTotalUnits: financedFinal.units, // Changed from totalUnits to units
+      selfInvested: selfInvested,
+      financedInvested: financedInvested,
+      selfUnitsPerDollar:
+        selfInvested > 0 ? (selfFinal.units / selfInvested) * 1000 : 0,
+      financedUnitsPerDollar:
+        financedInvested > 0
+          ? (financedFinal.units / financedInvested) * 1000
+          : 0,
+    });
+
+    summary.leverageMultiplier =
+      financedFinal.netEquity > 0
+        ? financedFinal.assetValue / financedFinal.netEquity
+        : 0;
+    summary.unitsPerDollar.self =
+      selfInvested > 0 ? (selfFinal.units / selfInvested) * 1000 : 0; // Units per thousand dollars ($1K)
+    summary.unitsPerDollar.financed =
+      financedInvested > 0
+        ? (financedFinal.units / financedInvested) * 1000
+        : 0;
+    summary.debtServiceCoverage =
+      financedFinal.debtService > 0
+        ? financedFinal.noi / financedFinal.debtService
+        : 0;
+
+    console.log("✅ Final calculated metrics:", {
+      leverageMultiplier: summary.leverageMultiplier,
+      unitsPerDollarSelf: summary.unitsPerDollar.self,
+      unitsPerDollarFinanced: summary.unitsPerDollar.financed,
+    });
+
+    // Final metrics - using correct property names from YearlyMetrics
+    summary.totalUnits.self = selfFinal.units; // Changed from totalUnits to units
+    summary.totalUnits.financed = financedFinal.units; // Changed from totalUnits to units
+    summary.finalAssetValue.self = selfFinal.assetValue;
+    summary.finalAssetValue.financed = financedFinal.assetValue;
+    summary.finalNetWorth.self =
+      selfFinal.assetValue + selfFinal.cumulativeCashFlow;
+    summary.finalNetWorth.financed =
+      financedFinal.netEquity + financedFinal.cumulativeCashFlow;
+
+    // Break-even analysis (simplified)
+    summary.breakEvenYear.self = findBreakEvenYear(
+      results.yearlyData,
+      "selfStrategy"
+    );
+    summary.breakEvenYear.financed = findBreakEvenYear(
+      results.yearlyData,
+      "financedStrategy"
+    );
+
+    console.log("🔍 calculateSummaryMetrics EXIT - SUCCESS");
   } catch (error) {
     console.error("❌ calculateSummaryMetrics ERROR:", error);
     console.error("Error stack:", error.stack);
+  } finally {
+    // Always reset the flag to prevent permanent blocking
+    calculateSummaryMetrics._isRunning = false;
   }
 }
 
@@ -800,26 +1005,35 @@ function findBreakEvenYear(yearlyData, strategy) {
 // Function to validate cash flow continuity
 function validateCashFlowContinuity(cashFlowData) {
   const errors = [];
-  
+
   for (let i = 1; i < cashFlowData.yearlyBreakdown.length; i++) {
     const prevYear = cashFlowData.yearlyBreakdown[i - 1];
     const currentYear = cashFlowData.yearlyBreakdown[i];
-    
+
     // Check self-financed continuity
-    if (Math.abs(prevYear.self.closingCash - currentYear.self.openingCash) > 0.01) {
-      errors.push(`Self-financed cash flow discontinuity between year ${prevYear.year} and ${currentYear.year}`);
+    if (
+      Math.abs(prevYear.self.closingCash - currentYear.self.openingCash) > 0.01
+    ) {
+      errors.push(
+        `Self-financed cash flow discontinuity between year ${prevYear.year} and ${currentYear.year}`
+      );
     }
-    
+
     // Check financed continuity
-    if (Math.abs(prevYear.financed.closingCash - currentYear.financed.openingCash) > 0.01) {
-      errors.push(`Financed cash flow discontinuity between year ${prevYear.year} and ${currentYear.year}`);
+    if (
+      Math.abs(
+        prevYear.financed.closingCash - currentYear.financed.openingCash
+      ) > 0.01
+    ) {
+      errors.push(
+        `Financed cash flow discontinuity between year ${prevYear.year} and ${currentYear.year}`
+      );
     }
   }
-  
+
   cashFlowData.continuityCheck = errors.length === 0;
   cashFlowData.errors = errors;
 }
-
 
 // Calculate sustainable units following manual calculation logic (bank-financed)
 function calculateSustainableUnits(
@@ -831,8 +1045,8 @@ function calculateSustainableUnits(
   propertyCost,
   availableCash
 ) {
-  if (maxAffordableUnits === 0) return { units: 0, cashFlowBalance: availableCash };
-
+  if (maxAffordableUnits === 0)
+    return { units: 0, cashFlowBalance: availableCash };
 
   let bestUnits = 0;
   let analyses = [];
@@ -880,7 +1094,6 @@ function calculateSustainableUnits(
   return { units: 0, cashFlowBalance: availableCash };
 }
 
-
 // Comprehensive cash flow analysis for new units - Following manual calculation logic (bank-financed)
 function analyzeCashFlowForNewUnits(
   newUnits,
@@ -896,12 +1109,12 @@ function analyzeCashFlowForNewUnits(
   // Following the exact structure from your PDF
   // ===============================
 
-
   // A. Cash Balance (starting available cash)
   const cashBalance = availableCash;
 
   // B. Cash brought in (Annual Investment Budget for this year)
-  const annualBudgetForYear = purchaseYear <= params.financedPurchaseYears ? params.annualBudget : 0;
+  const annualBudgetForYear =
+    purchaseYear <= params.financedPurchaseYears ? params.annualBudget : 0;
   const cashBroughtIn = annualBudgetForYear;
 
   // Asset Price
@@ -916,7 +1129,10 @@ function analyzeCashFlowForNewUnits(
 
   // === EFFECTIVE GROSS RENTAL INCOME ===
   // Rental Income
-  const monthlyRentPerUnit = propertyCost * (params.rentalRate / 100);
+  // Fix: Handle rental rate correctly
+  const rentalRateDecimal =
+    params.rentalRate >= 1 ? params.rentalRate / 100 : params.rentalRate;
+  const monthlyRentPerUnit = propertyCost * rentalRateDecimal;
   const rentalIncome = monthlyRentPerUnit * 12 * newUnits;
 
   // Vacancy Loss
@@ -930,7 +1146,6 @@ function analyzeCashFlowForNewUnits(
   const maintenanceExpenses = egi * (params.maintenanceRate / 100);
   const insurance = params.insurance * newUnits;
   const propertyTax = assetPrice * (params.taxRate / 100);
-
 
   // OpEx (Operating Expenses) - NOTE: Does NOT include interest expense or debt service
   const opEx =
@@ -977,7 +1192,6 @@ function analyzeCashFlowForNewUnits(
   // Principal payment = EMI - Interest
   const principalPayment = bankEMI - interestExpense;
 
-
   // Calculate existing debt service
   let existingDebtService = 0;
   if (existingLoans.length > 0) {
@@ -1017,7 +1231,9 @@ function analyzeCashFlowForNewUnits(
   // Calculate taxable income (NOI - Interest Expense - Depreciation)
   const taxableIncome = noi - depreciation - interestExpense;
   const taxes =
-    params.passthroughLLC === "yes" ? 0 : Math.max(0, taxableIncome * 0.21);
+    params.passthroughLLC === "yes"
+      ? 0
+      : Math.max(0, taxableIncome * ((params.incomeTaxRate || 25) / 100));
 
   // Calculate cash flow (NOI - Debt Service - CapEx - Taxes)
   const newUnitsCashFlow = noi - bankEMI - capex - taxes;
@@ -1068,7 +1284,10 @@ function calculateDetailedMetricsOriginal(
   // Calculate income from all cohorts (exact same as original)
   cohorts.forEach((cohort) => {
     const yearsOwned = year - cohort.yearOriginated;
-    const currentRent = cohort.costPerUnit * (params.rentalRate / 100) * 12;
+    // Fix: Handle rental rate correctly - if it's already a decimal, don't divide by 100
+    const rentalRateDecimal =
+      params.rentalRate >= 1 ? params.rentalRate / 100 : params.rentalRate;
+    const currentRent = cohort.costPerUnit * rentalRateDecimal * 12;
     const adjustedRent =
       currentRent *
       Math.pow(1 + params.rentGrowthRate / 100, Math.max(0, yearsOwned));
@@ -1150,7 +1369,7 @@ function calculateDetailedMetricsOriginal(
   const taxes =
     params.passthroughLLC === "yes"
       ? 0 // Pass-through LLC pays no entity-level taxes
-      : taxableIncome * 0.21;
+      : taxableIncome * ((params.incomeTaxRate || 25) / 100);
 
   return {
     gpr,
@@ -1245,7 +1464,10 @@ function calculateBankFinancedPurchases(params, year, currentCash) {
   const annualEMI = monthlyEMI * 12;
 
   // Calculate NOI per unit
-  const monthlyRent = costPerUnit * (params.rentalRate / 100);
+  // Fix: Handle rental rate correctly
+  const rentalRateDecimal =
+    params.rentalRate >= 1 ? params.rentalRate / 100 : params.rentalRate;
+  const monthlyRent = costPerUnit * rentalRateDecimal;
   const annualRent = monthlyRent * 12;
   const vacancyLoss = annualRent * (params.vacancyRate / 100);
   const effectiveGrossIncome = annualRent - vacancyLoss;
@@ -1310,8 +1532,10 @@ function calculateDetailedMetrics(year, cohorts, params, cumulativeCapEx) {
       1 + params.rentGrowthRate / 100,
       yearsSincePurchase
     );
-    const monthlyRent =
-      cohort.costPerUnit * (params.rentalRate / 100) * rentGrowth;
+    // Fix: Handle rental rate correctly
+    const rentalRateDecimal =
+      params.rentalRate >= 1 ? params.rentalRate / 100 : params.rentalRate;
+    const monthlyRent = cohort.costPerUnit * rentalRateDecimal * rentGrowth;
     const annualRent = monthlyRent * 12;
     totalGPR += annualRent * cohort.units;
   }
@@ -1392,7 +1616,8 @@ function calculateDetailedMetrics(year, cohorts, params, cumulativeCapEx) {
     metrics.taxes = metrics.taxableIncome * (params.incomeTaxRate / 100);
   } else {
     // Corporate tax calculation would go here
-    metrics.taxes = metrics.taxableIncome * 0.21; // 21% corporate rate
+    metrics.taxes =
+      metrics.taxableIncome * ((params.incomeTaxRate || 25) / 100); // Use setting parameter
   }
 
   metrics.netIncome = metrics.taxableIncome - metrics.taxes;
@@ -1466,91 +1691,95 @@ function calculateDetailedMetrics(year, cohorts, params, cumulativeCapEx) {
 // Get dashboard metrics from centralized data
 function getDashboardMetrics(results) {
   console.log("🔍 getDashboardMetrics called with:", results);
-  
+
   if (!results || !results.summaryMetrics) {
     console.error("❌ getDashboardMetrics: Missing results or summaryMetrics");
     return null;
   }
-  
+
   const summary = results.summaryMetrics;
   console.log("📊 Summary metrics in getDashboardMetrics:", {
     leverageMultiplier: summary.leverageMultiplier,
-    unitsPerDollar: summary.unitsPerDollar
+    unitsPerDollar: summary.unitsPerDollar,
   });
-  
+
   return {
     // Leverage and risk metrics
     leverageMultiplier: summary.leverageMultiplier,
     unitsPerDollar: {
       self: summary.unitsPerDollar.self,
-      financed: summary.unitsPerDollar.financed
+      financed: summary.unitsPerDollar.financed,
     },
     debtServiceCoverage: summary.debtServiceCoverage,
-    
+
     // Performance metrics
     totalReturn: {
       self: summary.selfTotalReturn,
-      financed: summary.financedTotalReturn
+      financed: summary.financedTotalReturn,
     },
     roe: {
       self: summary.selfROE,
-      financed: summary.financedROE
+      financed: summary.financedROE,
     },
-    
+
     // Final outcomes
     finalNetWorth: {
       self: summary.finalNetWorth.self,
-      financed: summary.finalNetWorth.financed
+      financed: summary.finalNetWorth.financed,
     },
     totalUnits: {
       self: summary.totalUnits.self,
-      financed: summary.totalUnits.financed
+      financed: summary.totalUnits.financed,
     },
     totalCashInvested: {
       self: summary.totalCashInvested.self,
-      financed: summary.totalCashInvested.financed
-    }
+      financed: summary.totalCashInvested.financed,
+    },
   };
 }
 
 // Get cash flow analysis data from centralized source
-function getCashFlowAnalysisData(results, strategy = 'both') {
+function getCashFlowAnalysisData(results, strategy = "both") {
   if (!results || !results.cashFlowData) return null;
-  
+
   return {
     yearlyBreakdown: results.cashFlowData.yearlyBreakdown,
     continuityCheck: results.cashFlowData.continuityCheck,
     errors: results.cashFlowData.errors,
-    strategy: strategy
+    strategy: strategy,
   };
 }
 
 // Get yearly data for specific strategy and year
 function getYearlyStrategyData(results, year, strategy) {
   if (!results || !results.yearlyData || year < 1 || year > 15) return null;
-  
+
   const yearData = results.yearlyData[year - 1];
   if (!yearData) return null;
-  
-  return strategy === 'self' ? yearData.selfStrategy : yearData.financedStrategy;
+
+  return strategy === "self"
+    ? yearData.selfStrategy
+    : yearData.financedStrategy;
 }
 
 // Get comparative table data (backwards compatible)
 function getComparativeTableData(results) {
   if (!results || !results.yearlyData) return null;
-  
+
   return results.yearlyData.map((yearData, index) => ({
     year: index + 1,
     costPerUnit: yearData.costPerUnit,
-    
+
     // Self-financed data
     selfNewUnits: yearData.selfStrategy.newUnits,
     selfTotalUnits: yearData.selfStrategy.totalUnits,
     selfCashFlow: yearData.selfStrategy.netCashFlow,
     selfCumulativeCashFlow: yearData.selfStrategy.cumulativeCashFlow,
     selfAssetValue: yearData.selfStrategy.assetValue,
-    selfNetWorth: yearData.selfStrategy.assetValue + yearData.selfStrategy.cumulativeCashFlow,
-    
+    selfNetWorth:
+      yearData.selfStrategy.assetValue +
+      yearData.selfStrategy.cumulativeCashFlow,
+
     // Financed data
     financedNewUnits: yearData.financedStrategy.newUnits,
     financedTotalUnits: yearData.financedStrategy.totalUnits,
@@ -1559,7 +1788,9 @@ function getComparativeTableData(results) {
     financedAssetValue: yearData.financedStrategy.assetValue,
     financedLoanBalance: yearData.financedStrategy.loanBalance,
     financedNetEquity: yearData.financedStrategy.netEquity,
-    financedNetWorth: yearData.financedStrategy.netEquity + yearData.financedStrategy.cumulativeCashFlow
+    financedNetWorth:
+      yearData.financedStrategy.netEquity +
+      yearData.financedStrategy.cumulativeCashFlow,
   }));
 }
 
@@ -1567,7 +1798,7 @@ function getComparativeTableData(results) {
 function getPLData(results, year, strategy) {
   const strategyData = getYearlyStrategyData(results, year, strategy);
   if (!strategyData) return null;
-  
+
   return {
     gpr: strategyData.gpr,
     egi: strategyData.egi,
@@ -1579,7 +1810,7 @@ function getPLData(results, year, strategy) {
     taxableIncome: strategyData.taxableIncome,
     taxes: strategyData.taxes,
     netIncome: strategyData.netIncome,
-    capex: strategyData.capex
+    capex: strategyData.capex,
   };
 }
 
@@ -1587,20 +1818,21 @@ function getPLData(results, year, strategy) {
 function getCashFlowStatementData(results, year, strategy) {
   const strategyData = getYearlyStrategyData(results, year, strategy);
   const breakdown = results.cashFlowData?.yearlyBreakdown[year - 1];
-  
+
   if (!strategyData || !breakdown) return null;
-  
-  const strategyBreakdown = strategy === 'self' ? breakdown.self : breakdown.financed;
-  
+
+  const strategyBreakdown =
+    strategy === "self" ? breakdown.self : breakdown.financed;
+
   return {
     openingCash: strategyBreakdown.openingCash,
-    
+
     // Inflows
     annualBudget: strategyBreakdown.annualBudget,
     rentalIncome: strategyBreakdown.rentalIncome,
     loanProceeds: strategyBreakdown.loanProceeds,
     totalInflows: strategyBreakdown.totalInflows,
-    
+
     // Outflows
     propertyPurchases: strategyBreakdown.propertyPurchases,
     operatingExpenses: strategyBreakdown.operatingExpenses,
@@ -1609,33 +1841,195 @@ function getCashFlowStatementData(results, year, strategy) {
     capex: strategyBreakdown.capex,
     taxes: strategyBreakdown.taxes,
     totalOutflows: strategyBreakdown.totalOutflows,
-    
+
     netCashFlow: strategyBreakdown.netCashFlow,
     closingCash: strategyBreakdown.closingCash,
-    
+
     // Additional context
     units: strategyData.totalUnits,
     newUnits: strategyData.newUnits,
-    costPerUnit: results.yearlyData[year - 1].costPerUnit
+    costPerUnit: results.yearlyData[year - 1].costPerUnit,
   };
 }
+
+// ===== AUTO-SALE CALCULATIONS =====
+
+// Calculate which units should be sold based on appreciation threshold
+function calculateAutoSaleUnits(year, strategy, results, autoSaleSettings) {
+  if (!autoSaleSettings.enabled || autoSaleSettings.threshold <= 0) {
+    return [];
+  }
+
+  const unitsToSell = [];
+  const strategyData =
+    strategy === "self" ? results.selfFinanced : results.financed;
+
+  // Get all units owned at the start of this year
+  const unitsOwned = getUnitsOwnedAtYearStart(year, strategy, results);
+
+  unitsOwned.forEach((unit) => {
+    const yearsSincePurchase = year - unit.yearOriginated;
+    const appreciation = Math.pow(
+      1 + (results.inputParams.appreciationRate || 3) / 100,
+      yearsSincePurchase
+    );
+    const currentValue = unit.costPerUnit * appreciation;
+    const appreciationPercent =
+      ((currentValue - unit.costPerUnit) / unit.costPerUnit) * 100;
+
+    if (appreciationPercent >= autoSaleSettings.threshold) {
+      unitsToSell.push({
+        ...unit,
+        currentValue,
+        appreciationPercent,
+        saleProceeds: currentValue,
+        outstandingLoan: estimateOutstandingLoan(
+          unit,
+          year,
+          results.inputParams
+        ),
+      });
+    }
+  });
+
+  // Apply sale strategy
+  return applySaleStrategy(unitsToSell, autoSaleSettings.strategy);
+}
+
+// Get all units owned at the start of a specific year
+function getUnitsOwnedAtYearStart(year, strategy, results) {
+  const units = [];
+
+  for (let y = 1; y < year; y++) {
+    const yearData = results.yearlyData[y - 1];
+    if (!yearData) continue;
+
+    const strategyData =
+      strategy === "self" ? yearData.selfStrategy : yearData.financedStrategy;
+    if (strategyData.newUnits > 0) {
+      const propertyCost =
+        results.inputParams.initialCost *
+        Math.pow(1 + (results.inputParams.costIncrease || 1) / 100, y - 1);
+
+      for (let i = 0; i < strategyData.newUnits; i++) {
+        units.push({
+          yearOriginated: y,
+          costPerUnit: propertyCost,
+          units: 1,
+        });
+      }
+    }
+  }
+
+  return units;
+}
+
+// Estimate outstanding loan balance for a unit
+function estimateOutstandingLoan(unit, currentYear, params) {
+  if (unit.loanAmount === undefined) return 0;
+
+  const yearsElapsed = currentYear - unit.yearOriginated;
+  const monthlyRate = (params.interestRate || 7) / 100 / 12;
+  const totalPayments = (params.loanTerm || 30) * 12;
+  const paymentsMade = yearsElapsed * 12;
+
+  if (paymentsMade >= totalPayments) return 0;
+
+  const monthlyEMI =
+    (unit.loanAmount * monthlyRate * Math.pow(1 + monthlyRate, totalPayments)) /
+    (Math.pow(1 + monthlyRate, totalPayments) - 1);
+
+  // Calculate remaining balance using amortization formula
+  const remainingBalance =
+    (unit.loanAmount *
+      (Math.pow(1 + monthlyRate, totalPayments) -
+        Math.pow(1 + monthlyRate, paymentsMade))) /
+    (Math.pow(1 + monthlyRate, totalPayments) - 1);
+
+  return Math.max(0, remainingBalance);
+}
+
+// Apply sale strategy to determine which units to sell
+function applySaleStrategy(unitsToSell, strategy) {
+  if (unitsToSell.length === 0) return [];
+
+  switch (strategy) {
+    case "highestAppreciation":
+      return unitsToSell.sort(
+        (a, b) => b.appreciationPercent - a.appreciationPercent
+      );
+    case "oldestUnits":
+      return unitsToSell.sort((a, b) => a.yearOriginated - b.yearOriginated);
+    case "lowestROI":
+      return unitsToSell.sort(
+        (a, b) => a.appreciationPercent - b.appreciationPercent
+      );
+    default:
+      return unitsToSell;
+  }
+}
+
+// Calculate auto-sale impact on cash flow and metrics
+function calculateAutoSaleImpact(year, strategy, results, autoSaleSettings) {
+  const unitsToSell = calculateAutoSaleUnits(
+    year,
+    strategy,
+    results,
+    autoSaleSettings
+  );
+
+  if (unitsToSell.length === 0) {
+    return {
+      unitsSold: 0,
+      saleProceeds: 0,
+      loansClosed: 0,
+      netProceeds: 0,
+      impactOnCashFlow: 0,
+    };
+  }
+
+  let totalSaleProceeds = 0;
+  let totalLoansClosed = 0;
+
+  unitsToSell.forEach((unit) => {
+    totalSaleProceeds += unit.saleProceeds;
+    totalLoansClosed += unit.outstandingLoan;
+  });
+
+  const netProceeds = totalSaleProceeds - totalLoansClosed;
+
+  return {
+    unitsSold: unitsToSell.length,
+    saleProceeds: totalSaleProceeds,
+    loansClosed: totalLoansClosed,
+    netProceeds: netProceeds,
+    impactOnCashFlow: netProceeds,
+  };
+}
+
+// ===== END AUTO-SALE CALCULATIONS =====
 
 // Get recommendation data
 function getRecommendationData(results) {
   if (!results || !results.summaryMetrics) return null;
-  
+
   const summary = results.summaryMetrics;
-  
+
   // Determine recommended strategy
   const financedBetter = summary.financedTotalReturn > summary.selfTotalReturn;
-  const difference = Math.abs(summary.financedTotalReturn - summary.selfTotalReturn);
-  const percentDifference = difference / Math.max(summary.selfTotalReturn, summary.financedTotalReturn) * 100;
-  
-  let recommendation = 'neutral';
+  const difference = Math.abs(
+    summary.financedTotalReturn - summary.selfTotalReturn
+  );
+  const percentDifference =
+    (difference /
+      Math.max(summary.selfTotalReturn, summary.financedTotalReturn)) *
+    100;
+
+  let recommendation = "neutral";
   if (percentDifference > 5) {
-    recommendation = financedBetter ? 'financed' : 'self';
+    recommendation = financedBetter ? "financed" : "self";
   }
-  
+
   return {
     recommendation: recommendation,
     financedAdvantage: summary.financedTotalReturn - summary.selfTotalReturn,
@@ -1643,25 +2037,24 @@ function getRecommendationData(results) {
     leverageMultiplier: summary.leverageMultiplier,
     riskMetrics: {
       debtServiceCoverage: summary.debtServiceCoverage,
-      leverageMultiplier: summary.leverageMultiplier
+      leverageMultiplier: summary.leverageMultiplier,
     },
     performance: {
       selfROE: summary.selfROE,
       financedROE: summary.financedROE,
       selfTotal: summary.selfTotalReturn,
-      financedTotal: summary.financedTotalReturn
-    }
+      financedTotal: summary.financedTotalReturn,
+    },
   };
 }
 
 // Export calculation functions with accessor functions
 window.calculations = {
-  calculateAll,
   performCalculations,
   calculateBankFinancedPurchases,
   calculateDetailedMetrics,
   calculateSummaryMetrics,
-  
+
   // Centralized data accessors
   getDashboardMetrics,
   getCashFlowAnalysisData,
@@ -1669,5 +2062,12 @@ window.calculations = {
   getComparativeTableData,
   getPLData,
   getCashFlowStatementData,
-  getRecommendationData
+  getRecommendationData,
+
+  // Auto-sale calculations
+  calculateAutoSaleUnits,
+  calculateAutoSaleImpact,
+  getUnitsOwnedAtYearStart,
+  estimateOutstandingLoan,
+  applySaleStrategy,
 };

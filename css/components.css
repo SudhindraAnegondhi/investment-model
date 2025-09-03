@@ -31,11 +31,11 @@
     grid-template-columns: 1fr;
     gap: 20px;
   }
-  
+
   .action-group {
     padding: 15px;
   }
-  
+
   .action-group h4 {
     font-size: 14px;
   }
@@ -339,70 +339,6 @@ th[colspan="6"] {
   .chart-wrapper {
     height: 300px;
   }
-}
-
-/* Loading Indicator */
-.loading-indicator {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.7);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 10000;
-}
-
-.loading-content {
-  background: white;
-  padding: 40px;
-  border-radius: 12px;
-  text-align: center;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-  min-width: 300px;
-}
-
-.loading-spinner {
-  width: 40px;
-  height: 40px;
-  border: 4px solid #f3f3f3;
-  border-top: 4px solid #667eea;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-  margin: 0 auto 20px;
-}
-
-@keyframes spin {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
-}
-
-.loading-message {
-  font-size: 16px;
-  font-weight: 600;
-  color: #333;
-  margin-bottom: 20px;
-}
-
-.progress-bar {
-  width: 100%;
-  height: 8px;
-  background: #f0f0f0;
-  border-radius: 4px;
-  overflow: hidden;
-}
-
-.progress-fill {
-  height: 100%;
-  background: linear-gradient(90deg, #667eea, #764ba2);
-  width: 0%;
-  transition: width 0.3s ease;
 }
 
 /* Notifications */
@@ -1115,7 +1051,7 @@ th[colspan="6"] {
 }
 
 .better-strategy {
-  background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+  background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
   color: white;
   padding: 12px;
   border-radius: 8px;
@@ -1150,17 +1086,17 @@ th[colspan="6"] {
 
 .setting-impact.positive {
   background: rgba(76, 175, 80, 0.05);
-  border-left-color: #4CAF50;
+  border-left-color: #4caf50;
 }
 
 .setting-impact.negative {
   background: rgba(244, 67, 54, 0.05);
-  border-left-color: #F44336;
+  border-left-color: #f44336;
 }
 
 .setting-impact.neutral {
   background: rgba(158, 158, 158, 0.05);
-  border-left-color: #9E9E9E;
+  border-left-color: #9e9e9e;
 }
 
 .setting-header {
@@ -1193,7 +1129,8 @@ th[colspan="6"] {
   font-weight: 500;
 }
 
-.ai-enhancement-item, .ai-impact-item {
+.ai-enhancement-item,
+.ai-impact-item {
   margin: 6px 0;
   padding: 4px 0;
 }
@@ -1258,7 +1195,7 @@ th[colspan="6"] {
 .ai-toggle-slider {
   width: 50px;
   height: 24px;
-  background: rgba(255,255,255,0.3);
+  background: rgba(255, 255, 255, 0.3);
   border-radius: 12px;
   margin-right: 12px;
   position: relative;
@@ -1266,7 +1203,7 @@ th[colspan="6"] {
 }
 
 .ai-toggle-slider::before {
-  content: '';
+  content: "";
   position: absolute;
   width: 20px;
   height: 20px;
@@ -1278,7 +1215,7 @@ th[colspan="6"] {
 }
 
 .ai-toggle-label input[type="checkbox"]:checked + .ai-toggle-slider {
-  background: #4CAF50;
+  background: #4caf50;
 }
 
 .ai-toggle-label input[type="checkbox"]:checked + .ai-toggle-slider::before {
@@ -1292,7 +1229,7 @@ th[colspan="6"] {
 }
 
 .ai-settings {
-  background: rgba(255,255,255,0.15);
+  background: rgba(255, 255, 255, 0.15);
   border-radius: 8px;
   padding: 15px;
   margin-top: 15px;
@@ -1313,15 +1250,15 @@ th[colspan="6"] {
 .location-inputs input,
 .location-inputs select {
   padding: 8px;
-  border: 1px solid rgba(255,255,255,0.3);
+  border: 1px solid rgba(255, 255, 255, 0.3);
   border-radius: 4px;
-  background: rgba(255,255,255,0.2);
+  background: rgba(255, 255, 255, 0.2);
   color: white;
   font-size: 14px;
 }
 
 .location-inputs input::placeholder {
-  color: rgba(255,255,255,0.7);
+  color: rgba(255, 255, 255, 0.7);
 }
 
 .location-inputs select option {
@@ -1460,7 +1397,7 @@ th[colspan="6"] {
 }
 
 .radio-label::before {
-  content: '';
+  content: "";
   width: 16px;
   height: 16px;
   border: 2px solid #ddd;
@@ -1499,7 +1436,7 @@ th[colspan="6"] {
 }
 
 .ai-data-preview {
-  background: rgba(255,255,255,0.1);
+  background: rgba(255, 255, 255, 0.1);
   border-radius: 6px;
   padding: 12px;
   margin-top: 15px;
@@ -1520,13 +1457,17 @@ th[colspan="6"] {
 }
 
 .ai-loading::before {
-  content: '⏳';
+  content: "⏳";
   animation: spin 2s linear infinite;
 }
 
 @keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* AI Market Insights Styling */
@@ -1542,7 +1483,7 @@ th[colspan="6"] {
   border: 1px solid #e1e8ed;
   border-radius: 8px;
   padding: 15px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
 .ai-insight-card h4 {
@@ -1603,7 +1544,7 @@ th[colspan="6"] {
   border: 1px solid #e2e8f0;
   border-radius: 8px;
   padding: 15px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 }
 
 .insight-card h4 {
@@ -1656,11 +1597,17 @@ th[colspan="6"] {
   font-size: 13px;
 }
 
-.objective-info, .risk-info, .budget-info, .approach-info {
+.objective-info,
+.risk-info,
+.budget-info,
+.approach-info {
   color: #475569;
 }
 
-.objective-info strong, .risk-info strong, .budget-info strong, .approach-info strong {
+.objective-info strong,
+.risk-info strong,
+.budget-info strong,
+.approach-info strong {
   color: #334155;
 }
 
@@ -1712,13 +1659,17 @@ th[colspan="6"] {
   margin-top: 15px;
 }
 
-.finance-source-section, .credit-score-section, .financing-type-section {
+.finance-source-section,
+.credit-score-section,
+.financing-type-section {
   background: rgba(255, 255, 255, 0.1);
   border-radius: 8px;
   padding: 15px;
 }
 
-.finance-source-label, .credit-score-label, .financing-type-label {
+.finance-source-label,
+.credit-score-label,
+.financing-type-label {
   display: block;
   font-weight: 600;
   font-size: 14px;
@@ -1756,7 +1707,8 @@ th[colspan="6"] {
   opacity: 1;
 }
 
-.finance-source-description, .credit-impact {
+.finance-source-description,
+.credit-impact {
   font-size: 12px;
   color: rgba(255, 255, 255, 0.8);
   font-style: italic;
@@ -1842,23 +1794,25 @@ th[colspan="6"] {
   width: 24px;
   height: 24px;
   border-radius: 50%;
-  background: #4CAF50;
+  background: #4caf50;
   cursor: pointer;
-  box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4), 0 0 0 3px rgba(255, 255, 255, 0.2);
+  box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4),
+    0 0 0 3px rgba(255, 255, 255, 0.2);
   border: 3px solid rgba(255, 255, 255, 0.9);
   transition: all 0.2s ease;
 }
 
 .modern-slider::-webkit-slider-thumb:hover {
   transform: scale(1.1);
-  box-shadow: 0 6px 16px rgba(76, 175, 80, 0.6), 0 0 0 4px rgba(255, 255, 255, 0.3);
+  box-shadow: 0 6px 16px rgba(76, 175, 80, 0.6),
+    0 0 0 4px rgba(255, 255, 255, 0.3);
 }
 
 .modern-slider::-moz-range-thumb {
   width: 24px;
   height: 24px;
   border-radius: 50%;
-  background: #4CAF50;
+  background: #4caf50;
   cursor: pointer;
   border: 3px solid rgba(255, 255, 255, 0.9);
   box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4);
@@ -1891,14 +1845,26 @@ th[colspan="6"] {
 }
 
 /* Credit Score Track Colors */
-.track-segment.poor { background: linear-gradient(90deg, #f44336, #e53935); }
-.track-segment.fair { background: linear-gradient(90deg, #ff9800, #fb8c00); }
-.track-segment.good { background: linear-gradient(90deg, #4caf50, #43a047); }
-.track-segment.excellent { background: linear-gradient(90deg, #2196f3, #1e88e5); }
+.track-segment.poor {
+  background: linear-gradient(90deg, #f44336, #e53935);
+}
+.track-segment.fair {
+  background: linear-gradient(90deg, #ff9800, #fb8c00);
+}
+.track-segment.good {
+  background: linear-gradient(90deg, #4caf50, #43a047);
+}
+.track-segment.excellent {
+  background: linear-gradient(90deg, #2196f3, #1e88e5);
+}
 
 /* Financing Track Colors */
-.track-segment.mortgage { background: linear-gradient(90deg, #4caf50, #66bb6a); }
-.track-segment.credit-line { background: linear-gradient(90deg, #ff9800, #ffb74d); }
+.track-segment.mortgage {
+  background: linear-gradient(90deg, #4caf50, #66bb6a);
+}
+.track-segment.credit-line {
+  background: linear-gradient(90deg, #ff9800, #ffb74d);
+}
 
 /* Slider Options */
 .slider-options {
@@ -1947,28 +1913,28 @@ th[colspan="6"] {
   flex-shrink: 0;
 }
 
-.option-dot.poor { 
-  background: #f44336; 
+.option-dot.poor {
+  background: #f44336;
   font-size: 10px;
 }
-.option-dot.fair { 
-  background: #ff9800; 
+.option-dot.fair {
+  background: #ff9800;
   font-size: 10px;
 }
-.option-dot.good { 
-  background: #4caf50; 
+.option-dot.good {
+  background: #4caf50;
   font-size: 10px;
 }
-.option-dot.excellent { 
-  background: #2196f3; 
+.option-dot.excellent {
+  background: #2196f3;
   font-size: 10px;
 }
-.option-dot.mortgage { 
-  background: #4caf50; 
+.option-dot.mortgage {
+  background: #4caf50;
   font-size: 10px;
 }
-.option-dot.credit-line { 
-  background: #ff9800; 
+.option-dot.credit-line {
+  background: #ff9800;
   font-size: 10px;
 }
 
@@ -2022,33 +1988,39 @@ th[colspan="6"] {
 /* Thumb color variations with centered positioning */
 .credit-score-slider[value="0"]::-webkit-slider-thumb {
   background: #f44336;
-  box-shadow: 0 4px 12px rgba(244, 67, 54, 0.4), 0 0 0 3px rgba(255, 255, 255, 0.2);
+  box-shadow: 0 4px 12px rgba(244, 67, 54, 0.4),
+    0 0 0 3px rgba(255, 255, 255, 0.2);
 }
 .credit-score-slider[value="1"]::-webkit-slider-thumb {
   background: #ff9800;
-  box-shadow: 0 4px 12px rgba(255, 152, 0, 0.4), 0 0 0 3px rgba(255, 255, 255, 0.2);
+  box-shadow: 0 4px 12px rgba(255, 152, 0, 0.4),
+    0 0 0 3px rgba(255, 255, 255, 0.2);
 }
 .credit-score-slider[value="2"]::-webkit-slider-thumb {
-  background: #4CAF50;
-  box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4), 0 0 0 3px rgba(255, 255, 255, 0.2);
+  background: #4caf50;
+  box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4),
+    0 0 0 3px rgba(255, 255, 255, 0.2);
 }
 .credit-score-slider[value="3"]::-webkit-slider-thumb {
-  background: #2196F3;
-  box-shadow: 0 4px 12px rgba(33, 150, 243, 0.4), 0 0 0 3px rgba(255, 255, 255, 0.2);
+  background: #2196f3;
+  box-shadow: 0 4px 12px rgba(33, 150, 243, 0.4),
+    0 0 0 3px rgba(255, 255, 255, 0.2);
 }
 
 .financing-type-slider[value="0"]::-webkit-slider-thumb {
-  background: #4CAF50;
-  box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4), 0 0 0 3px rgba(255, 255, 255, 0.2);
+  background: #4caf50;
+  box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4),
+    0 0 0 3px rgba(255, 255, 255, 0.2);
 }
 .financing-type-slider[value="1"]::-webkit-slider-thumb {
-  background: #FF9800;
-  box-shadow: 0 4px 12px rgba(255, 152, 0, 0.4), 0 0 0 3px rgba(255, 255, 255, 0.2);
+  background: #ff9800;
+  box-shadow: 0 4px 12px rgba(255, 152, 0, 0.4),
+    0 0 0 3px rgba(255, 255, 255, 0.2);
 }
 
 /* Slider track indicators */
 .slider-track-container::after {
-  content: '';
+  content: "";
   position: absolute;
   top: 50%;
   left: 0;
@@ -2062,7 +2034,7 @@ th[colspan="6"] {
 
 /* Credit score track divisions */
 .credit-score-slider + .slider-track-bg::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: 25%;
@@ -2073,7 +2045,7 @@ th[colspan="6"] {
 }
 
 .credit-score-slider + .slider-track-bg::after {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: 50%;
@@ -2088,7 +2060,7 @@ th[colspan="6"] {
 }
 
 .credit-score-slider + .slider-track-bg .track-segment:nth-child(2)::after {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   right: 0;
@@ -2100,7 +2072,7 @@ th[colspan="6"] {
 
 /* Financing type track division */
 .financing-type-slider + .slider-track-bg.financing-track::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: 50%;
@@ -2166,22 +2138,22 @@ th[colspan="6"] {
 }
 
 .spinner-segment:nth-child(1) {
-  border-top-color: #4CAF50;
+  border-top-color: #4caf50;
   animation-delay: 0s;
 }
 
 .spinner-segment:nth-child(2) {
-  border-right-color: #2196F3;
+  border-right-color: #2196f3;
   animation-delay: 0.15s;
 }
 
 .spinner-segment:nth-child(3) {
-  border-bottom-color: #FF9800;
+  border-bottom-color: #ff9800;
   animation-delay: 0.3s;
 }
 
 .spinner-segment:nth-child(4) {
-  border-left-color: #E91E63;
+  border-left-color: #e91e63;
   animation-delay: 0.45s;
 }
 
@@ -2228,7 +2200,7 @@ th[colspan="6"] {
 
 .progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, #4CAF50, #2196F3);
+  background: linear-gradient(90deg, #4caf50, #2196f3);
   border-radius: 3px;
   width: 0%;
   transition: width 0.5s ease;
@@ -2258,7 +2230,7 @@ th[colspan="6"] {
 
 .progress-step.completed {
   background: rgba(76, 175, 80, 0.3);
-  color: #4CAF50;
+  color: #4caf50;
 }
 
 /* Strategy Performance Overview Cards */
@@ -2471,7 +2443,7 @@ th[colspan="6"] {
   .insight-card {
     padding: 20px 15px;
   }
-  
+
   .insights-grid {
     grid-template-columns: 1fr;
     gap: 15px;

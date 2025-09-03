@@ -44,7 +44,7 @@ class CalculationResults {
     this.inputParams = null;
     this.sensitivityResults = null;
     this.breakEvenResults = null;
-    
+
     // Enhanced centralized data structures
     this.yearlyData = []; // Comprehensive yearly data for both strategies
     this.summaryMetrics = null; // Key summary metrics
@@ -74,7 +74,7 @@ class StrategyYearData {
     this.assetValue = 0;
     this.loanBalance = 0;
     this.netEquity = 0;
-    
+
     // Cash flow components
     this.openingCash = 0;
     this.closingCash = 0;
@@ -88,19 +88,25 @@ class StrategyYearData {
     this.principalPayment = 0;
     this.netCashFlow = 0;
     this.cumulativeCashFlow = 0;
-    
+
     // Tax calculations
     this.depreciation = 0;
     this.taxableIncome = 0;
     this.taxes = 0;
     this.netIncome = 0;
-    
+
     // Purchase calculations
     this.purchaseCost = 0;
     this.downPayment = 0;
     this.loanAmount = 0;
     this.closingCosts = 0;
-    
+
+    // Auto-sale data
+    this.autoSaleUnits = 0;
+    this.autoSaleProceeds = 0;
+    this.autoSaleLoansClosed = 0;
+    this.autoSaleNetProceeds = 0;
+
     // Running balances
     this.availableCash = 0;
     this.cumulativeCapEx = 0;
@@ -117,18 +123,18 @@ class SummaryMetrics {
     this.financedIRR = 0;
     this.selfROE = 0;
     this.financedROE = 0;
-    
+
     // Risk metrics
     this.leverageMultiplier = 0;
     this.unitsPerDollar = { self: 0, financed: 0 };
     this.debtServiceCoverage = 0;
-    
+
     // Operational metrics
     this.totalUnits = { self: 0, financed: 0 };
     this.finalAssetValue = { self: 0, financed: 0 };
     this.finalNetWorth = { self: 0, financed: 0 };
     this.totalCashInvested = { self: 0, financed: 0 };
-    
+
     // Break-even analysis
     this.breakEvenYear = { self: 0, financed: 0 };
     this.paybackPeriod = { self: 0, financed: 0 };
@@ -156,13 +162,13 @@ class CashFlowBreakdownStrategy {
   constructor() {
     this.openingCash = 0;
     this.openingLoan = 0;
-    
+
     // Inflows
     this.annualBudget = 0;
     this.rentalIncome = 0;
     this.loanProceeds = 0;
     this.totalInflows = 0;
-    
+
     // Outflows
     this.propertyPurchases = 0;
     this.operatingExpenses = 0;
@@ -170,7 +176,7 @@ class CashFlowBreakdownStrategy {
     this.capex = 0;
     this.taxes = 0;
     this.totalOutflows = 0;
-    
+
     this.netCashFlow = 0;
     this.closingCash = 0;
     this.closingLoan = 0;
@@ -226,6 +232,8 @@ function getDefaultParameters() {
     ltvRatio: 70,
     loanTerm: 5,
     insurance: 1300,
+    closingCostPercent: 2,
+    cashReservePercent: 20,
     landPercent: 20,
     maintenanceRate: 1,
     costIncrease: 1,
@@ -237,26 +245,31 @@ function getDefaultParameters() {
     financedPurchaseYears: 5,
     maxUnitsFinanced: 2,
     maxUnitsFinancedLimitYears: 3,
-    
+
+    // Auto-sale settings
+    autoSaleEnabled: false,
+    autoSaleThreshold: 25,
+    autoSaleStrategy: "highestAppreciation",
+
     // AI Enhancement Parameters
     useAIData: false,
     location: {
-      city: '',
-      state: '',
-      zipCode: ''
+      city: "",
+      state: "",
+      zipCode: "",
     },
-    propertyType: 'single-family', // single-family, condo, multi-family, townhouse
+    propertyType: "single-family", // single-family, condo, multi-family, townhouse
     aiDataSources: {
-      propertyPrices: 'zillow',
-      rentTrends: 'rentometer',
-      interestRates: 'fred',
-      marketAnalysis: 'claude'
+      propertyPrices: "zillow",
+      rentTrends: "rentometer",
+      interestRates: "fred",
+      marketAnalysis: "claude",
     },
     aiOverrides: {
       useAIAppreciation: false,
       useAIRentGrowth: false,
       useAIInterestRates: false,
-      useAIMarketInsights: true
+      useAIMarketInsights: true,
     },
     rentGrowthRate: 3,
     vacancyRate: 5,
@@ -318,7 +331,7 @@ const marketCycles = {
 };
 
 // Export data model for use in other modules
-if (typeof module !== 'undefined' && module.exports) {
+if (typeof module !== "undefined" && module.exports) {
   // Node.js environment
   module.exports = {
     InvestmentCohort,

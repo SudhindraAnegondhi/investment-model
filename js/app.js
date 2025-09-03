@@ -5,6 +5,9 @@
 function initApp() {
   console.log("Rental Investment Model initialized");
 
+  // Initialize global calculation lock to false
+  window.calculationsInProgress = false;
+
   // Make modules globally available for silent calculation
   window.roiAnalysis = window.roiAnalysis || {};
   window.sensitivityAnalysis = window.sensitivityAnalysis || {};
@@ -26,24 +29,32 @@ function setupEventListeners() {
   });
 }
 
-// Load default parameters
+// Load default parameters (only for select elements, not number inputs)
 function loadDefaultParameters() {
   const defaults = dataModel.getDefaultParameters();
 
-  // Set default values for inputs
+  // Set default values only for select elements, not number inputs
+  // This prevents overriding user's custom values like appreciation rate
   Object.keys(defaults).forEach((key) => {
     const element = document.getElementById(key);
-    if (element && element.type === "number") {
-      element.value = defaults[key];
-    } else if (element && element.tagName === "SELECT") {
+    if (element && element.tagName === "SELECT") {
       element.value = defaults[key];
     }
+    // Note: Number inputs are NOT overridden to preserve user's custom values
   });
 }
 
 // Main calculation function (entry point)
 function calculateAll() {
+  // Prevent multiple simultaneous calculations
+  if (window.calculationsInProgress) {
+    console.warn("🔒 Calculations already in progress, skipping");
+    return;
+  }
+
   try {
+    window.calculationsInProgress = true;
+    
     const params = utils.getInputParameters();
     const validation = dataModel.validateInvestmentParameters(params);
 
@@ -69,8 +80,14 @@ function calculateAll() {
     alert(
       "An error occurred during calculations. Please check the console for details."
     );
+  } finally {
+    // Always reset the flag
+    window.calculationsInProgress = false;
   }
 }
+
+// Expose the main calculateAll function globally for fallback
+window.calculateAllMain = calculateAll;
 
 // Initialize the app when the script loads
 initApp();

@@ -605,6 +605,63 @@ select:focus {
   font-weight: 700;
 }
 
+/* Auto-Sale Settings Styling */
+.auto-sale-settings {
+  margin-top: 15px;
+}
+
+.auto-sale-settings .setting-row {
+  margin-bottom: 15px;
+  padding: 10px;
+  background: rgba(245, 158, 11, 0.05);
+  border-radius: 6px;
+  border-left: 3px solid #f59e0b;
+  display: block !important; /* Force visibility */
+}
+
+.auto-sale-settings .setting-row label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: 600;
+  color: #92400e;
+}
+
+.auto-sale-settings .setting-row input[type="checkbox"] {
+  margin-right: 8px;
+  transform: scale(1.2);
+}
+
+.auto-sale-settings .setting-row input[type="number"],
+.auto-sale-settings .setting-row select {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #fbbf24;
+  border-radius: 4px;
+  background: white;
+  margin-top: 5px;
+}
+
+.auto-sale-settings .setting-row small {
+  display: block;
+  margin-top: 5px;
+  color: #a16207;
+  font-size: 0.85em;
+  font-style: italic;
+}
+
+/* Auto-Sale Activity Styling in Modal */
+.modal-tab-content table tr td[style*="color: #2e7d32"] {
+  font-weight: 600;
+}
+
+.modal-tab-content table tr td[style*="color: #d32f2f"] {
+  font-weight: 600;
+}
+
+.modal-tab-content table tr td[style*="color: #f57c00"] {
+  font-weight: 600;
+}
+
 .insight-card .insight-description {
   font-size: 0.95em;
   color: #5c6bc0;
